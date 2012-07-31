@@ -1,1 +1,112 @@
 *{ margin: 0px; padding: 0px; outline: none; border: none; }
+body{
+	background-color: #eee;
+	font-family: 'Droid Sans', sans-serif;
+}
+#main{
+	background-color: #fafafa;
+	width: 960px;
+	height: 800px;
+	margin: 20px auto;
+	border-radius: 3px;
+	box-shadow: 0px 0px 3px rgba(70,70,70,0.1);
+	padding: 20px 0px 20px 0px;
+}
+
+#viz{
+	height: 600px;
+}
+#heading{
+	height: 60px;
+	position: relative;
+	overflow: hidden;
+}
+#heading:after{
+	content: "";
+	position: absolute;
+	pointer-events: none;
+	width: 110%;
+	height: 60px;
+	box-shadow: inset 0px -2px 2px rgba(180,180,180,0.1);
+	left: -5%;
+	top:0px;
+	background-color: transparent;
+}
+
+#heading h1{
+	font-size: 30px;
+	color: #bdcc9e;
+	margin-bottom: 4px;
+}
+#heading h1 em{
+	color: #aaa;
+	font-weight: normal;
+	font-style: normal;
+}
+#heading h2{
+	font-size: 12px;
+	font-weight: normal;
+	margin-left: 5px;
+}
+#page_nav{
+	height: 60px;
+}
+
+#page_nav .nav_opt{
+	height: 60px;
+	min-width: 80px;
+}
+
+.content_inset{
+	width: 760px;
+	padding: 0px 20px 0px 20px;
+	margin: auto;
+}
+
+
+.db{
+	border-bottom: 1px solid rgba(70,70,70,0.1);
+	border-top: 1px solid rgba(250,250,250,0.1);
+	display: block;
+	margin-left: 80px;
+	margin-right: 80px;
+}
+
+/* SVG styles */
+.healthgraph.detailed text.overall {
+  font-size: 6rem;
+}
+svg.healthscore text.overall {
+  fill: #616363;
+  font-weight: bold;
+}
+svg.nav_svg .nav_icon{
+	cursor: pointer;
+	fill:#AAA;
+}
+svg.nav_svg .nav_icon:hover{
+	cursor: pointer;
+	fill:#888;
+}
+
+
+.fleft{ float: left; }
+.fright{ float: right; }
+
+.cf:before,
+.cf:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.cf:after {
+    clear: both;
+}
+.cf {
+    *zoom: 1;
+}
+
+
+
+
+
