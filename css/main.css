@@ -6,22 +6,20 @@ body{
 #main{
 	background-color: #fafafa;
 	width: 960px;
-	height: 800px;
 	margin: 20px auto;
 	border-radius: 3px;
 	box-shadow: 0px 0px 3px rgba(70,70,70,0.1);
-	padding: 20px 0px 20px 0px;
+	padding: 20px 0px 0px 0px;
 }
-
 #viz{
 	height: 600px;
 }
-#heading{
+header{
 	height: 60px;
 	position: relative;
 	overflow: hidden;
 }
-#heading:after{
+header:after{
 	content: "";
 	position: absolute;
 	pointer-events: none;
@@ -33,21 +31,64 @@ body{
 	background-color: transparent;
 }
 
-#heading h1{
+header h1{
 	font-size: 30px;
 	color: #bdcc9e;
 	margin-bottom: 4px;
 }
-#heading h1 em{
+header h1 em{
 	color: #aaa;
 	font-weight: normal;
 	font-style: normal;
 }
-#heading h2{
+header h2{
 	font-size: 12px;
 	font-weight: normal;
 	margin-left: 5px;
 }
+footer{
+	-webkit-border-bottom-right-radius: 3px;
+	-webkit-border-bottom-left-radius: 3px;
+	-moz-border-radius-bottomright: 3px;
+	-moz-border-radius-bottomleft: 3px;
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+	background-color: #888;
+	color: #eee;
+	height: 60px;
+	width: 100%;
+	margin-top: 20px;
+	border-top:1px solid #717171;
+}
+footer dl{
+	display: block;
+	height: 30px;
+	margin-top: 15px;
+	padding-right: 10px;
+	margin-left: 10px;
+	border-right: 1px solid #eee;
+}
+footer dl:first-child{
+	margin-left: 0px;
+}
+footer dt, footer dd{
+	display: block;
+	line-height: 15px;
+	font-size: 12px;
+}
+footer dd a{
+	color: #fefefe;
+	display: block;
+	padding-bottom: 0px;
+	border-bottom: 1px solid transparent;
+	text-decoration: none;
+	width: auto;
+}
+footer dd a:hover{
+	color: #bdcc9e;
+	border-bottom: 1px solid white;
+}
+
 #page_nav{
 	height: 60px;
 }
@@ -92,6 +133,14 @@ svg.nav_svg .nav_icon:hover{
 
 .fleft{ float: left; }
 .fright{ float: right; }
+
+.t{
+	-webkit-transition:	all 0.15s linear;
+	-moz-transition:	all 0.15s linear;
+	-ms-transition: 	all 0.15s linear;
+	-o-transition: 		all 0.15s linear;
+	transition: 		all 0.15s linear;
+}
 
 .cf:before,
 .cf:after {
