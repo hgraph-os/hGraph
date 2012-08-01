@@ -4,12 +4,13 @@ body{
 	font-family: 'Droid Sans', sans-serif;
 }
 #main{
-	background-color: #fafafa;
+	background-color: #f5f5f5;
 	width: 960px;
 	margin: 20px auto;
 	border-radius: 3px;
-	box-shadow: 0px 0px 3px rgba(70,70,70,0.1);
+	box-shadow: 0px 0px 3px rgba(70,70,70,0.3);
 	padding: 20px 0px 0px 0px;
+	border: 1px solid white;
 }
 #graph_container{
 	position: relative;
@@ -153,7 +154,7 @@ footer{
 	height: 60px;
 	width: 100%;
 	margin-top: 20px;
-	border:1px solid rgba(10,10,10,0.1);
+	border-top:1px solid rgba(10,10,10,0.1);
 }
 footer dl{
 	display: block;
