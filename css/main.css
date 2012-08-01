@@ -256,10 +256,10 @@ svg.healthscore text.overall {
 	margin-top: 81px;
 	cursor: pointer;
 	position: relative;
-	box-shadow: 0px 0px 8px 3px rgba(255,255,255,0.3);
+	box-shadow: 0px 0px 4px 2px rgba(255,255,255,0.3);
 }
 #info_controlls .control_btn:hover{
-	box-shadow: 0px 0px 12px 3px rgba(200,210,255,0.8);
+	box-shadow: 0px 0px 8px 4px rgba(100,110,155,0.8);
 }
 #info_controlls .control_btn:last-child{
 	border-right: 0px;
@@ -281,11 +281,14 @@ svg.healthscore text.overall {
 #info_controlls #next_info span{ background-image: url(../imgs/next_icon.png); background-position: 9px center;}
 #info_controlls #prev_info span{ background-image: url(../imgs/prev_icon.png); background-position: 5px center;}
 
-
+#info_slider{
+	position: absolute;
+}
 #info_panel .info_item{
 	padding: 20px 140px 20px 20px;
 	position: relative;
 	color: #eee;
+	width: 600px;
 }
 #info_panel .info_item .db{
 	margin-left: 0px;
@@ -293,10 +296,28 @@ svg.healthscore text.overall {
 }
 #info_panel .info_item p{
 	font-size: 14px;
+	color: #ccc;
 	line-height: 1.5em;
 }
 #info_panel .info_item h1{
 	font-size: 24px;
+	font-weight: normal;
+	color: #ddd;
+}
+#info_panel .info_item h1 b{
+	color: #eee;
+	font-weight: normal;
+}
+#info_panel .info_item h1 em{
+	color: #bdcc9e;
+	font-weight: bold;
+	font-style: normal;
+}
+#info_panel .info_item h1 em.red{
+	color: #e1604f;
+}
+#info_panel .info_item h1 em.grey{
+	color: #616363;	
 }
 .fleft{ float: left; }
 .fright{ float: right; }

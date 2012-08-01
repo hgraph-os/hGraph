@@ -43,14 +43,31 @@
 			</figure>
 			
 			<section id="info_panel" class="cf">
-				<article class="info_item fleft">
-					<h1>Welcome to the hGraph</h1>
-					<hr class="db">
-					<p>The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.</p>
-				</article>
+				<section id="info_slider" class="cf">
+					<article class="info_item fleft">
+						<h1>Welcome to the <b><em>h</em>Graph</b></h1>
+						<hr class="db">
+						<p>The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.</p>
+					</article>
+					<article class="info_item fleft" data-feature="ring">
+						<h1>What is that <em>circle</em>?</h1>
+						<hr class="db">
+						<p>The green ring is the focal point of hGraph. It is what tells us if we are doing a good job of keeping ourselves healthy in many different aspects of our lives. Points that lie within the width of this band tell us that we are doing a good job; points outside mean we need to make changes.</p>
+					</article>
+					<article class="info_item fleft" data-feature="points">
+						<h1>Why are some points <em class="red">red</em> &amp; some <em class="grey">grey</em>?</h1>
+						<hr class="db">
+						<p>Each point along the circle represents a different facet in our lives. For each one of these, we can calculate a specific range of healthy and non healthy values. hGraph lets you immediately see which category every aspect falls into based on these colors. The red points are unhealthy, and the grey points are healthy</p>
+					</article>
+					<article class="info_item fleft" data-feature="overalltxt">
+						<h1>What is that <em>number</em> in the middle?</h1>
+						<hr class="db">
+						<p>With all of the various types of lifestyle factors plotted, we can calculate just how healthy you are. The number in the middle of the band represents exactly that.</p>
+					</article>
+				</section>
 				<div id="info_controlls">
-					<button class="control_btn fleft grad1 t" id="prev_info"><span></span></button>
-					<button class="control_btn fleft grad1 t" id="next_info"><span></span></button>
+					<button class="control_btn fleft grad1 t graph_nav_opt" data-inc="-1" id="prev_info"><span></span></button>
+					<button class="control_btn fleft grad1 t graph_nav_opt" data-inc="+1" id="next_info"><span></span></button>
 				</div>
 			</section>
 			

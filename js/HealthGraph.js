@@ -54,6 +54,8 @@ var HGraph = function(opts) {
 		datapoints : null,
 		connectors : null,
 	};
+	
+	this.points = Array();
 
 	this.colors      = {
 		ring       : '#bdcc9e',
@@ -136,7 +138,7 @@ HGraph.prototype.initialize = function() {
 	// Add the datapoints.
 	for (i = 0; i < this.userdata.factors.length; i++) {
 		datapoint = this.userdata.factors[i];
-		this.addPoint(datapoint, i);
+		this.points.push( this.addPoint(datapoint, i) );
 	}
 
 	// Create a web path and hook it up

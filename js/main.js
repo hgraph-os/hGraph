@@ -67,10 +67,10 @@ var example_factors = [{
 	value : (randomNumberWithinRange(140,250) + ' lbs.')
 },{
 	label : 'Happiness',
-	score : randomNumberWithinRange(21,79)
+	score : randomNumberWithinRange(11,79)
 },{
 	label : 'Sleep',
-	score : randomNumberWithinRange(21,79)
+	score : randomNumberWithinRange(21,39)
 },{
 	label : 'Medications',
 	score : randomNumberWithinRange(21,79)
@@ -155,6 +155,60 @@ window.onload = function(){
 		}
 		
 	});
+	
+	function focusFeature( f ){
+		if(f == "points"){
+			for(var i in hg[f]){
+				hg[f][i]
+					.transition()
+					.duration(1200)
+					.ease("elastic")
+					.attr("transform","scale(1.5)")
+					.each("end",function(){
+						d3.select(this)
+							.transition()
+							.duration(1200)
+							.ease("elastic")
+							.attr("transform","scale(1.0)")
+					});
+			}
+		} else {
+			hg[f].transition()
+				.duration(1200)
+				.ease("elastic")
+				.attr("transform","scale(1.5)")
+				.each("end",function(){
+					d3.select(this)
+							.transition()
+							.duration(1200)
+							.ease("elastic")
+							.attr("transform","scale(1.0)")
+				});
+		}
+	};
+	
+	/* set the size of the info slider */
+	var t = 0, c = 0, l = 0;
+	$("#info_panel .info_item").each(function(){ t += (this.offsetWidth +160); l++; });
+	$("#info_slider").css("width",(t+"px"));
+	/* info slider controll button clicks */
+	$(".control_btn").click(function(){
+		var i  = parseInt( this.dataset.inc ),
+			nc = c + i;
+		if(nc < 0 || nc > (l-1)){ return; };
+		
+		c += i;
+		var d = c * (-760);
+		$("#info_slider").stop().animate({
+			"left":(d+"px"),
+		},300);
+		
+		var d = $("#info_panel .info_item")[c].dataset.feature;
+		if( d ){ focusFeature( d ); }		
+	});
+	
+	
+	
 	
 	$('.graph_nav_opt').on("mousedown",function(){
 		$(this).removeClass("grad1").addClass("grad2");
