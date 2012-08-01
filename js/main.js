@@ -139,6 +139,12 @@ window.onload = function(){
 		}
 	});
 	
+	$('.graph_nav_opt').on("mousedown",function(){
+		$(this).removeClass("grad1").addClass("grad2");
+	}).on("mouseup",function(){
+		$(this).removeClass("grad2").addClass("grad1");
+	});
+	
 
 }
 

@@ -38,7 +38,7 @@ body{
 	position: relative;
 }
 #graph_container nav button:hover{
-	box-shadow: 0px 0px 4px 2px rgba(255,255,255,1.0);
+	box-shadow: 0px 0px 4px 2px rgba(255,255,255,0.5);
 }
 #graph_container nav #zoom_btn span{
 	width: 32px;
@@ -245,6 +245,16 @@ svg.nav_svg .nav_icon:hover{
 	background-image: -ms-linear-gradient(top,#F8F8F8,#ECECEC);
 	background-image: -o-linear-gradient(top,#F8F8F8,#ECECEC);
 	background-image: linear-gradient(top,#F8F8F8,#ECECEC);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f8f8f8',EndColorStr='#ececec');
+}
+.grad2{
+	background-color: #ECECEC;
+	background-image: -webkit-gradient(linear,left top,left bottom,from(#ECECEC),to(#F8F8F8));
+	background-image: -webkit-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -moz-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -ms-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -o-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: linear-gradient(top,#ECECEC,#F8F8F8);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f8f8f8',EndColorStr='#ececec');
 }
 
