@@ -2,6 +2,7 @@
 body{
 	background-color: #eee;
 	font-family: 'Droid Sans', sans-serif;
+	background-image: url(../imgs/static.png);
 }
 #main{
 	background-color: #f5f5f5;
@@ -67,6 +68,18 @@ body{
 	background-repeat: no-repeat;
 	background-position: center center;
 }
+#graph_container nav #info_btn.risen{
+	opacity: 0.8;
+	box-shadow: 0px 0px 4px 2px rgba(255,255,255,0.5);
+	background-color: #ECECEC;
+	background-image: -webkit-gradient(linear,left top,left bottom,from(#ECECEC),to(#F8F8F8));
+	background-image: -webkit-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -moz-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -ms-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: -o-linear-gradient(top,#ECECEC,#F8F8F8);
+	background-image: linear-gradient(top,#ECECEC,#F8F8F8);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f8f8f8',EndColorStr='#ececec');
+}
 #graph_container nav #connector_btn span{
 	width: 32px;
 	height: 32px;
@@ -116,6 +129,7 @@ header{
 	height: 60px;
 	position: relative;
 	overflow: hidden;
+	text-shadow: 1px 1px rgba(255,255,255,0.8);
 }
 header:after{
 	content: "";
@@ -217,14 +231,6 @@ footer dd a:hover{
 svg.healthscore text.overall {
   fill: #616363;
   font-weight: bold;
-}
-svg.nav_svg .nav_icon{
-	cursor: pointer;
-	fill:#AAA;
-}
-svg.nav_svg .nav_icon:hover{
-	cursor: pointer;
-	fill:#888;
 }
 
 #info_panel{
