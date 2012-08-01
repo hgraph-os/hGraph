@@ -139,6 +139,23 @@ window.onload = function(){
 		}
 	});
 	
+	$("#info_btn").click(function(){
+		var r = $(this).hasClass("risen");
+		
+		if(!r){
+			$("#info_panel").stop().animate({
+				"bottom" : "0px",
+			},300);
+			$(this).addClass("risen");
+		} else {
+			$("#info_panel").stop().animate({
+				"bottom" : "-300px",
+			},300);
+			$(this).removeClass("risen");
+		}
+		
+	});
+	
 	$('.graph_nav_opt').on("mousedown",function(){
 		$(this).removeClass("grad1").addClass("grad2");
 	}).on("mouseup",function(){
