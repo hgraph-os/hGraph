@@ -4,6 +4,7 @@
 	<title>hGraph - Health Score Graphing</title>
 	<meta charset='utf-8'>
 	
+	
 	<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
 	
 	<link rel="shortcut icon" href="imgs/Icon-72.ico">
@@ -30,19 +31,29 @@
 		
 		<hr class="db">
 		
-		<figure id="viz" class="content_inset healthgraph detailed">
-		</figure>
-		
-		<footer>
+		<section id="graph_container" class="content_inset">
+			<nav class="cf">
+				<button class="t grad1 fleft" id="info_btn"><span class="t"></span></button>
+				<button class="t grad1 fleft" id="zoom_btn"><span class="t"></span></button>
+				<button class="t grad1 fleft" id="connector_btn"><span class="t"></span></button>
+			</nav>
+			<figure id="viz" class="content_inset healthgraph detailed">
+			</figure>
+		</section>
+		<footer class="grad1">
 			<section class="content_inset cf">
 				<article class="fleft cf">
 					<dl class="cf fleft">
-						<dt>Brought to you by</dt>
+						<dt>Designed by</dt>
 						<dd><a href="http://www.goinvo.com" title="" class="t">Involution Studios</a></dd>
 					</dl>
 					<dl class="cf fleft">
-						<dt>Questions &quest; </dt>
-						<dd><a href="mailto:info@goinvo.com" title="" class="t">info@goinvo.com</a></dd>
+						<dt>Questions&quest;</dt>
+						<dd><a href="mailto:info@goinvo.com?hGraph%20Question" title="" class="t">info@goinvo.com</a></dd>
+					</dl>
+					<dl class="cf fleft">
+						<dt>Join the repo</dt>
+						<dd><a href="https://github.com/goinvo/hGraph" title="" class="t">github.com</a></dd>
 					</dl>
 				</article>
 			</section>

@@ -24,7 +24,8 @@ var HGraph = function(opts) {
 	this.height           = opts.height || 0;
 	this.rotation         = opts.rotation || 0;
 	this.zoomFactor       = opts.zoomFactor || 2.2;
-	this.zoomTime         = opts.zoomTime || 800;
+	this.zoomTime         = opts.zoomTime || 800;	
+	
 	this.healthRange      = {
 		lower : 30,
 		upper : 80
@@ -37,6 +38,8 @@ var HGraph = function(opts) {
 
 	this.showLabels   = false;
 	this.isZoomed     = false;
+	this.hoverevents  = opts.hoverevents || false;
+	this.isConnected  = true; 
 
 	this.center       = null;
 	this.originCoords = {
@@ -47,7 +50,8 @@ var HGraph = function(opts) {
 		ring       : null,
 		web        : null,
 		text       : null,
-		datapoints : null
+		datapoints : null,
+		connectors : null,
 	};
 
 	this.colors      = {
@@ -95,7 +99,8 @@ HGraph.prototype.initialize = function() {
 			this.layers[layer] = this.context.append('g')
 			                         .attr('class','layer')
 			                         .attr('data-layername', layer)
-			                         .attr('transform', this.center);
+			                         .attr('transform', this.center)
+			                         .attr("opacity",1.0);
 		}
 	}
 
@@ -202,7 +207,7 @@ HGraph.prototype.initialize = function() {
  *      zoomFactor - *(Number)* The factor you want to zoom in by. If omitted, the instance's default zoom factor is used.
  */
 HGraph.prototype.zoomIn = function(zoomFactor) {
-	var key, i, j, factor, details, layer, labels, that, zoomedWebFillString, getZoomedRingPath, getZoomedX, getZoomedY, scoreRange;
+	var key, i, j, factor, details, layer, labels, that, zoomedWebFillString, getZoomedRingPath, getZoomedX, getZoomedY, scoreRange, connections;
 
 	that = this;
 	zoomFactor = zoomFactor || this.zoomFactor; // Allow zooming factor override.
@@ -234,7 +239,24 @@ HGraph.prototype.zoomIn = function(zoomFactor) {
 		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.y * zoomFactor;
 	};
-
+	
+	getZoomedX1 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origPCoords'));
+		return coords.x * zoomFactor;
+	};
+	getZoomedX2 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origLCoords'));
+		return coords.x * zoomFactor;
+	};
+	getZoomedY1 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origPCoords'));
+		return coords.y * zoomFactor;
+	};
+	getZoomedY2 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origLCoords'));
+		return coords.y * zoomFactor;
+	};
+	
 	setDetailText = function() {
 		return this.textContent + ' (' + this.getAttribute('data-metricValue') + ')';
 	};
@@ -274,6 +296,15 @@ HGraph.prototype.zoomIn = function(zoomFactor) {
 				}
 			} else if ( key === 'web') {
 				this.updateWeb(true, true);
+			} else if ( key === 'connectors') {
+				connections = layer.selectAll("line");
+				connections
+					 .transition().ease('elastic')
+							.duration(this.zoomTime)
+							.attr('x1', getZoomedX1)
+							.attr('y1', getZoomedY1)
+							.attr('x2', getZoomedX2)
+							.attr('y2', getZoomedY2);
 			}
 
 			// Move it to the new origin point.
@@ -357,6 +388,24 @@ HGraph.prototype.zoomOut = function() {
 		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.y;
 	};
+	
+	getOriginalX1 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origPCoords'));
+		return coords.x;
+	};
+	getOriginalX2 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origLCoords'));
+		return coords.x;
+	};
+	getOriginalY1 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origPCoords'));
+		return coords.y;
+	};
+	getOriginalY2 = function(){
+		var coords = JSON.parse(this.getAttribute('data-origLCoords'));
+		return coords.y;
+	};
+	
 
 	setDetailText = function(d) {
 		return this.textContent.replace(/\s+\([^\)]*\)$/, '');
@@ -408,6 +457,15 @@ HGraph.prototype.zoomOut = function() {
 					}
 				} else if ( key === 'web') {
 					that.updateWeb(true, true, true, 'quad-in-out');
+				} else if ( key === 'connectors') {
+					connections = layer.selectAll("line");
+					connections
+						.transition().ease('elastic')
+							.duration(this.zoomTime)
+							.attr('x1', getOriginalX1)
+							.attr('y1', getOriginalY1)
+							.attr('x2', getOriginalX2)
+							.attr('y2', getOriginalY2);
 				}
 
 				// Move the layer back to the center
@@ -526,6 +584,7 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 		point.classed('secondary', true);
 	}
 
+	
 	if ( this.showLabels ) {
 		// Calculate the size of the datapoint radius (clamping it between 1 and 10)
 		labelPointScale = Math.max(scaledDataValue + (radius * 3), this.scale(100));
@@ -558,7 +617,6 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 		if ( secondary ) {
 			label.classed('secondary', true);
 		}
-
 		// Hook up a link if it's there.
 		if ( datapoint.link ) {
 			point
@@ -573,7 +631,32 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 				.on('click', gotoPage)
 				.on('touchend', gotoPage);
 		}
-
+	
+		//add connectors to show points and labels more clearly
+		var dx = labelCoords.x - coords.x,
+			dy = labelCoords.y - coords.y;
+			
+		var p2ld = Math.sqrt( (dx*dx) + (dy*dy) );
+		if( p2ld > 120 ){
+			var pc = {
+				x : coords.x * 1.15,
+				y : coords.y * 1.15,
+			}, lc = {
+				x :  labelCoords.x * 0.92,
+				y :  labelCoords.y * 0.92,
+			};
+			this.layers.connectors.append("line")
+				.attr("x1", pc.x)
+				.attr("y1", pc.y)
+				.attr("x2", lc.x)
+				.attr("y2", lc.y)
+				.attr('data-origPCoords', JSON.stringify(pc))
+				.attr('data-origLCoords', JSON.stringify(lc))
+				.attr("class","connector")
+				.attr("stroke",this.colors.outOfRange)
+				.attr("stroke-width",1.0)
+				.attr("opacity",1.0);
+		}
 		// Cascade the display of the labels.
 		window.setTimeout(function(label){
 			label.classed('visible', true);
@@ -643,4 +726,18 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 	}
 
 	return web;
+};
+
+
+HGraph.prototype.toggleConnections = function(){
+	var o = (this.isConnected) ? 0.0 : 1.0;
+	
+	this.layers.connectors
+		.transition()
+		.ease('quad-in-out')
+		.duration(300)
+		.attr("opacity",o);
+	
+	this.isConnected = (this.isConnected) ? false : true;
+	return this.isConnected;
 };
