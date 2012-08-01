@@ -37,7 +37,7 @@ body{
 	position: relative;
 }
 #graph_container nav button:hover{
-	box-shadow: 0px 1px 0px rgba(60,60,60,0.1);
+	box-shadow: 0px 0px 4px 2px rgba(255,255,255,1.0);
 }
 #graph_container nav #zoom_btn span{
 	width: 32px;
@@ -181,7 +181,7 @@ footer dd a{
 }
 footer dd a:hover{
 	color: #000;
-	border-bottom: 1px solid white;
+	border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
 #page_nav{

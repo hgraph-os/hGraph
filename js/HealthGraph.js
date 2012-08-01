@@ -40,6 +40,7 @@ var HGraph = function(opts) {
 	this.isZoomed     = false;
 	this.hoverevents  = opts.hoverevents || false;
 	this.isConnected  = true; 
+	this.dragging     = false;
 
 	this.center       = null;
 	this.originCoords = {
@@ -68,6 +69,8 @@ var HGraph = function(opts) {
  *     Sets up and draws the graph
  */
 HGraph.prototype.initialize = function() {
+	
+	this.container.onselectstart = function(e){ if(e.preventDefualt){ e.preventDefault();} return false; }
 
 	var layer, i, datapoint, web, touchstart, movedelta, that;
 
@@ -196,7 +199,42 @@ HGraph.prototype.initialize = function() {
 		that.originCoords.x = moveDelta.x;
 		that.originCoords.y = moveDelta.y;
 	});
+	
+	this.container.addEventListener('mousedown',function(e){
+		that.dragging = true;
+		touch = e;
+		touchstart.x = touch.offsetX;
+		touchstart.y = touch.offsetY;
+	});
+	this.container.addEventListener('mousemove',function(e){
+		if(!that.dragging){ return; }
+		
+		var key, layer, delta, touch;
+		if ( ! that.isZoomedIn() ) {
+			return;
+		}
 
+		touch = e;
+		delta = {
+			x : touch.offsetX - touchstart.x,
+			y : touch.offsetY - touchstart.y
+		};
+
+		// Get the new origin coordinates, clamping it to the containter size
+		moveDelta.x = Math.max(0, Math.min(that.width, delta.x + that.originCoords.x));
+		moveDelta.y = Math.max(0, Math.min(that.height, delta.y + that.originCoords.y));
+
+		for ( key in that.layers ) {
+			if (that.layers.hasOwnProperty(key)) {
+				that.layers[key].attr('transform', 'translate(' + moveDelta.x + ', ' + moveDelta.y + ')');
+			}
+		}
+	});
+	this.container.addEventListener('mouseup',function(e){
+		that.dragging = false;
+		that.originCoords.x = moveDelta.x;
+		that.originCoords.y = moveDelta.y;
+	});
 };
 
 /**
@@ -363,13 +401,14 @@ HGraph.prototype.zoomIn = function(zoomFactor) {
 
 		// And make the web follow suit
 		that.updateWeb();
-
+	
 	}, this.zoomTime);
 
 	this.originCoords.x = 0;
 	this.originCoords.y = 0;
 
 	this.isZoomed = true;
+	
 };
 
 /**
@@ -461,7 +500,7 @@ HGraph.prototype.zoomOut = function() {
 					connections = layer.selectAll("line");
 					connections
 						.transition().ease('elastic')
-							.duration(this.zoomTime)
+							.duration(that.zoomTime)
 							.attr('x1', getOriginalX1)
 							.attr('y1', getOriginalY1)
 							.attr('x2', getOriginalX2)
@@ -476,7 +515,9 @@ HGraph.prototype.zoomOut = function() {
 			}
 		}
 		that.isZoomed = false;
+
 	}, this.zoomTime * 0.9, this);
+
 
 };
 
@@ -637,7 +678,7 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 			dy = labelCoords.y - coords.y;
 			
 		var p2ld = Math.sqrt( (dx*dx) + (dy*dy) );
-		if( p2ld > 120 ){
+		if( p2ld > 120 && !this.isZoomedIn() ){
 			var pc = {
 				x : coords.x * 1.15,
 				y : coords.y * 1.15,
@@ -730,14 +771,15 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 
 
 HGraph.prototype.toggleConnections = function(){
-	var o = (this.isConnected) ? 0.0 : 1.0;
-	
+	var o = (arguments[0] === 1 || arguments[0] === 0) ? arguments[0] : ((this.isConnected) ? 0.0 : 1.0);
 	this.layers.connectors
 		.transition()
 		.ease('quad-in-out')
 		.duration(300)
 		.attr("opacity",o);
 	
-	this.isConnected = (this.isConnected) ? false : true;
+	if(typeof arguments[0] != "number"){
+		this.isConnected = (this.isConnected) ? false : true;
+	}
 	return this.isConnected;
 };

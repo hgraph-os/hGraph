@@ -4,76 +4,116 @@
  * or loaded from a back-end database through
  * an XHR call. 
 */
-function rando(){
-	var h = (Math.random() * 100),
-		b = h % 90,
-		f = parseInt(b + 10);
-		
-	return f;
-}
+var randomNumberWithinRange = function(from, to) {
+	return Math.round(from + (Math.random() * (to - from)));
+};
 
-var example_factors = Array(
-{
-	label : 'Weight',
-	score : rando(),
-},{
-	label : 'Happiness',
-	score : rando(),
-},{
-	label : 'Sleep',
-	score : rando(),
-},{
-	label : 'Family History',
-	score : rando(),
+var example_factors = [{
+	label : 'Blood Count',
+	score : randomNumberWithinRange(31,79),
+	details : [
+		{
+			label : 'Hemoglobin',
+			score : randomNumberWithinRange(31,79),
+			value : (randomNumberWithinRange(12,18) + ' g/dL')
+		},
+		{
+			label : 'Homatocrit',
+			score : randomNumberWithinRange(31,79),
+			value : (randomNumberWithinRange(37,52) + '%')
+		},
+		{
+			label : 'Red Blood Count',
+			score : randomNumberWithinRange(81,95),
+			value : ((randomNumberWithinRange(55,65) / 10) + ' mil/cmm')
+		},
 
+		{
+			label : 'White Cell Count',
+			score : randomNumberWithinRange(81,95),
+			value : (randomNumberWithinRange(11000,14000) + ' ccm')
+		},
+		{
+			label : 'CD4 Count',
+			score : randomNumberWithinRange(31,79)
+		}]
 },{
-	label : 'Personal History',
-	score : rando(),
-},{
-	label : 'Medications',
-	score : rando(),
-},{
-	label : 'Triglycerides',
-	score : rando(),
-},{
-	label : 'LDL',
-	score : rando(),
-},{
-	label : 'HDL',
-	score : rando(),
-},{
-	label : 'Glucose',
-	score : rando(),
-},{
-	label : 'BP',
-	score : rando(),
-},{
-	label : 'Environment',
-	score : rando(),
-},{
-	label : 'Alcohol, Drugs',
-	score : rando(),
-},{
-	label : 'Vaccinations',
-	score : rando(),
-},{
-	label : 'Exercise',
-	score : rando(),
-},{
-	label : 'Calorie Intake',
-	score : rando(),
+	label   : 'Total Cholesterol',
+	score   : randomNumberWithinRange(31, 79),
+	value : (randomNumberWithinRange(140,250) + ' mg/dL'),
+	details : [
+		{
+			label : 'LDL',
+			score : randomNumberWithinRange(31,79),
+			value : (randomNumberWithinRange(80, 190) + ' mg/dL')
+		},
+		{
+			label : 'HDL',
+			score : randomNumberWithinRange(31,79),
+			value : (randomNumberWithinRange(30,80) + ' mg/dL')
+		},
+		{
+			label : 'Triglycerides',
+			score : randomNumberWithinRange(31,79),
+			value : (randomNumberWithinRange(90, 160) + ' mg/dL')
+		}]
 },{
 	label : 'Waist Circumference',
-	score : rando(),
-});
-
+	score : randomNumberWithinRange(31,79),
+	value : (randomNumberWithinRange(32,40) + ' in.')
+},{
+	label : 'Weight',
+	score : randomNumberWithinRange(31,79),
+	value : (randomNumberWithinRange(140,250) + ' lbs.')
+},{
+	label : 'Happiness',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Sleep',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Medications',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Glucose',
+	score : randomNumberWithinRange(21,79),
+},{
+	label : 'Blood Pressure',
+	score : randomNumberWithinRange(21,79),
+},{
+	label : 'Vaccinations',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Alcohol, Drugs',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Environment',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Personal History',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Family History',
+	score : randomNumberWithinRange(21,79)
+},{
+	label : 'Exercise',
+	score : randomNumberWithinRange(21,79),
+	details : [
+		{
+			label : 'running',
+			score : randomNumberWithinRange(31,79)
+		}]
+},{
+	label : 'Caloric Intake',
+	score : randomNumberWithinRange(31,79)
+}];
 var hg
 window.onload = function(){
 	hg = new HGraph({
 		container   : document.getElementById("viz"),
 		hoverevents : true,
 		userdata    : {
-			overallScore : rando().toFixed(0),
+			overallScore : randomNumberWithinRange(31,79),
 			factors      : example_factors,	
 		},
 	});
