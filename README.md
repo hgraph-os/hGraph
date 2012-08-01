@@ -5,7 +5,7 @@ An open source javascript-based web application for visualizing health data.
 
 ###About the REPO###
 
-hGraph is the next generation of helth care information and data. 
+The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.
 
 
 ###Dependencies###
@@ -16,8 +16,6 @@ Once you have downloaded the latest version, you will need to include in in your
 
 	<script src="/path/to/your/d3.js" type="text/javascript"></script>
 	<script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
- 
-*Although it's not reqired, it might also help to include other libraries like [jQuery](http://jquery.com/) and [modernizr](http://modernizr.com/)*
  
 ###Setup###
 
