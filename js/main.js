@@ -262,7 +262,7 @@ window.onload = function(){
 	}).on("mouseup",function(){
 		$(this).removeClass("grad2").addClass("grad1");
 	});
-	
+	//*//
 
 }
 
