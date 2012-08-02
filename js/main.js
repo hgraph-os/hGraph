@@ -200,6 +200,7 @@ window.onload = function(){
 	
 	function atEnd( which ){
 		var btn = (which > 0) ? "#next_info" : "#prev_info";
+		$(".novis").removeClass("novis");
 		$(btn).addClass("novis");
 	};
 
