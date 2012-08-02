@@ -32,7 +32,7 @@ $(document).ready(function(){
 						.attr("class","nav_icon");
 						
 		this.ico.on("click",function(){
-			window.location = i.location;
+			window.open(i.location,"_blank");
 		});
 		this.ico.on("mouseover",function(){
 		
