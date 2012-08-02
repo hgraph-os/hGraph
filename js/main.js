@@ -138,24 +138,7 @@ window.onload = function(){
 			$(this).find("span").removeClass("toggled");
 		}
 	});
-	
-	$("#info_btn").click(function(){
-		var r = $(this).hasClass("risen");
 		
-		if(!r){
-			$("#info_panel").stop().animate({
-				"bottom" : "0px",
-			},300);
-			$(this).addClass("risen");
-		} else {
-			$("#info_panel").stop().animate({
-				"bottom" : "-300px",
-			},300);
-			$(this).removeClass("risen");
-		}
-		
-	});
-	
 	function focusFeature( f, e ){
 		
 		for(var key  in hg.layers){
@@ -254,15 +237,42 @@ window.onload = function(){
 		else{ returnall(); }		
 	});
 	
-	
-	
-	
 	$('.graph_nav_opt').on("mousedown",function(){
 		$(this).removeClass("grad1").addClass("grad2");
 	}).on("mouseup",function(){
 		$(this).removeClass("grad2").addClass("grad1");
 	});
 	//*//
+
+	function closeInfo(){
+		returnall();
+		returnToNormal("points");
+		returnToNormal("overalltxt");
+		returnToNormal("ring");	
+		c = 0;
+		var d = c * (-760);
+		$("#info_slider").stop().animate({
+			"left":(d+"px"),
+		},300);
+		atEnd(c);
+	};
+
+	$("#info_btn").click(function(){
+		var r = $(this).hasClass("risen");
+		if(!r){
+			$("#info_panel").stop().animate({
+				"bottom" : "0px",
+			},300);
+			$(this).addClass("risen");
+		} else {
+			$("#info_panel").stop().animate({
+				"bottom" : "-300px",
+			},300);
+			closeInfo();
+			$(this).removeClass("risen");
+		}
+		
+	});
 
 }
 
