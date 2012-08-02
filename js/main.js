@@ -156,20 +156,37 @@ window.onload = function(){
 		
 	});
 	
-	function focusFeature( f ){
+	function focusFeature( f, e ){
+		
+		for(var key  in hg.layers){
+			if( e == key ){ continue; }
+			var p = hg.layers[key];
+			p.transition()	
+				.duration(120)
+				.ease("cubic")
+				.attr("opacity",0.1)
+					.each("end",function(){
+						d3.select(this)
+							.transition()
+							.delay(1080)
+							.duration(120)
+							.ease("cubic")
+							.attr("opacity",1.0);
+				});
+		}
 		if(f == "points"){
 			for(var i in hg[f]){
 				hg[f][i]
 					.transition()
 					.duration(1200)
 					.ease("elastic")
-					.attr("transform","scale(1.5)")
+					.attr("r",hg.getPointRadius()*1.5)
 					.each("end",function(){
 						d3.select(this)
 							.transition()
 							.duration(1200)
 							.ease("elastic")
-							.attr("transform","scale(1.0)")
+							.attr("r",hg.getPointRadius())
 					});
 			}
 		} else {
@@ -197,14 +214,17 @@ window.onload = function(){
 			nc = c + i;
 		if(nc < 0 || nc > (l-1)){ return; };
 		
+		d3.timer.flush();
+		
 		c += i;
 		var d = c * (-760);
 		$("#info_slider").stop().animate({
 			"left":(d+"px"),
 		},300);
 		
-		var d = $("#info_panel .info_item")[c].dataset.feature;
-		if( d ){ focusFeature( d ); }		
+		var f = $("#info_panel .info_item")[c].dataset.feature,
+			e = $("#info_panel .info_item")[c].dataset.exclude;
+		if( d ){ focusFeature( f, e ); }		
 	});
 	
 	

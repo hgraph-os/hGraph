@@ -533,6 +533,9 @@ HGraph.prototype.zoomOut = function() {
 HGraph.prototype.isZoomedIn = function() {
 	return this.isZoomed;
 };
+HGraph.prototype.getPointRadius = function() {
+	return Math.max(1, Math.min(10, Math.round(this.width / 80)));	
+};
 
 /**
  *  Function: addPoint
@@ -608,7 +611,7 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 	datapoint.angle = angle;
 	datapoint.coords = coords;
 
-	radius = Math.max(1, Math.min(10, Math.round(this.width / 80)));
+	radius = this.getPointRadius();
 	point = this.layers.datapoints.append('circle')
 			.data([datapoint.score])
 			.attr('r', secondary ? radius / 1.5 : radius)
