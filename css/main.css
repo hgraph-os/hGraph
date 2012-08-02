@@ -355,6 +355,10 @@ svg.healthscore text.overall {
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#f8f8f8',EndColorStr='#ececec');
 }
 
+.novis{
+	opacity: 0;
+}
+
 .cf:before,
 .cf:after {
     content: " "; /* 1 */

@@ -159,20 +159,18 @@ window.onload = function(){
 	function focusFeature( f, e ){
 		
 		for(var key  in hg.layers){
-			if( e == key ){ continue; }
 			var p = hg.layers[key];
+			if( e == key ){ 
+				p.transition()	
+					.duration(120)
+					.ease("cubic")
+					.attr("opacity",1.0);
+					continue;
+			}
 			p.transition()	
 				.duration(120)
 				.ease("cubic")
-				.attr("opacity",0.1)
-					.each("end",function(){
-						d3.select(this)
-							.transition()
-							.delay(1080)
-							.duration(120)
-							.ease("cubic")
-							.attr("opacity",1.0);
-				});
+				.attr("opacity",0.1);
 		}
 		if(f == "points"){
 			for(var i in hg[f]){
@@ -180,39 +178,67 @@ window.onload = function(){
 					.transition()
 					.duration(1200)
 					.ease("elastic")
-					.attr("r",hg.getPointRadius()*1.5)
-					.each("end",function(){
-						d3.select(this)
-							.transition()
-							.duration(1200)
-							.ease("elastic")
-							.attr("r",hg.getPointRadius())
-					});
+					.attr("r",hg.getPointRadius()*1.5);
 			}
 		} else {
 			hg[f].transition()
 				.duration(1200)
 				.ease("elastic")
-				.attr("transform","scale(1.5)")
-				.each("end",function(){
-					d3.select(this)
-							.transition()
-							.duration(1200)
-							.ease("elastic")
-							.attr("transform","scale(1.0)")
-				});
+				.attr("transform","scale(1.5)");
 		}
 	};
 	
+	function returnToNormal( f ){
+		if(f == "points"){
+			for(var i in hg[f]){
+				hg[f][i]
+					.transition()
+					.duration(1200)
+					.ease("elastic")
+					.attr("r",hg.getPointRadius());
+			}
+		} else {
+			hg[f].transition()
+				.duration(1200)
+				.ease("elastic")
+				.attr("transform","scale(1.0)");
+		}
+	};
+	
+	function returnall(){
+		for(var key  in hg.layers){
+			var p = hg.layers[key];
+			p.transition()	
+				.duration(120)
+				.ease("cubic")
+				.attr("opacity",1.0);
+		}
+	};
+	
+	function atEnd( which ){
+		var btn = (which > 0) ? "#next_info" : "#prev_info";
+		$(btn).addClass("novis");
+	};
+
+	function inMiddle(){
+		$(".novis").removeClass("novis");
+	};
+
 	/* set the size of the info slider */
-	var t = 0, c = 0, l = 0;
+	var t = 0, c = 0, l = 0, iil = $("#info_panel .info_item");
 	$("#info_panel .info_item").each(function(){ t += (this.offsetWidth +160); l++; });
 	$("#info_slider").css("width",(t+"px"));
 	/* info slider controll button clicks */
 	$(".control_btn").click(function(){
 		var i  = parseInt( this.dataset.inc ),
-			nc = c + i;
-		if(nc < 0 || nc > (l-1)){ return; };
+			nc = c + i,
+			fc = c + (i * 2);
+		if(nc < 0 || nc > (l-1)){ return };
+		if(fc < 0 || fc > (l-1)){ atEnd(fc); }
+		else{ inMiddle(); }
+		
+		var p = iil[c].dataset.feature;
+		if( p ){ returnToNormal( p ); }
 		
 		d3.timer.flush();
 		
@@ -222,9 +248,10 @@ window.onload = function(){
 			"left":(d+"px"),
 		},300);
 		
-		var f = $("#info_panel .info_item")[c].dataset.feature,
-			e = $("#info_panel .info_item")[c].dataset.exclude;
-		if( d ){ focusFeature( f, e ); }		
+		var f = iil[c].dataset.feature,
+			e = iil[c].dataset.exclude;
+		if( d ){ focusFeature( f, e ); }
+		else{ returnall(); }		
 	});
 	
 	
