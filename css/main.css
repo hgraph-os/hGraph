@@ -9,9 +9,10 @@ body{
 	width: 960px;
 	margin: 20px auto;
 	border-radius: 3px;
-	box-shadow: 0px 0px 3px rgba(70,70,70,0.3);
+	box-shadow: 0px 0px 3px rgba(70,70,70,0.6);
 	padding: 20px 0px 0px 0px;
 	border: 1px solid white;
+	position: relative;
 }
 #graph_container{
 	position: relative;
@@ -182,6 +183,9 @@ footer dl{
 }
 footer dl:first-child{
 	margin-left: 0px;
+}
+footer dl:last-child{
+	padding-right: 0px;
 }
 footer dt, footer dd{
 	display: block;
