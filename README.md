@@ -49,7 +49,7 @@ During a `window.onload` or similar entry point, the health graph is constructed
 
 ###Example site###
 
-To see a live demo, please visit: [goinvo.github.com/hGraph](http://hgraph.org/)
+To see a live demo, please visit: [hgraph.org](http://hgraph.org/)
 
 ###License###
 
