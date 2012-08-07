@@ -302,6 +302,7 @@ svg.healthscore text.overall {
 	font-size: 14px;
 	color: #ccc;
 	line-height: 1.5em;
+	margin-bottom: 2em;
 }
 #info_panel .info_item h1{
 	font-size: 24px;
@@ -332,6 +333,9 @@ svg.healthscore text.overall {
 	-ms-transition: 	all 0.25s linear;
 	-o-transition: 		all 0.25s linear;
 	transition: 		all 0.25s linear;
+}
+#info_panel .info_item p.important{
+	font-size: 18px;
 }
 
 .grad1{
