@@ -140,7 +140,7 @@ HGraph.prototype.initialize = function() {
 	// and the score itself
 	this.overalltxt = this.layers.text.append('text')
 	                      .attr('class','overall')
-	                      .text(this.userdata.overallScore);
+	                      .text(this.calculateHealthScore());
 
 	// Center the score
 	this.overalltxt
@@ -803,4 +803,31 @@ HGraph.prototype.toggleConnections = function(){
 		this.isConnected = (this.isConnected) ? false : true;
 	}
 	return this.isConnected;
+};
+HGraph.prototype.calculateHealthScore = function(){
+	//For now, let's just do a simple mean.
+	if(this.userdata && this.userdata.factors){
+		var sum=0, num=0,factor, goodSum = 0, goodNum=0, badNum=0, badSum = 0;
+		var meanGood = (this.healthRange.lower + this.healthRange.upper)/2.0;
+		for(factor in this.userdata.factors){
+			var score = this.userdata.factors[factor].score;
+			if(score > this.healthRange.lower && score < this.healthRange.upper){
+				goodSum = goodSum + Math.pow(Math.abs(score-meanGood),2);
+				goodNum = goodNum + 1;
+			}
+			else{
+				badSum = badSum + Math.pow(Math.abs(score-meanGood),2);
+				badNum = badNum + 1;
+			}
+			num = num + 1;
+		}
+		if(num > 0){
+			var goodStd = Math.pow(goodSum/goodNum,0.5) || 0;
+			var badStd = Math.pow(badSum/badNum,0.5) || 0;
+
+			//we don't want to divide by 0;
+			return parseInt(100 - (0.5*(goodNum*goodStd)+2*(badStd*badNum))/num);
+		}
+	}
+	return 50;
 };
