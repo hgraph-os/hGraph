@@ -805,29 +805,20 @@ HGraph.prototype.toggleConnections = function(){
 	return this.isConnected;
 };
 HGraph.prototype.calculateHealthScore = function(){
-	//For now, let's just do a simple mean.
+	//V0.2 of hScore Algorithm.
 	if(this.userdata && this.userdata.factors){
-		var sum=0, num=0,factor, goodSum = 0, goodNum=0, badNum=0, badSum = 0;
-		var meanGood = (this.healthRange.lower + this.healthRange.upper)/2.0;
-		for(factor in this.userdata.factors){
-			var score = this.userdata.factors[factor].score;
-			if(score > this.healthRange.lower && score < this.healthRange.upper){
-				goodSum = goodSum + Math.pow(Math.abs(score-meanGood),2);
-				goodNum = goodNum + 1;
-			}
-			else{
-				badSum = badSum + Math.pow(Math.abs(score-meanGood),2);
-				badNum = badNum + 1;
-			}
-			num = num + 1;
+		var numPoints = this.userdata.factors.length;
+		var idealValue = (this.healthRange.lower + this.healthRange.upper)/2.0;
+		var widthGood = this.healthRange.upper - this.healthRange.lower;
+		var alpha = 25* widthGood*widthGood/(numPoints * idealValue * idealValue);
+		var factor, sumSquares;
+		for(factor in this.userData.factors){
+			var score = this.userData.factors[factor].score;
+			console.log(score);
+			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
-		if(num > 0){
-			var goodStd = Math.pow(goodSum/goodNum,0.5) || 0;
-			var badStd = Math.pow(badSum/badNum,0.5) || 0;
-
-			//we don't want to divide by 0;
-			return parseInt(100 - (0.5*(goodNum*goodStd)+2*(badStd*badNum))/num);
-		}
+		console.log("sumSquares="+sumSquares);
+		return 100-(4*alpha/(widthGood*widthGood))*sumSquares;
 	}
 	return 50;
 };
