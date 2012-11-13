@@ -812,8 +812,8 @@ HGraph.prototype.calculateHealthScore = function(){
 		var widthGood = this.healthRange.upper - this.healthRange.lower;
 		var alpha = 25* widthGood*widthGood/(numPoints * idealValue * idealValue);
 		var factor, sumSquares;
-		for(factor in this.userData.factors){
-			var score = this.userData.factors[factor].score;
+		for(factor in this.userdata.factors){
+			var score = this.userdata.factors[factor].score;
 			console.log(score);
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
