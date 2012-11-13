@@ -818,7 +818,7 @@ HGraph.prototype.calculateHealthScore = function(){
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
 		console.log("sumSquares="+sumSquares);
-		return 100-(4*alpha/(widthGood*widthGood))*sumSquares;
+		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares);
 	}
 	return 50;
 };
