@@ -1,4 +1,4 @@
-s/*global d3: true */
+/*global d3: true */
 /*
 File: HGraph.js
 
@@ -676,7 +676,7 @@ HGraph.prototype.calculateHealthScore = function(){
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
 		console.log("sumSquares="+sumSquares);
-		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares;
+		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares);
 	}
 	return 50;
 };
