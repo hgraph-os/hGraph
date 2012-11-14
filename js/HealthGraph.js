@@ -805,20 +805,20 @@ HGraph.prototype.toggleConnections = function(){
 	return this.isConnected;
 };
 HGraph.prototype.calculateHealthScore = function(){
-	//V0.2 of hScore Algorithm.
+	//V0.3 of hScore Algorithm.
 	if(this.userdata && this.userdata.factors){
 		var numPoints = this.userdata.factors.length;
 		var idealValue = (this.healthRange.lower + this.healthRange.upper)/2.0;
 		var widthGood = this.healthRange.upper - this.healthRange.lower;
-		var alpha = 25* widthGood*widthGood/(numPoints * idealValue * idealValue);
 		var factor, sumSquares=0;
 		for(factor in this.userdata.factors){
 			var score = this.userdata.factors[factor].score;
-			console.log(score);
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
-		console.log("sumSquares="+sumSquares);
-		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares);
+		// console.log('idealValue='+idealValue);
+		// console.log('numPoints='+numPoints);
+		// console.log('sumSquares='+sumSquares);
+		return parseInt(100-(100/(Math.pow(idealValue,2)*numPoints))*sumSquares);
 	}
 	return 50;
 };
