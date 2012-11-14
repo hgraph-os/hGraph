@@ -1,4 +1,4 @@
-/*global d3: true */
+s/*global d3: true */
 /*
 File: HGraph.js
 
@@ -632,7 +632,7 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 			y : (parseFloat(pointCoords.y) * (forceZoomedState || that.isZoomedIn() ? that.zoomFactor : 1)).toFixed(1)
 		};
 		fillString += (i === 0 ? 'M ' : 'L ') + zoomedCoords.x + ' ' + zoomedCoords.y + ' ';
-	};/
+	};
 
 	// Get the element
 	web = this.layers.web.select('path');
@@ -676,7 +676,7 @@ HGraph.prototype.calculateHealthScore = function(){
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
 		}
 		console.log("sumSquares="+sumSquares);
-		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares);
+		return parseInt(100-(4*alpha/(widthGood*widthGood))*sumSquares;
 	}
 	return 50;
 };
