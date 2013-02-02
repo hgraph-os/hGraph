@@ -1,6 +1,6 @@
 /* ******************************************************* *
  * Mixer.js - Mixer class definition for hGraph's hMixer   *
- * http://code.goinvo.com/hMixer/                          *
+ * http://hgraph.org/hMixer                                *
  * Author(s):                                              *
  *  - Danny Hadley <danny@goinvo.com>                      *
  * License:                                                *

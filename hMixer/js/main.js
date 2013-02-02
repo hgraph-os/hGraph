@@ -1,6 +1,6 @@
 /* ******************************************************* *
  * Main.js - Example useage of the Mixer class             *
- * http://code.goinvo.com/hMixer/                          *
+ * http://hgraph.org/hMixer                                *
  * Author(s):                                              *
  *  - Danny Hadley <danny@goinvo.com>                      *
  * ******************************************************* */
