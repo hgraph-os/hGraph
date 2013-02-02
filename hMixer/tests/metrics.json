@@ -1,0 +1,13 @@
+[{
+    "name"     : "LDL",
+    "features" : { 
+        "saferange"  : [50, 60],
+        "totalrange" : [0, 60]
+    }
+},{
+    "name"     : "LDL",
+    "features" : { 
+        "saferange"  : [0, 97],
+        "totalrange" : [0, 130]
+    }
+}]

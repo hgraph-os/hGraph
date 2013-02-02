@@ -1,0 +1,27 @@
+body{ background: #f6f7f6; font-family: 'Droid Serif', serif; color: #9d9f9f; }
+
+section.content{ padding-top: 5px; }
+section.config{ 
+    width: 180px; 
+    min-height: 300px; 
+    background-color: #e8eaea;
+    border-radius: 6px;
+    padding: 25px 0px 25px 0px;
+}
+section.config img.logo{ 
+    display: block; 
+    margin: 0px auto; 
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+section.metrics{ 
+    width: 900px;
+    min-height: 400px;
+}
+
+article.metric{
+    width: 800px;
+    height: 250px;
+    margin: 0px auto 30px;
+}
