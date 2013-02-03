@@ -326,6 +326,12 @@ _moveLeftBound = function ( left ) {
     this.pub.saferange[0] = lp;
 };
 
+/* _moveRightBound
+ * 
+ * The drag function that is called on mouse  
+ * move after mouse down the on the right bound
+ * @param {number} left The left position relative to the chart
+*/
 _moveRightBound = function ( left ) {
     var xs  = this.ref.xscale,
         rp  = xs.invert(left),
