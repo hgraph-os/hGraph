@@ -508,8 +508,8 @@ _moveRange = function (left) {
     
     /* catch the boundary issues */
     if( newLeft < this.pub.totalrange[0] ){
-        newLeft  = 0;
-        newRight = width;
+        newLeft  = this.pub.totalrange[0];
+        newRight = width + newLeft;
     } else if ( newRight > this.pub.totalrange[1] ){
         newRight = this.pub.totalrange[1];
         newLeft  = newRight - width;
