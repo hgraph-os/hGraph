@@ -31,12 +31,13 @@ Defaults = D = {
     safe_range       : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
+    unitlabel        : "mg/dL",
     svg_element      : { width : 800, height : 250 },
     svg_layers       : ["ui", "data"],
     chart_dimensions : {
-        left   : 75,
+        left   : 125,
         top    : 40,
-        width  : 650,
+        width  : 550,
         height : 170
     },
     svg_cover : {
@@ -61,6 +62,14 @@ Defaults = D = {
         "height" : 169,
         "cursor" : "move"
     },
+    bound_text : {
+        "fill"           : "#404141",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "12px",
+        "pointer-events" : "none",
+        "text-anchor"    : "middle",
+        "y"              : 30
+    },
     bound_outer_circle : {
         "r"      : 9,
         "fill"   : "#fff",
@@ -73,6 +82,36 @@ Defaults = D = {
         "fill" : "#80994f",
         "cy"   : 0,
         "cx"   : 0
+    },
+    title_text : {
+        "x"              : 100,
+        "y"              : 205,
+        "fill"           : "#404141",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "36px",
+        "pointer-events" : "none",
+        "text-anchor"    : "end"
+    },
+    unit_text : {
+        "x"              : 100,
+        "y"              : 220,
+        "fill"           : "#9d9f9f",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "12px",
+        "pointer-events" : "none",
+        "text-anchor"    : "end"
+    },
+    weight_bar : {
+        "x1"     : 737.5,
+        "x2"     : 737.5,
+        "y1"     : 40,
+        "y2"     : 210,
+        "stroke" : "#c0c3c2"
+    },
+    weight_bounds : {
+        "r"    : 2,
+        "fill" : "#c0c3c2",
+        "cx"   : 737.5  
     }
 };
 
@@ -194,7 +233,7 @@ Utils = U = {
                 
                 switch (style) {
                     case "log" : 
-                        _log.call(_console, err);
+                        _log.call(_console, "[log: " + err + "]");
                         break;
                     case "dir" :
                         _dir.call(_console, err);
@@ -252,32 +291,62 @@ Metric.layerPrep = (function () {
     var ui,   // ui layer function   (returned)
         data, // data layer function (returned)
         
-        /* interaction definitions */
+        /* "generic" interaction definitions */
         _startDrag, // mouse downs 
         _doDrag,    // mouse moves
         _endDrag,   // mouse ups
         
-        /* handle dependent function */
+        /* "handle" dependent functions */
         _moveRange,      // moves the whole range
         _moveLeftBound,  // moves the left bound circle
         _moveRightBound, // moves the right bound
+        _moveWeight,     // moves the weight
         
-        /* helper function for the transform property */
-        _makeTransformString, _mts, // shortcut too 
+        /* helper functions */
+        _whipeInteractionState,
+        
+        /* click function -> adds scale curve points */
+        _addScalePoint,
         
         /* interaction properties */
-        _interactionState = { };
+        _interactionState = { metric : null, activeE : null, hasMoved : false };
         
 
 /* _startDrag
  *
- * Prepares the document to handle
- * mouse move events 
+ * Prepares the document to handle "mousemove" events 
 */    
 _startDrag = function ( evt ) {
+    /* reset the hasMoved - nothing has happened yet... */
+    _interactionState.hasMoved = false;
+
     d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
 };
 
+
+/* _addScalePoint
+ * 
+ * Click event for adding points to the scale path
+ * @param {object} evt The d3.event that was fired on click
+*/
+_addScalePoint = function ( evt ){
+    /* if there was some sort of drag, forget about it */
+    if( _interactionState.hasMoved ){ return; }
+    
+    var metric = _interactionState.metric,
+        rmX    = evt.pageX - metric.dom.container.offsetLeft, // relative mouse X pos
+        rmY    = evt.pageY - metric.dom.container.offsetTop,  // relative mouse Y pos
+        d      = D.chart_dimensions;                          // dimensions shortcut
+    
+    /* boundary check */
+    if( rmX < d.left || rmX > (d.left + d.width) || rmY > (d.top + d.bottom) || rmY < d.top){
+        return;
+    }
+        
+    U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
+    
+    _whipeInteractionState( false );
+};
 
 /* _moveRange
  * 
@@ -344,6 +413,22 @@ _moveRightBound = function ( left ) {
     this.pub.saferange[1] = rp;
 };
 
+/* _moveWeight
+ *
+ * Moves the weight bubble along the verticle
+ * axis while moving the mouse
+ * @param {number} top The mouse position relative to the chart
+*/ 
+_moveWeight = function ( top ) {
+    var ws  = this.ref.weightscale,
+        wp  = ws.invert(top);
+    
+    if( wp < 0 ) { wp = 0; }
+    if( wp > 10 ) { wp = 10; }
+    
+    this.pub.weight = Math.ceil( wp );
+};
+
 /* _doDrag
  *
  * Handles mouse movements
@@ -351,12 +436,16 @@ _moveRightBound = function ( left ) {
 _doDrag = function ( evt ) {  
     
     /* if the listener got fired without an event - give up */
-    if ( !d3.event ){ return false; }
-    
+    if ( !d3.event || _interactionState.metric === null || _interactionState.activeE === null ){ 
+        return false; 
+    }
+        
     var metric       = _interactionState.metric,
         activeE      = _interactionState.activeE,
         mouseLeft    = d3.event.pageX,
-        relativeLeft = mouseLeft - metric.dom.container.offsetLeft;
+        mouseTop     = d3.event.pageY,
+        relativeLeft = mouseLeft - metric.dom.container.offsetLeft,
+        relativeTop  = mouseTop - metric.dom.container.offsetTop;
     
     switch ( activeE ) {
         case "lb" :
@@ -367,10 +456,15 @@ _doDrag = function ( evt ) {
             break;
         case "rr" : 
             _moveRange.call( metric, relativeLeft );
-            break;  
+            break; 
+        case "ww" :
+            _moveWeight.call( metric, relativeTop ); 
         default : 
             break;
     };
+    
+    /* we have offically moved (at least once) */
+    _interactionState.hasMoved = true;
     
     return metric.redraw( );
 };
@@ -381,8 +475,32 @@ _doDrag = function ( evt ) {
 */  
 _endDrag = function ( evt ) {
     d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
-    _interactionState = { };                                       // clear out the state 
+    
+    /* clear out states */
+    _whipeInteractionState( true );
 };
+
+/* _whipeInteractionState
+ *
+ * Clears out the old interaction states
+ * @param {boolean} wasDrag A flag for if the interaction was a drag
+*/
+_whipeInteractionState = function ( wasDrag ) {
+    _interactionState.metric  = null;
+    _interactionState.activeE = null; 
+    
+    /* if it wasnt a drag, we can just go head and set the hasMoved to false */
+    if( !wasDrag ){
+        _interactionState.hasMoved = false;
+        return;
+    }
+    
+    /* delay the hasMoved flag, we dont want our clicks thinking they are ok */
+    setTimeout(function ( ) {
+        _interactionState.hasMoved = false;
+    }, 3);
+};
+        
         
 /* Metric.layerPrep.ui
  *
@@ -427,7 +545,28 @@ ui = function ( layer ) {
         .attr("y1", D.chart_dimensions.top)
         .attr("y2", D.chart_dimensions.top + D.chart_dimensions.height)
         .attr(D.svg_axis);
+    
+    layer
+        .append("text")
+        .attr(D.title_text)
+        .text(this.pub.name);
         
+    layer
+        .append("text")
+        .attr(D.unit_text)
+        .text(this.pub.unitlabel);
+    
+    layer.append("line")
+        .attr(D.weight_bar);
+        
+    layer.append("circle")
+        .attr(D.weight_bounds)
+        .attr("cy", 40);
+    
+    layer.append("circle")
+        .attr(D.weight_bounds)
+        .attr("cy", 210);
+    
     layer.append("rect")
         .attr(D.svg_cover);
 };
@@ -440,7 +579,17 @@ ui = function ( layer ) {
 data = function ( layer ) {
     var metric = this,
         dom    = metric.dom,
-        rangeRect, leftBound, rightBound;
+        rangeRect, leftBound, rightBound,
+        weightNode, coverRect;
+    
+    coverRect = layer.append("rect")
+                    .attr( D.svg_cover )
+                    .attr("data-name","click-catcher")
+                    .on("click", function () {
+                        _interactionState.metric = metric;
+                        return _addScalePoint( d3.event );
+                    });
+    
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
@@ -448,6 +597,9 @@ data = function ( layer ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
                         _interactionState.metric  = metric; // save the metric being acted upon
                         return _startDrag( );               // begin registering events  
+                    }).on("click", function ( ) {
+                        _interactionState.metric  = metric;
+                        return _addScalePoint( d3.event );
                     });
                     
     leftBound  = layer.append("g")
@@ -468,15 +620,48 @@ data = function ( layer ) {
                         return _startDrag( );               // begin registering events 
                     });
     
+    weightNode = layer.append("g")
+                    .attr("data-name", "weight-node")
+                    .attr("cursor", "pointer")
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "ww";   // we are using the weight circle
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );
+                    });
+    
     leftBound.append("circle").attr(D.bound_outer_circle);
     rightBound.append("circle").attr(D.bound_outer_circle);
     
+    weightNode
+        .append("circle")
+        .attr(D.bound_outer_circle)
+        .attr("r", 16.5);
+    
     leftBound.append("circle").attr(D.bound_inner_circle);
     rightBound.append("circle").attr(D.bound_inner_circle);
-      
-    dom.rangeRect = rangeRect;  // save the range rectangle
-    dom.leftNode  = leftBound;  // save the left bound
-    dom.rightNode = rightBound; // save the right bound 
+    
+    weightNode
+        .append("circle")
+        .attr(D.bound_inner_circle)
+        .attr("fill", "#585a5a")
+        .attr("r", 12.5)
+        .attr("cx", 0);
+    
+    leftBound.append("text").attr(D.bound_text);
+    rightBound.append("text").attr(D.bound_text);
+    
+    weightNode
+        .append("text")
+        .attr(D.bound_text)
+        .attr("fill","#fff")
+        .attr("y", 5)
+        .text( 4 );
+    
+    
+    dom.weightNode = weightNode; // save the weight node
+    dom.rangeRect  = rangeRect;  // save the range rectangle
+    dom.leftNode   = leftBound;  // save the left bound
+    dom.rightNode  = rightBound; // save the right bound 
 };
 
 /* dump the layer prepping functions back out */
@@ -497,10 +682,30 @@ Metric.prototype = {
     
         /* the object that will keep references to values, names.. etc */
         this.pub = { 
+            
+            /* {string} the name of the metric */
             name       : opts.name || "N/A",
-            saferange  : (opts.features && opts.features.saferange) ? opts.features.saferange : D.safe_range,
-            totalrange : (opts.features && opts.features.totalrange) ? opts.features.totalrange : D.total_range,
-            weight     : (opts.features && opts.features.weight) ? opts.features.weight : D.weight
+            
+            /* {array} range of values that are okay (green) */
+            saferange  : (opts.features && opts.features.saferange) 
+                            ? opts.features.saferange 
+                            : D.safe_range,
+            
+            /* {array} maximum range of values */         
+            totalrange : (opts.features && opts.features.totalrange) 
+                            ? opts.features.totalrange 
+                            : D.total_range,
+            
+            /* {number} how significant this score is to the hScore */
+            weight     : (opts.features && opts.features.weight) 
+                            ? opts.features.weight 
+                            : D.weight,
+            
+            /* {string} how this metric is measured (mg/dL) */
+            unitlabel  : (opts.features && opts.features.unitlabel) 
+                            ? opts.features.unitlabel 
+                            : D.unitlabel
+            
         };
         
         var w = D.chart_dimensions.width,
@@ -510,8 +715,10 @@ Metric.prototype = {
         
         /* an object reference to store things like scales and etc.. */
         this.ref = {
-            xscale : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]), // the x scale            
-            yscale : d3.scale.linear().domain([0,100]).range([h+t,t])                 // the y scale   
+            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]), // the x scale            
+            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),                // the y scale   
+            points      : [ ],                                                      // an array of points
+            weightscale : d3.scale.linear().domain([0,10]).range([h+t,t])
         };
         
         this.uid = U.uid(); // give this metric a unique identifier
@@ -560,26 +767,35 @@ Metric.prototype = {
      * called after the metric's range has changed
     */
     redraw : function () {
-        var xs        = this.ref.xscale,
-            ys        = this.ref.yscale,
-            dom       = this.dom,
-            rect      = dom.rangeRect,
-            leftNode  = dom.leftNode,
-            rightNode = dom.rightNode,
-            leftb     = xs( this.pub.saferange[0] ),
-            rightb    = xs( this.pub.saferange[1] ),
-            width     = rightb - leftb;
+        var xs         = this.ref.xscale,
+            ys         = this.ref.yscale,
+            ws         = this.ref.weightscale,
+            dom        = this.dom,
+            rect       = dom.rangeRect,
+            leftNode   = dom.leftNode,
+            rightNode  = dom.rightNode,
+            weightNode = dom.weightNode,
+            weight     = this.pub.weight,
+            leftb      = xs( this.pub.saferange[0] ),
+            rightb     = xs( this.pub.saferange[1] ),
+            width      = rightb - leftb;
         
-        rect
+        rect 
             .attr("x", leftb)
             .attr("width", width);
         
         leftNode
-            .attr("transform", U.mts(leftb) );
+            .attr("transform", U.mts(leftb) ) // move the left node into postion
+            .selectAll("text").text( this.pub.saferange[0].toFixed(0) );
             
         rightNode
-            .attr("transform", U.mts(rightb) ); 
-        
+            .attr("transform", U.mts(rightb) ) // move the right node into postion 
+            .selectAll("text").text( this.pub.saferange[1].toFixed(0) );
+            
+        weightNode
+            .attr("transform", U.mts(737.5, ws(weight) ) )
+            .selectAll("text").text( weight.toFixed(0) );
+
     },
     
     /* metric.strip
@@ -682,7 +898,10 @@ _setOptions = function ( options ) {
     
     /* remove text selection (highlighting) */
     if( options.allowTextSelection === false ){
-        document.onselectstart = function (evt) { evt.preventDefault && evt.preventDefault(); return false; };
+        document.onselectstart = function (evt) { 
+            evt.preventDefault && evt.preventDefault(); 
+            return false; 
+        };
     }
 };
 
@@ -696,7 +915,7 @@ _populateMetrics = function ( metricData ) {
     if( U.type(metricData) !== "array" ){ 
         return U.e("Improper data format; must be of type \"array\""); 
     }
-    
+
     var i, metric;
     
     for(i = 0; i < metricData.length; i++){
@@ -803,5 +1022,4 @@ window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();
-
 
