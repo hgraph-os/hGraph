@@ -5,9 +5,9 @@
         "totalrange" : [0, 60]
     }
 },{
-    "name"     : "LDL",
+    "name"     : "HDL",
     "features" : { 
         "saferange"  : [0, 97],
-        "totalrange" : [0, 130]
+        "totalrange" : [0,130]
     }
 }]

@@ -8,6 +8,16 @@ section.config{
     border-radius: 6px;
     padding: 25px 0px 25px 0px;
 }
+
+div.no-vis{ 
+    width: 0px; 
+    height: 0px;
+    overflow: hidden; 
+    position: fixed; 
+    left: -100%;
+    top: -100%;
+}
+
 section.config img.logo{ 
     display: block; 
     margin: 0px auto; 

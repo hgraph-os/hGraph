@@ -23,6 +23,59 @@
         hMetrics    = [ ],   // Metric object array
         hRenderZone = null;  // The container where metrics are to be dumped
 
+
+////////////////////////////////////////////   
+// Default storage and it's shortcut
+//
+Defaults = D = {
+    safe_range       : [50, 80],
+    total_range      : [0, 100],
+    weight           : 1,
+    svg_element      : { width : 800, height : 250 },
+    svg_layers       : ["ui", "data"],
+    chart_dimensions : {
+        left   : 75,
+        top    : 40,
+        width  : 650,
+        height : 170
+    },
+    svg_cover : {
+        "fill"   : "rgba(0,0,0,0.0)",
+        "x"      : 0,
+        "y"      : 0,
+        "width"  : 800,
+        "height" : 250
+    },
+    svg_text : {
+        "fill"           : "#9d9f9f",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "12px",
+        "pointer-events" : "none"
+    },
+    svg_axis : { 
+        "stroke" : "#9d9f9f"
+    },
+    range_rect : {
+        "fill"   : "#bdcb9e",
+        "y"      : 40,
+        "height" : 169,
+        "cursor" : "move"
+    },
+    bound_outer_circle : {
+        "r"      : 9,
+        "fill"   : "#fff",
+        "cx"     : 0,
+        "cy"     : 0,
+        "filter" : "url(#shadow)"
+    },
+    bound_inner_circle : {
+        "r"    : 5,
+        "fill" : "#80994f",
+        "cy"   : 0,
+        "cx"   : 0
+    }
+};
+
 ////////////////////////////////////////////   
 // Utility object and it's shortcut
 //
@@ -156,32 +209,33 @@ Utils = U = {
         
         return _error;
         
-    })( )
+    })( ),
+    
+    
+    /* makeTransformString
+    *
+    * A shortcut for generating transform strings 
+    * for use with the bounds
+    * @param {int} left The desired left position
+    * @param {int} [top] Possible desired top position
+    */    
+    makeTransformString : (function () {
+        
+        var _hHeight = (D.chart_dimensions.height * 0.5),
+            _hYPos   = _hHeight + D.chart_dimensions.top,
+            _mtsf    = function (left, top) {
+                return "translate(" + left + "," + (top || _hYPos) + ")";
+            };
+            
+        return _mtsf;
+        
+    })()
+
 };
 
-U.e = U.error; //shortcut for error
+U.e   = U.error;               //shortcut for error
+U.mts = U.makeTransformString; //shortcut for makeTransformString
 
-////////////////////////////////////////////   
-// Default storage and it's shortcut
-//
-Defaults = D = {
-    svg_element      : { width : 800, height : 250 },
-    svg_layers       : ["ui", "data"],
-    chart_dimensions : {
-        left   : 75,
-        top    : 40,
-        width  : 650,
-        height : 170
-    },
-    svg_text : {
-        "fill"        : "#9d9f9f",
-        "font-family" : "'Droid Serif',serif",
-        "font-size"   : "12px"    
-    },
-    svg_axis : { 
-        "stroke" : "#9d9f9f"
-    }
-};
 
 
 ////////////////////////////////////////////   
@@ -193,62 +247,236 @@ Metric = function ( opts ) {
     return new Metric.prototype.rig( opts ); // self-instantiating constuctor 
 };
 
-Metric.layerPrep = {
+Metric.layerPrep = (function () {
     
-    /* Metric.layerPrep.ui
-     *
-     * Prepares the metric's ui layer with 
-     * the axis
-    */
-    ui : function ( layer ) {  
-        var xs = this.ref.xscale,
-            ys = this.ref.yscale,
-            xt = xs.ticks(10),
-            yt = ys.ticks(3);
-            
-        layer
-            .selectAll("text.xticks")
-            .data(xt).enter().append("text")
-            .text(function (d, i) { return d; })
-            .attr("x", function(d, i) { return xs(d); })
-            .attr("text-anchor", "middle")
-            .attr(D.svg_text)
-            .attr("y", D.chart_dimensions.top + D.chart_dimensions.height + 15);
-            
-        layer
-            .selectAll("text.yticks")
-            .data(yt).enter().append("text")
-            .text(function (d, i) { return d; })
-            .attr(D.svg_text)
-            .attr("x", D.chart_dimensions.left + D.chart_dimensions.width + 4)
-            .attr("y", function (d, i) { return ys(d); });
-            
-        layer
-            .append("line")
-            .attr("x1", D.chart_dimensions.left)
-            .attr("x2", D.chart_dimensions.left + D.chart_dimensions.width)
-            .attr("y1", (D.chart_dimensions.top + D.chart_dimensions.height) - 0.5)
-            .attr("y2", (D.chart_dimensions.top + D.chart_dimensions.height) - 0.5)
-            .attr(D.svg_axis);
-            
-        layer
-            .append("line")
-            .attr("x1", (D.chart_dimensions.left + D.chart_dimensions.width) - 0.5)
-            .attr("x2", (D.chart_dimensions.left + D.chart_dimensions.width) - 0.5)
-            .attr("y1", D.chart_dimensions.top)
-            .attr("y2", D.chart_dimensions.top + D.chart_dimensions.height)
-            .attr(D.svg_axis);
-    },
-    
-    /* Metric.layerPrep.data
-     *
-     * Prepares the metric's data layer for
-     * interation and fun times
-    */
-    data : function ( layer ) {
+    var ui,   // ui layer function   (returned)
+        data, // data layer function (returned)
         
-    }
+        /* interaction definitions */
+        _startDrag, // mouse downs 
+        _doDrag,    // mouse moves
+        _endDrag,   // mouse ups
+        
+        /* handle dependent function */
+        _moveRange,      // moves the whole range
+        _moveLeftBound,  // moves the left bound circle
+        _moveRightBound, // moves the right bound
+        
+        /* helper function for the transform property */
+        _makeTransformString, _mts, // shortcut too 
+        
+        /* interaction properties */
+        _interactionState = { };
+        
+
+/* _startDrag
+ *
+ * Prepares the document to handle
+ * mouse move events 
+*/    
+_startDrag = function ( evt ) {
+    d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
 };
+
+
+/* _moveRange
+ * 
+ * The drag function that is called on mouse  
+ * move after mouse down the on the main 
+ * range rectangle 
+ * @param {number} left The left position relative to the chart
+*/
+_moveRange = function (left) {
+    var xs       = this.ref.xscale,
+        leftb    = this.pub.saferange[0],
+        rightb   = this.pub.saferange[1],
+        width    = rightb - leftb,
+        xpos     = xs.invert(left),
+        newRight = xpos + (width * 0.5),
+        newLeft  = xpos - (width * 0.5);
+        
+    /* catch the boundary issues */
+    if( newLeft < this.pub.totalrange[0] ){
+        newLeft  = 0;
+        newRight = width;
+    } else if ( newRight > this.pub.totalrange[1] ){
+        newRight = this.pub.totalrange[1];
+        newLeft  = newRight - width;
+    }
+        
+    this.pub.saferange = [newLeft, newRight];
+};
+
+
+/* _moveLeftBound
+ * 
+ * The drag function that is called on mouse  
+ * move after mouse down the on the left bound
+ * @param {number} left The left position relative to the chart
+*/
+_moveLeftBound = function ( left ) {
+    var xs  = this.ref.xscale,
+        lp  = xs.invert(left),
+        rb  = this.pub.saferange[1],
+        max = this.pub.totalrange[0]; 
+    
+    if( lp < max ) { lp = max; }
+    if( lp > rb ) { lp = rb; }
+    
+    this.pub.saferange[0] = lp;
+};
+
+_moveRightBound = function ( left ) {
+    var xs  = this.ref.xscale,
+        rp  = xs.invert(left),
+        lb  = this.pub.saferange[0],
+        max = this.pub.totalrange[1];
+    
+    if( rp > max ) { rp = max; }
+    if( rp < lb ) { rp = lb; }
+    
+    this.pub.saferange[1] = rp;
+};
+
+/* _doDrag
+ *
+ * Handles mouse movements
+*/  
+_doDrag = function ( evt ) {  
+    
+    /* if the listener got fired without an event - give up */
+    if ( !d3.event ){ return false; }
+    
+    var metric       = _interactionState.metric,
+        activeE      = _interactionState.activeE,
+        mouseLeft    = d3.event.pageX,
+        relativeLeft = mouseLeft - metric.dom.container.offsetLeft;
+    
+    switch ( activeE ) {
+        case "lb" :
+            _moveLeftBound.call( metric, relativeLeft ); 
+            break;
+        case "rb" : 
+            _moveRightBound.call( metric, relativeLeft );
+            break;
+        case "rr" : 
+            _moveRange.call( metric, relativeLeft );
+            break;  
+        default : 
+            break;
+    };
+    
+    return metric.redraw( );
+};
+
+/* _doDrag
+ *
+ * Releases previously bound listeners
+*/  
+_endDrag = function ( evt ) {
+    d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
+    _interactionState = { };                                       // clear out the state 
+};
+        
+/* Metric.layerPrep.ui
+ *
+ * Prepares the metric's ui layer with 
+ * the axis
+*/
+ui = function ( layer ) {  
+    var xs = this.ref.xscale,
+        ys = this.ref.yscale,
+        xt = xs.ticks(10),
+        yt = ys.ticks(3);
+    
+    layer
+        .selectAll("text.xticks")
+        .data(xt).enter().append("text")
+        .text(function (d, i) { return d; })
+        .attr("x", function(d, i) { return xs(d); })
+        .attr("text-anchor", "middle")
+        .attr(D.svg_text)
+        .attr("y", D.chart_dimensions.top + D.chart_dimensions.height + 15);
+        
+    layer
+        .selectAll("text.yticks")
+        .data(yt).enter().append("text")
+        .text(function (d, i) { return d; })
+        .attr(D.svg_text)
+        .attr("x", D.chart_dimensions.left + D.chart_dimensions.width + 4)
+        .attr("y", function (d, i) { return ys(d); });
+        
+    layer
+        .append("line")
+        .attr("x1", D.chart_dimensions.left)
+        .attr("x2", D.chart_dimensions.left + D.chart_dimensions.width)
+        .attr("y1", (D.chart_dimensions.top + D.chart_dimensions.height) - 0.5)
+        .attr("y2", (D.chart_dimensions.top + D.chart_dimensions.height) - 0.5)
+        .attr(D.svg_axis);
+        
+    layer
+        .append("line")
+        .attr("x1", (D.chart_dimensions.left + D.chart_dimensions.width) - 0.5)
+        .attr("x2", (D.chart_dimensions.left + D.chart_dimensions.width) - 0.5)
+        .attr("y1", D.chart_dimensions.top)
+        .attr("y2", D.chart_dimensions.top + D.chart_dimensions.height)
+        .attr(D.svg_axis);
+        
+    layer.append("rect")
+        .attr(D.svg_cover);
+};
+
+/* Metric.layerPrep.data
+ *
+ * Prepares the metric's data layer for
+ * interation and fun times
+*/
+data = function ( layer ) {
+    var metric = this,
+        dom    = metric.dom,
+        rangeRect, leftBound, rightBound;
+    
+    rangeRect = layer.append("rect")
+                    .attr(D.range_rect)
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "rr";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );               // begin registering events  
+                    });
+                    
+    leftBound  = layer.append("g")
+                    .attr("data-name","left-node")
+                    .attr("cursor","pointer")
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "lb";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );               // begin registering events 
+                    });
+                    
+    rightBound = layer.append("g")
+                    .attr("data-name","right-node")
+                    .attr("cursor","pointer")
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "rb";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );               // begin registering events 
+                    });
+    
+    leftBound.append("circle").attr(D.bound_outer_circle);
+    rightBound.append("circle").attr(D.bound_outer_circle);
+    
+    leftBound.append("circle").attr(D.bound_inner_circle);
+    rightBound.append("circle").attr(D.bound_inner_circle);
+      
+    dom.rangeRect = rangeRect;  // save the range rectangle
+    dom.leftNode  = leftBound;  // save the left bound
+    dom.rightNode = rightBound; // save the right bound 
+};
+
+/* dump the layer prepping functions back out */
+return { ui : ui, data : data };
+
+})( );
 
 Metric.prototype = {
     constructor : Metric,
@@ -264,9 +492,9 @@ Metric.prototype = {
         /* the object that will keep references to values, names.. etc */
         this.pub = { 
             name       : opts.name || "N/A",
-            saferange  : (opts.features && opts.features.saferange) ? opts.features.saferange : [0,100],
-            totalrange : (opts.features && opts.features.totalrange) ? opts.features.totalrange : [0,100],
-            weight     : (opts.features && opts.features.weight) ? opts.features.weight : 1
+            saferange  : (opts.features && opts.features.saferange) ? opts.features.saferange : D.safe_range,
+            totalrange : (opts.features && opts.features.totalrange) ? opts.features.totalrange : D.total_range,
+            weight     : (opts.features && opts.features.weight) ? opts.features.weight : D.weight
         };
         
         var w = D.chart_dimensions.width,
@@ -295,6 +523,7 @@ Metric.prototype = {
     render : function ( ) {
         var container = document.createElement("article"),
             context   = d3.select(container).append("svg"),
+            dom       = this.dom,
             layers    = { }, i = 0, layer, name;
     
         U.a.call(container,"class","metric cf middle"); // set the metric container's class
@@ -311,14 +540,40 @@ Metric.prototype = {
             
             layers[name] = layer;
         }
+                
+        
+        dom.container   = container; // save the html container
+        dom.svg_element = context;   // save the svg element
+        dom.layers      = layers;    // save the "g" layers
+        
+        return this.redraw( );
+    },
+    
+    /* metric.redraw
+     *
+     * called after the metric's range has changed
+    */
+    redraw : function () {
+        var xs        = this.ref.xscale,
+            ys        = this.ref.yscale,
+            dom       = this.dom,
+            rect      = dom.rangeRect,
+            leftNode  = dom.leftNode,
+            rightNode = dom.rightNode,
+            leftb     = xs( this.pub.saferange[0] ),
+            rightb    = xs( this.pub.saferange[1] ),
+            width     = rightb - leftb;
+        
+        rect
+            .attr("x", leftb)
+            .attr("width", width);
+        
+        leftNode
+            .attr("transform", U.mts(leftb) );
             
+        rightNode
+            .attr("transform", U.mts(rightb) ); 
         
-        
-        this.dom = {
-            container   : container,
-            svg_element : context,
-            layers      : layers
-        };
     },
     
     /* metric.strip
@@ -328,7 +583,7 @@ Metric.prototype = {
     */
     strip : function () {
         return this.pub;
-    },
+    }
 };
 
 /* allows the use of rig as the constructor */
@@ -342,12 +597,88 @@ Metric.prototype.rig.prototype = Metric.prototype;
 Mixer = (function () {
     
     var /* private objects */
-        __mixer,      // The public object to be returned
+        __mixer,                // The public object to be returned
+        __ajaxCallback = false, // In case the ajax method is being used
     
         /* private functions */
         _prepMixer,       // Initialization function
-        _populateMetrics; // Metric creation function 
+        _populateMetrics, // Metric creation function 
+        _setOptions,      // Optional option setting
+        _svgDefs;         // creation of handy SVG styles
 
+
+/* _svgDefs
+ * 
+ * Set up an SVG element on the page to contain all
+ * the filter effects and definitions needed
+*/
+_svgDefs = function ( ) {
+    
+    var hider    = document.createElement("div"),
+        svg      = d3.select(hider).append("svg"),
+        defs     = svg.append("defs"),
+        filter   = defs.append("filter"),
+        offset   = filter.append("feOffset"),
+        gaussian = filter.append("feGaussianBlur"),
+        flood    = filter.append("feFlood"),
+        compin   = filter.append("feComposite"),
+        compout  = filter.append("feComposite");
+        
+    svg.attr({
+        "width"  : "0px",
+        "height" : "0px" 
+    });
+    
+    filter.attr("id", "shadow");
+    offset.attr({
+        "dx" : "0", 
+        "dy" : "0" 
+    });
+    gaussian.attr({
+        "stdDeviation" : "1.5",
+        "result"       : "offset-blur"
+    });
+    flood.attr({
+        "flood-color"   : "black",
+        "flood-opacity" : "0.55",
+        "result"        : "color"
+    });
+    compin.attr({
+        "operator" : "in",
+        "in"       : "color",
+        "in2"      : "offset-blur",
+        "result"   : "shadow"
+    });
+    compout.attr({
+        "operator" : "over",
+        "in"       : "SourceGraphic",
+        "in2"      : "shadow"
+    });
+    
+    
+    U.a.call(hider,"class","no-vis");
+    
+    document.body.appendChild( hider );
+};
+
+/* _setOptions
+ * 
+ * Set misc options
+ * @param {object} options Object with options 
+*/
+_setOptions = function ( options ) {    
+
+    D.range_rect.fill = options.range_fill || D.range_rect.fill; // range box color
+    D.svg_text.fill   = options.text_fill || D.svg_text.fill;    // text color
+    D.safe_range      = options.safe_range || D.safe_range;      // safe range 
+    D.total_range     = options.total_range || D.total_range;    // total range 
+    
+    
+    /* remove text selection (highlighting) */
+    if( options.allowTextSelection === false ){
+        document.onselectstart = function (evt) { evt.preventDefault && evt.preventDefault(); return false; };
+    }
+};
 
 /* _prepMixer
  * 
@@ -374,6 +705,10 @@ _populateMetrics = function ( metricData ) {
         hMetrics.push( metric.strip() );
     }
     
+    if( __ajaxCallback && U.type( __ajaxCallback ) === "function" ){
+        __ajaxCallback( );
+    }
+    
 };
 
 
@@ -387,6 +722,9 @@ _prepMixer = function ( metricList ) {
     /* do not prep the mixer more than once */
     hPrepped = true;
     
+    /* add the svg definitions to the page */
+    _svgDefs( );
+    
     /* find the context to render metrics inside */
     hRenderZone = document.getElementById("metrics")
                     || document.getElementById("context")
@@ -397,13 +735,15 @@ _prepMixer = function ( metricList ) {
     U.a.call(hRenderZone,"class","f metrics cf").call(hRenderZone,"id","metrics");
     
     if( metricList && metricList.length >= 0 && U.type(metricList) == "array"){
-    
+        /* use the array and get the list populated */
         _populateMetrics( metricList );
-    
     } else if( metricList && metricList.url ){
-
+        /* if there was a callback sent in as well */
+        if( metricList.callback ){
+            __ajaxCallback = metricList.callback; 
+        }
+        /* make the request to the url */
         d3.json( metricList.url, _populateMetrics );   
-
     }
     
     return (metricList === false) ? U.e("Mixer.init must be called with an array or an object") : true;
@@ -417,8 +757,11 @@ __mixer = {
      * 
      * Prepare the mixer object 
      * @param {array|object} [metricList] Object with a url for ajax, or an array
+     * @param {object} [opts] Options for the hMixer page
     */
-    init : function ( metricList ) {
+    init : function ( metricList, opts ) {
+        if( opts && U.type(opts) === "object" ){ _setOptions( opts ); }
+
         return (hPrepped) ? U.e("Mixer was already prepped.") : _prepMixer( metricList || false );
     },
     
@@ -450,7 +793,7 @@ return __mixer;
 
     
     
-window.Mixer = Mixer;          // Show the mixer to the outside
+window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();

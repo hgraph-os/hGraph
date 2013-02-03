@@ -6,24 +6,47 @@
  * ******************************************************* */
 (function () {
     
-    var ready,   // the ready function
-        metrics; // the metrics to populate with (optional)
+    var ready,    // the ready function
+        metrics,  // the metrics to populate with      (optional)
+        options,  // options for how the hMixer works  (optional)
+        ajaxconf, // ajax configuration                (optional)
+        onloaded; // onloaded callback for ajax method (optional)
 
+/* example callback for when the ajax method is complete */
+onloaded = function ( ) {
+
+    console.log( Mixer.getMetric("hdl") );  
+
+};
+
+
+/* example array for metric structures */
 metrics = [{
     name     : "LDL",
-    features : {
-        
-    }
+    features : { }
 },{
     name     : "LDL",
-    features : {
-        
-    }
+    features : { }
 }];
 
+/* example ajax method setup */
+ajaxconf = {
+    url      : "tests/metrics.json",
+    callback : onloaded
+};
+
+/* example usage of the "options" parameter */
+options = {
+    allowTextSelection : false
+    // safe_range         : [0, 400],
+    // total_range        : [0, 800]
+    // range_fill : "#ff0000" 
+    // text_fill  : "#ff0000"
+};
+
 ready = function () {
-    Mixer.init({ url : "tests/metrics.json" }); // initialize the Mixer (ajax)
-    //Mixer.init( metrics );                    // initialize the Mixer (array)
+    Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
+    //Mixer.init( metrics );       // initialize the Mixer (array version)
 };
 
 Entry( ready ); // Use the Entry funciton defined in Utils
