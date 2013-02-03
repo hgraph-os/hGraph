@@ -19,23 +19,27 @@
         /* 
          * private (h) variable definitions
         */
-        hPrepped    = false, // Mixer object prep state
-        hMetrics    = [ ],   // Metric object array
-        hRenderZone = null;  // The container where metrics are to be dumped
+        hPrepped      = false, // Mixer object prep state
+        hMetrics      = [ ],   // Metric object array
+        hOriginalData = false,
+        hRenderZone   = null,  // The container where metrics are to be dumped
+        hSubmitForm   = null,  // The form that will be submitted
+        hGenderIndex  = 0;     // a gender number defining male of female
 
 
 ////////////////////////////////////////////   
 // Default storage and it's shortcut
 //
 Defaults = D = {
+    form_class       : "form.submit-form",
     safe_range       : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 800, height : 250 },
+    svg_element      : { width : 900, height : 250 },
     svg_layers       : ["ui", "data"],
     chart_dimensions : {
-        left   : 125,
+        left   : 225,
         top    : 40,
         width  : 550,
         height : 170
@@ -44,7 +48,7 @@ Defaults = D = {
         "fill"   : "rgba(0,0,0,0.0)",
         "x"      : 0,
         "y"      : 0,
-        "width"  : 800,
+        "width"  : 900,
         "height" : 250
     },
     svg_text : {
@@ -84,16 +88,16 @@ Defaults = D = {
         "cx"   : 0
     },
     title_text : {
-        "x"              : 100,
+        "x"              : 200,
         "y"              : 205,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
-        "font-size"      : "36px",
+        "font-size"      : "32px",
         "pointer-events" : "none",
         "text-anchor"    : "end"
     },
     unit_text : {
-        "x"              : 100,
+        "x"              : 200,
         "y"              : 220,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
@@ -102,8 +106,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     weight_bar : {
-        "x1"     : 737.5,
-        "x2"     : 737.5,
+        "x1"     : 837.5,
+        "x2"     : 837.5,
         "y1"     : 40,
         "y2"     : 210,
         "stroke" : "#c0c3c2"
@@ -111,7 +115,27 @@ Defaults = D = {
     weight_bounds : {
         "r"    : 2,
         "fill" : "#c0c3c2",
-        "cx"   : 737.5  
+        "cx"   : 837.5  
+    },
+    curve_path : {
+        "stroke-width" : 3,
+        "stroke"       : "#6c6e6d",
+        "fill"         : "none"
+    },
+    curve_bubble : {
+        "fill" : "#4c4d4d",
+        "cy"   : 0,
+        "cx"   : 0,
+        "r"    : 10
+    },
+    curve_text : {
+        "fill"           : "#fff",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "12px",
+        "pointer-events" : "none",
+        "text-anchor"    : "middle",
+        "x"              : 0,
+        "y"              : 5
     }
 };
 
@@ -301,6 +325,8 @@ Metric.layerPrep = (function () {
         _moveLeftBound,  // moves the left bound circle
         _moveRightBound, // moves the right bound
         _moveWeight,     // moves the weight
+        _movePoint,
+        _scrubPath,
         
         /* helper functions */
         _whipeInteractionState,
@@ -309,7 +335,16 @@ Metric.layerPrep = (function () {
         _addScalePoint,
         
         /* interaction properties */
-        _interactionState = { metric : null, activeE : null, hasMoved : false };
+        _interactionState = { 
+            metric          : null, 
+            activeE         : null, 
+            hasMoved        : false, 
+            initialDistance : null,
+            pointIndex      : null
+        },
+        
+        /* fade out for the scrubber */
+        _fadeOutTimeout = null;
         
 
 /* _startDrag
@@ -317,12 +352,96 @@ Metric.layerPrep = (function () {
  * Prepares the document to handle "mousemove" events 
 */    
 _startDrag = function ( evt ) {
+    
+    var metric           = _interactionState.metric,
+        xscale           = metric.ref.xscale,
+        initialRelativeX = d3.event.pageX - metric.dom.container.offsetLeft,
+        initialLeft      = xscale( metric.pub.saferange[0] ),
+        initialRight     = xscale( metric.pub.saferange[1] ),
+        initialWidth     = initialRight - initialLeft,
+        initialMiddle    = initialLeft + (initialWidth * 0.5),
+        initialDistance  = initialMiddle - initialRelativeX;
+        
+    /* save this initial distance */
+    _interactionState.initialDistance = initialDistance;
     /* reset the hasMoved - nothing has happened yet... */
     _interactionState.hasMoved = false;
 
     d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
 };
 
+/* _scrubPath
+ * 
+ * Mouse move event for path scrubber 
+ * @param {object} evt The d3.event that was fired on move
+*/
+_scrubPath = function ( evt ) { 
+    if( _interactionState.hasMoved ){ return false; }
+    
+    var metric  = _interactionState.metric,
+        yscale  = metric.ref.yscale,
+        xscale  = metric.ref.xscale,
+        pathe   = metric.dom.curvePath.node(),
+        bubble  = metric.dom.curveBubble,
+        mouseX  = evt.pageX,
+        rLeft   = mouseX - metric.dom.container.offsetLeft,
+        points  = metric.ref.points,
+        pLength = pathe.getTotalLength(),
+        minDist = Number.MAX_VALUE, 
+        scrubVal, pathPoint, closePoint,
+        distance, inc, dec;
+    
+    /* if there is not enough points, forget about it */
+    if( points.length < 2){ return; }
+    
+    for(inc = 0, dec = parseInt(pLength,10); inc < pLength && dec > 0; dec--, inc++){
+        
+        pathPoint = pathe.getPointAtLength( inc );
+        distance  = Math.abs( rLeft - pathPoint.x );
+        
+        if( distance < minDist ){
+            closePoint = pathPoint;
+            minDist    = distance;
+        }
+        /* if it's close enough, stop looking */
+        if( distance < 2){ break; }
+        
+        pathPoint = pathe.getPointAtLength( dec );
+        distance  = Math.abs( rLeft - pathPoint.x );
+        
+        if( distance < minDist ){
+            closePoint = pathPoint;
+            minDist    = distance;
+        }
+    
+        /* if it's close enough, stop looking */
+        if( distance < 2){ break; }
+    }
+         
+    /* get the real values of these coordinates */
+    scrubVal = {
+        y : yscale.invert( closePoint.y ).toFixed(0),
+        x : xscale.invert( rLeft ).toFixed(0)
+    };
+    
+    /* update the bubble */
+    bubble
+        .attr("transform", U.mts(closePoint.x, closePoint.y) )
+        .transition().duration(20).attr("opacity", 1.0);
+    
+    bubble
+        .selectAll("text")
+        .text( scrubVal.y );
+    
+    clearTimeout(_fadeOutTimeout);
+    _fadeOutTimeout = setTimeout(function () {
+        
+        bubble
+            .transition().duration(100).attr("opacity", 0.0);
+            
+    }, 1000);
+    
+};
 
 /* _addScalePoint
  * 
@@ -334,16 +453,48 @@ _addScalePoint = function ( evt ){
     if( _interactionState.hasMoved ){ return; }
     
     var metric = _interactionState.metric,
+        points = metric.ref.points,
+        layer  = metric.dom.pointGroup,
         rmX    = evt.pageX - metric.dom.container.offsetLeft, // relative mouse X pos
         rmY    = evt.pageY - metric.dom.container.offsetTop,  // relative mouse Y pos
-        d      = D.chart_dimensions;                          // dimensions shortcut
+        d      = D.chart_dimensions,                          // dimensions shortcut
+        point; 
     
     /* boundary check */
     if( rmX < d.left || rmX > (d.left + d.width) || rmY > (d.top + d.bottom) || rmY < d.top){
         return;
     }
+    
+    point = layer
+                .append("g")
+                .attr("data-point", points.length)
+                .attr("data-uid", U.uid() )
+                .attr("cursor", "pointer")
+                .on("mousedown", function ( ) {
+                    var pIndx =  d3.select(this).attr('data-point');
+                    
+                    _interactionState.activeE    = "point";   // we are using the range rect
+                    _interactionState.metric     = metric;    // save the metric being acted upon
+                    _interactionState.pointIndex = pIndx;     // save the point intex
+                    
+                    return _startDrag( );                     // begin registering events 
+                });
+                 
+    point
+        .append("circle")
+        .attr(D.bound_outer_circle); 
         
+    point
+        .append("circle")
+        .attr(D.bound_inner_circle)
+        .attr("fill","#585a5a");
+        
+    points.push({ el : point, top : rmY, left : rmX });
+
     U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
+    
+    /* update the score curve */
+    metric.updateCurve( );
     
     _whipeInteractionState( false );
 };
@@ -359,15 +510,16 @@ _moveRange = function (left) {
     var xs       = this.ref.xscale,
         leftb    = this.pub.saferange[0],
         rightb   = this.pub.saferange[1],
+        diff     = _interactionState.initialDistance,
         width    = rightb - leftb,
-        xpos     = xs.invert(left),
+        xpos     = xs.invert(left + diff),
         newRight = xpos + (width * 0.5),
         newLeft  = xpos - (width * 0.5);
-        
+    
     /* catch the boundary issues */
     if( newLeft < this.pub.totalrange[0] ){
-        newLeft  = 0;
-        newRight = width;
+        newLeft  = this.pub.totalrange[0];
+        newRight = width + newLeft;
     } else if ( newRight > this.pub.totalrange[1] ){
         newRight = this.pub.totalrange[1];
         newLeft  = newRight - width;
@@ -429,6 +581,32 @@ _moveWeight = function ( top ) {
     this.pub.weight = Math.ceil( wp );
 };
 
+/* _movePoint
+ *
+ * Moves a point on the path during drag
+ * @param {number} left The mouse position relative to the chart
+ * @param {number} top The mouse position relative to the chart
+*/ 
+_movePoint = function ( left, top ) {
+    var indx  = _interactionState.pointIndex,
+        point = this.ref.points[indx],
+        minX  = D.chart_dimensions.left,
+        maxX  = minX + D.chart_dimensions.width,
+        minY  = D.chart_dimensions.top,
+        maxY  = minY + D.chart_dimensions.height;
+
+    if( left < minX ) { left = minX; }
+    if( left > maxX ) { left = maxX; }
+    
+    if( top < minY ) { top = minY; }
+    if( top > maxY ) { top = maxY; }
+    
+   
+    
+    point.top  = top;
+    point.left = left;
+};
+
 /* _doDrag
  *
  * Handles mouse movements
@@ -459,6 +637,9 @@ _doDrag = function ( evt ) {
             break; 
         case "ww" :
             _moveWeight.call( metric, relativeTop ); 
+            break;
+        case "point" :
+            _movePoint.call( metric, relativeLeft, relativeTop );
         default : 
             break;
     };
@@ -466,7 +647,7 @@ _doDrag = function ( evt ) {
     /* we have offically moved (at least once) */
     _interactionState.hasMoved = true;
     
-    return metric.redraw( );
+    return (activeE === "point") ? metric.updateCurve( ) : metric.reDraw( );
 };
 
 /* _doDrag
@@ -477,7 +658,9 @@ _endDrag = function ( evt ) {
     d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
     
     /* clear out states */
-    _whipeInteractionState( true );
+    setTimeout(function () {
+        _whipeInteractionState( true );
+    }, 3);
 };
 
 /* _whipeInteractionState
@@ -486,8 +669,10 @@ _endDrag = function ( evt ) {
  * @param {boolean} wasDrag A flag for if the interaction was a drag
 */
 _whipeInteractionState = function ( wasDrag ) {
-    _interactionState.metric  = null;
-    _interactionState.activeE = null; 
+    _interactionState.metric          = null;
+    _interactionState.activeE         = null; 
+    _interactionState.initialDistance = null;
+    _interactionState.pointIndex      = null;
     
     /* if it wasnt a drag, we can just go head and set the hasMoved to false */
     if( !wasDrag ){
@@ -580,7 +765,9 @@ data = function ( layer ) {
     var metric = this,
         dom    = metric.dom,
         rangeRect, leftBound, rightBound,
-        weightNode, coverRect;
+        weightNode, coverRect, 
+        curvePath, pointGroup, curveGroup,
+        curveBubble;
     
     coverRect = layer.append("rect")
                     .attr( D.svg_cover )
@@ -593,6 +780,7 @@ data = function ( layer ) {
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
+                    .attr("data-name", "range-rectangle")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
                         _interactionState.metric  = metric; // save the metric being acted upon
@@ -606,9 +794,9 @@ data = function ( layer ) {
                     .attr("data-name","left-node")
                     .attr("cursor","pointer")
                     .on("mousedown", function ( ) {
-                        _interactionState.activeE = "lb";   // we are using the range rect
-                        _interactionState.metric  = metric; // save the metric being acted upon
-                        return _startDrag( );               // begin registering events 
+                        _interactionState.activeE  = "lb";   // we are using the range rect
+                        _interactionState.metric   = metric; // save the metric being acted upon
+                        return _startDrag( );                // begin registering events 
                     });
                     
     rightBound = layer.append("g")
@@ -628,6 +816,30 @@ data = function ( layer ) {
                         _interactionState.metric  = metric; // save the metric being acted upon
                         return _startDrag( );
                     });
+    
+    curveGroup = layer.append("g")
+                    .attr("data-name", "curve-group");
+    
+    curvePath = curveGroup
+                    .append("path")
+                    .attr(D.curve_path);
+                    
+    curveBubble = curveGroup
+                    .append("g")
+                    .attr("data-name", "curve-bubble")
+                    .attr("opacity", 0.0);
+    
+    pointGroup = layer.append("g")
+                    .attr("data-name", "point-group");
+    
+    curveBubble
+        .append("circle")
+        .attr(D.curve_bubble);
+        
+    curveBubble
+        .append("text")
+        .attr(D.curve_text);
+    
     
     leftBound.append("circle").attr(D.bound_outer_circle);
     rightBound.append("circle").attr(D.bound_outer_circle);
@@ -656,12 +868,21 @@ data = function ( layer ) {
         .attr("fill","#fff")
         .attr("y", 5)
         .text( 4 );
+        
+    layer.on("mousemove", function () {
+        _interactionState.metric  = metric; // save the metric being acted upon
+        _scrubPath( d3.event );
+    }).on("mouseout", function () {
+        metric.dom.curveBubble.transition().duration(20).attr("opacity", 0.0);
+    });
     
-    
-    dom.weightNode = weightNode; // save the weight node
-    dom.rangeRect  = rangeRect;  // save the range rectangle
-    dom.leftNode   = leftBound;  // save the left bound
-    dom.rightNode  = rightBound; // save the right bound 
+    dom.curveBubble = curveBubble; // the scrubber bubble group
+    dom.curvePath   = curvePath;   // ref to the bezier curve (<path>)
+    dom.pointGroup  = pointGroup;  // save the group for data points
+    dom.weightNode  = weightNode;  // save the weight node
+    dom.rangeRect   = rangeRect;   // save the range rectangle
+    dom.leftNode    = leftBound;   // save the left bound
+    dom.rightNode   = rightBound;  // save the right bound 
 };
 
 /* dump the layer prepping functions back out */
@@ -715,10 +936,24 @@ Metric.prototype = {
         
         /* an object reference to store things like scales and etc.. */
         this.ref = {
-            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]), // the x scale            
-            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),                // the y scale   
-            points      : [ ],                                                      // an array of points
-            weightscale : d3.scale.linear().domain([0,10]).range([h+t,t])
+            
+            /* the x scale */
+            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]),            
+            
+            /* the y scale */
+            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),
+            
+            /* an array for points to be placed in */  
+            points      : [ ],                                                     
+            
+            /* the scale used for calculating weight positions */
+            weightscale : d3.scale.linear().domain([0,10]).range([h+t,t]),          
+            
+            /* the svg path element command generator */
+            linegen     : d3.svg.line()
+                            .x(function (d) { return d.x; })
+                            .y(function (d) { return d.y; })
+                            .interpolate("cardinal")
         };
         
         this.uid = U.uid(); // give this metric a unique identifier
@@ -754,19 +989,18 @@ Metric.prototype = {
             layers[name] = layer;
         }
                 
-        
         dom.container   = container; // save the html container
         dom.svg_element = context;   // save the svg element
         dom.layers      = layers;    // save the "g" layers
         
-        return this.redraw( );
+        return this.reDraw( );
     },
     
-    /* metric.redraw
+    /* metric.reDraw
      *
      * called after the metric's range has changed
     */
-    redraw : function () {
+    reDraw : function () {
         var xs         = this.ref.xscale,
             ys         = this.ref.yscale,
             ws         = this.ref.weightscale,
@@ -793,10 +1027,38 @@ Metric.prototype = {
             .selectAll("text").text( this.pub.saferange[1].toFixed(0) );
             
         weightNode
-            .attr("transform", U.mts(737.5, ws(weight) ) )
+            .attr("transform", U.mts(837.5, ws(weight) ) )
             .selectAll("text").text( weight.toFixed(0) );
 
     },
+    
+    
+    /* metric.updateCurve
+     *
+     * called after the metric's score curve has changed
+    */
+    updateCurve : function ( ) {
+        var points  = this.ref.points,
+            linegen = this.ref.linegen,
+            curve   = this.dom.curvePath,
+            layer   = this.dom.layers['data'],
+            indx, point, parts = [ ];
+        
+        for( indx = 0; indx < points.length; indx++ ) {
+            /* grab the current point */
+            point = points[indx];
+            
+            parts.push({ x : point.left, y : point.top });
+            
+            /* move the point */
+            point.el.attr("transform", U.mts(point.left, point.top) );
+        }
+        
+        curve
+            .datum(parts)
+            .attr("d", this.ref.linegen);        
+    },
+    
     
     /* metric.strip
      *
@@ -823,10 +1085,95 @@ Mixer = (function () {
         __ajaxCallback = false, // In case the ajax method is being used
     
         /* private functions */
-        _prepMixer,       // Initialization function
-        _populateMetrics, // Metric creation function 
-        _setOptions,      // Optional option setting
-        _svgDefs;         // creation of handy SVG styles
+        _prepMixer,         // Initialization function
+        _populateMetrics,   // Metric creation function 
+        _setOptions,        // Optional option setting
+        _svgDefs,           // creation of handy SVG styles
+        _prepSubmitForm,    // function for setting up the form
+        _keyManager,        // event listener for input boxes
+        _renderGenderData,  //
+        _prepGenderToggles, //
+        _genderToggle;      //
+
+
+/* _keyManager
+ *
+ * Prepares the input boxes for key events
+*/
+_keyManager = function ( ) {
+    var evt     = d3.event,
+        key     = evt.keyCode,
+        inpt    = d3.select( this ),
+        valu    = inpt.node().value,
+        keychar = parseInt( String.fromCharCode(key), 10 ),
+        isNum   = ( !isNaN(keychar) ) ? true : false;
+        
+    if( (valu.length > 1 && key !== 8 && key !== 9) || (!isNum && key !== 8 && key !== 9) ){ 
+        evt.preventDefault && evt.preventDefault(); 
+        return false; 
+    }
+    
+};
+
+
+/* _genderToggle
+ * 
+ * Re renders the metrics upon gender change
+*/
+_genderToggle = function ( ) {
+    var evt = d3.event,
+        gen = d3.select( this ).attr("data-gender"),
+        par = d3.select( this.parentNode ).select("button.active").classed("active", false);
+    
+    d3.select(this).classed("active", true);
+    
+    hGenderIndex = (gen === "male") ? 0 : 1;
+    
+    _renderGenderData( );
+    
+    return ( evt.preventDefault && evt.preventDefault() ) ? false : false;
+};
+
+/* _prepGenderToggles
+ * 
+ * Seeks gender toggles and binds events
+*/
+_prepGenderToggles = function ( ) {
+    var query = (hSubmitForm.querySelectorAll("button.g-toggle").length > 0) 
+                    ? hSubmitForm.querySelectorAll("button.g-toggle")
+                    : [ ],
+        button, indx;
+    
+    for( indx = 0; indx < query.length; indx++ ){
+        button = query[indx];
+        d3.select(button).on("click", _genderToggle);
+    }
+};
+
+
+/* _prepSubmitForm
+ *
+ * Prepares the form for events and such
+ * @param {string} formClass The query to be made for the object
+*/
+_prepSubmitForm = function ( formClass ) {
+    if( !document.querySelectorAll ){ return false; }
+    
+    var query  = document.querySelectorAll( formClass ),  
+        item   = (query.length > 0) ? query[0] : false,
+        inputs = (item) ? item.querySelectorAll("input.height-input") : [ ],
+        index, input;
+    
+    /* prep the input text elements */
+    for( index = 0; index < inputs.length; index++ ){
+        input = inputs[index];
+        
+        d3.select(input)
+            .on("keydown", _keyManager);
+    }
+    
+    return item;
+};
 
 
 /* _svgDefs
@@ -877,7 +1224,6 @@ _svgDefs = function ( ) {
         "in2"      : "shadow"
     });
     
-    
     U.a.call(hider,"class","no-vis");
     
     document.body.appendChild( hider );
@@ -894,6 +1240,7 @@ _setOptions = function ( options ) {
     D.svg_text.fill   = options.text_fill || D.svg_text.fill;    // text color
     D.safe_range      = options.safe_range || D.safe_range;      // safe range 
     D.total_range     = options.total_range || D.total_range;    // total range 
+    D.form_class      = options.form_class || D.form_class;      // form class
     
     
     /* remove text selection (highlighting) */
@@ -904,6 +1251,38 @@ _setOptions = function ( options ) {
         };
     }
 };
+
+/* _renderGenderData
+ * 
+ * Reuseable rendering loop 
+ */
+_renderGenderData = function ( ){
+    var i, j, metric, gender, mlist;
+            
+    gender                 = hOriginalData[hGenderIndex].gender;  // which gender is this list
+    mlist                  = hOriginalData[hGenderIndex].metrics; // get the metric list
+    hMetrics[hGenderIndex] = [ ];                                 // reset metric array
+    
+    /* clear out old html */
+    hRenderZone.innerHTML = "";
+    
+    /* loop through the metrics */        
+    for(j = 0; j < mlist.length; j++){
+                
+        /* build a new metric */
+        metric = Metric( mlist[j] );
+        
+        /* render the new metric */
+        hRenderZone.appendChild( metric.dom.container );
+        
+        /* push the stripped metric into the hMetrics array */
+        hMetrics[hGenderIndex].push( metric.strip() );
+        
+    }
+    
+    return true;
+}
+
 
 /* _prepMixer
  * 
@@ -916,24 +1295,14 @@ _populateMetrics = function ( metricData ) {
         return U.e("Improper data format; must be of type \"array\""); 
     }
 
-    var i, metric;
-    
-    for(i = 0; i < metricData.length; i++){
-        
-        /* build a new metric */
-        metric = Metric( metricData[i] );
-        
-        /* render the new metric */
-        hRenderZone.appendChild( metric.dom.container );
-        
-        /* push the stripped metric into the hMetrics array */
-        hMetrics.push( metric.strip() );
-    }
+    hRenderZone.innerHTML = "";         // clear out old metrics
+    hOriginalData         = metricData; // save a reference 
     
     if( __ajaxCallback && U.type( __ajaxCallback ) === "function" ){
         __ajaxCallback( );
     }
     
+    return _renderGenderData( );
 };
 
 
@@ -949,6 +1318,14 @@ _prepMixer = function ( metricList ) {
     
     /* add the svg definitions to the page */
     _svgDefs( );
+    
+    /* try prepping the submit form */
+    hSubmitForm = _prepSubmitForm( D.form_class );
+    
+    if( hSubmitForm !== false ) {
+        /* prep the gender toggles */
+        _prepGenderToggles( );
+    }
     
     /* find the context to render metrics inside */
     hRenderZone = document.getElementById("metrics")
@@ -999,13 +1376,16 @@ __mixer = {
     getMetric : function (name) {
         if( !name || hMetrics.length === 0) { return hMetrics; }  
         
-        var i, metric, mname;
+        var i, j, metric, mname;
         
-        for(i = 0; i < hMetrics.length; i++){
-            metric = hMetrics[i];
-            mname  = metric.name;
+        for(i = 0; i < hMetrics.length; i++) {
+            for(j = 0; j < hMetrics[i].length; j++) {
             
-            if(mname.toLowerCase() === name.toLowerCase()){ return metric; }
+                metric = hMetrics[i][j];
+                mname  = metric.name;
+    
+                if(mname.toLowerCase() === name.toLowerCase()){ return metric; }
+            }
         }
         
         return false;
@@ -1022,4 +1402,3 @@ window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();
-
