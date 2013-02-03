@@ -121,6 +121,21 @@ Defaults = D = {
         "stroke-width" : 3,
         "stroke"       : "#6c6e6d",
         "fill"         : "none"
+    },
+    curve_bubble : {
+        "fill" : "#4c4d4d",
+        "cy"   : 0,
+        "cx"   : 0,
+        "r"    : 10
+    },
+    curve_text : {
+        "fill"           : "#fff",
+        "font-family"    : "'Droid Serif',serif",
+        "font-size"      : "12px",
+        "pointer-events" : "none",
+        "text-anchor"    : "middle",
+        "x"              : 0,
+        "y"              : 5
     }
 };
 
@@ -311,6 +326,7 @@ Metric.layerPrep = (function () {
         _moveRightBound, // moves the right bound
         _moveWeight,     // moves the weight
         _movePoint,
+        _scrubPath,
         
         /* helper functions */
         _whipeInteractionState,
@@ -325,7 +341,10 @@ Metric.layerPrep = (function () {
             hasMoved        : false, 
             initialDistance : null,
             pointIndex      : null
-        };
+        },
+        
+        /* fade out for the scrubber */
+        _fadeOutTimeout = null;
         
 
 /* _startDrag
@@ -351,6 +370,68 @@ _startDrag = function ( evt ) {
     d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
 };
 
+/* _scrubPath
+ * 
+ * Mouse move event for path scrubber 
+ * @param {object} evt The d3.event that was fired on move
+*/
+_scrubPath = function ( evt ) { 
+    if( _interactionState.hasMoved ){ return false; }
+    
+    var metric  = _interactionState.metric,
+        yscale  = metric.ref.yscale,
+        xscale  = metric.ref.xscale,
+        pathe   = metric.dom.curvePath.node(),
+        bubble  = metric.dom.curveBubble,
+        mouseX  = evt.pageX,
+        rLeft   = mouseX - metric.dom.container.offsetLeft,
+        points  = metric.ref.points,
+        pLength = pathe.getTotalLength(),
+        index, minDist = Number.MAX_VALUE, 
+        scrubVal, pathPoint, closePoint,
+        distance;
+    
+    /* if there is not enough points, forget about it */
+    if( points.length < 2){ return; }
+    
+    for(index = 0; index < pLength; index++){
+        
+        pathPoint = pathe.getPointAtLength( index );
+        distance  = Math.abs( rLeft - pathPoint.x );
+        
+        if( distance < minDist ){
+            closePoint = pathPoint;
+            minDist    = distance;
+        }
+        
+        /* if it's close enough, stop looking */
+        if( distance < 2){ break; }
+    }
+         
+    /* get the real values of these coordinates */
+    scrubVal = {
+        y : yscale.invert( closePoint.y ).toFixed(0),
+        x : xscale.invert( rLeft ).toFixed(0)
+    };
+    
+    /* update the bubble */
+    bubble
+        .attr("transform", U.mts(closePoint.x, closePoint.y) )
+        .transition().duration(20).attr("opacity", 1.0);
+    
+    bubble
+        .selectAll("text")
+        .text( scrubVal.y );
+    
+    clearTimeout(_fadeOutTimeout);
+    _fadeOutTimeout = setTimeout(function () {
+        
+        bubble
+            .transition().duration(100).attr("opacity", 0.0);
+            
+    }, 1000);
+    
+};
 
 /* _addScalePoint
  * 
@@ -490,6 +571,12 @@ _moveWeight = function ( top ) {
     this.pub.weight = Math.ceil( wp );
 };
 
+/* _movePoint
+ *
+ * Moves a point on the path during drag
+ * @param {number} left The mouse position relative to the chart
+ * @param {number} top The mouse position relative to the chart
+*/ 
 _movePoint = function ( left, top ) {
     var indx  = _interactionState.pointIndex,
         point = this.ref.points[indx],
@@ -669,7 +756,8 @@ data = function ( layer ) {
         dom    = metric.dom,
         rangeRect, leftBound, rightBound,
         weightNode, coverRect, 
-        curvePath, pointGroup;
+        curvePath, pointGroup, curveGroup,
+        curveBubble;
     
     coverRect = layer.append("rect")
                     .attr( D.svg_cover )
@@ -719,13 +807,29 @@ data = function ( layer ) {
                         return _startDrag( );
                     });
     
-    curvePath = layer.append("g")
-                    .attr("data-name", "curve-group")
+    curveGroup = layer.append("g")
+                    .attr("data-name", "curve-group");
+    
+    curvePath = curveGroup
                     .append("path")
                     .attr(D.curve_path);
+                    
+    curveBubble = curveGroup
+                    .append("g")
+                    .attr("data-name", "curve-bubble")
+                    .attr("opacity", 0.0);
     
     pointGroup = layer.append("g")
                     .attr("data-name", "point-group");
+    
+    curveBubble
+        .append("circle")
+        .attr(D.curve_bubble);
+        
+    curveBubble
+        .append("text")
+        .attr(D.curve_text);
+    
     
     leftBound.append("circle").attr(D.bound_outer_circle);
     rightBound.append("circle").attr(D.bound_outer_circle);
@@ -754,13 +858,21 @@ data = function ( layer ) {
         .attr("fill","#fff")
         .attr("y", 5)
         .text( 4 );
+        
+    layer.on("mousemove", function () {
+        _interactionState.metric  = metric; // save the metric being acted upon
+        _scrubPath( d3.event );
+    }).on("mouseout", function () {
+        metric.dom.curveBubble.transition().duration(20).attr("opacity", 0.0);
+    });
     
-    dom.curvePath   = curvePath;  // ref to the bezier curve
-    dom.pointGroup  = pointGroup; // save the group for data points
-    dom.weightNode  = weightNode; // save the weight node
-    dom.rangeRect   = rangeRect;  // save the range rectangle
-    dom.leftNode    = leftBound;  // save the left bound
-    dom.rightNode   = rightBound; // save the right bound 
+    dom.curveBubble = curveBubble; // the scrubber bubble group
+    dom.curvePath   = curvePath;   // ref to the bezier curve (<path>)
+    dom.pointGroup  = pointGroup;  // save the group for data points
+    dom.weightNode  = weightNode;  // save the weight node
+    dom.rangeRect   = rangeRect;   // save the range rectangle
+    dom.leftNode    = leftBound;   // save the left bound
+    dom.rightNode   = rightBound;  // save the right bound 
 };
 
 /* dump the layer prepping functions back out */
@@ -934,8 +1046,7 @@ Metric.prototype = {
         
         curve
             .datum(parts)
-            .attr("d", this.ref.linegen);
-        
+            .attr("d", this.ref.linegen);        
     },
     
     
@@ -1255,13 +1366,16 @@ __mixer = {
     getMetric : function (name) {
         if( !name || hMetrics.length === 0) { return hMetrics; }  
         
-        var i, metric, mname;
+        var i, j, metric, mname;
         
-        for(i = 0; i < hMetrics.length; i++){
-            metric = hMetrics[i];
-            mname  = metric.name;
+        for(i = 0; i < hMetrics.length; i++) {
+            for(j = 0; j < hMetrics[i].length; j++) {
             
-            if(mname.toLowerCase() === name.toLowerCase()){ return metric; }
+                metric = hMetrics[i][j];
+                mname  = metric.name;
+    
+                if(mname.toLowerCase() === name.toLowerCase()){ return metric; }
+            }
         }
         
         return false;
