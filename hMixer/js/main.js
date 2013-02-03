@@ -14,9 +14,7 @@
 
 /* example callback for when the ajax method is complete */
 onloaded = function ( ) {
-
-    console.log( Mixer.getMetric("hdl") );  
-
+    
 };
 
 
