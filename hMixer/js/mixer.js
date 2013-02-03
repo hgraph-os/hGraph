@@ -387,16 +387,16 @@ _scrubPath = function ( evt ) {
         rLeft   = mouseX - metric.dom.container.offsetLeft,
         points  = metric.ref.points,
         pLength = pathe.getTotalLength(),
-        index, minDist = Number.MAX_VALUE, 
+        minDist = Number.MAX_VALUE, 
         scrubVal, pathPoint, closePoint,
-        distance;
+        distance, inc, dec;
     
     /* if there is not enough points, forget about it */
     if( points.length < 2){ return; }
     
-    for(index = 0; index < pLength; index++){
+    for(inc = 0, dec = parseInt(pLength,10); inc < pLength && dec > 0; dec--, inc++){
         
-        pathPoint = pathe.getPointAtLength( index );
+        pathPoint = pathe.getPointAtLength( inc );
         distance  = Math.abs( rLeft - pathPoint.x );
         
         if( distance < minDist ){
@@ -404,6 +404,14 @@ _scrubPath = function ( evt ) {
             minDist    = distance;
         }
         
+        pathPoint = pathe.getPointAtLength( dec );
+        distance  = Math.abs( rLeft - pathPoint.x );
+        
+        if( distance < minDist ){
+            closePoint = pathPoint;
+            minDist    = distance;
+        }
+    
         /* if it's close enough, stop looking */
         if( distance < 2){ break; }
     }
