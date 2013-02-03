@@ -112,6 +112,11 @@ Defaults = D = {
         "r"    : 2,
         "fill" : "#c0c3c2",
         "cx"   : 837.5  
+    },
+    curve_path : {
+        "stroke-width" : 3,
+        "stroke"       : "#6c6e6d",
+        "fill"         : "none"
     }
 };
 
@@ -301,6 +306,7 @@ Metric.layerPrep = (function () {
         _moveLeftBound,  // moves the left bound circle
         _moveRightBound, // moves the right bound
         _moveWeight,     // moves the weight
+        _movePoint,
         
         /* helper functions */
         _whipeInteractionState,
@@ -309,7 +315,13 @@ Metric.layerPrep = (function () {
         _addScalePoint,
         
         /* interaction properties */
-        _interactionState = { metric : null, activeE : null, hasMoved : false, initialDistance : false };
+        _interactionState = { 
+            metric          : null, 
+            activeE         : null, 
+            hasMoved        : false, 
+            initialDistance : null,
+            pointIndex      : null
+        };
         
 
 /* _startDrag
@@ -347,7 +359,7 @@ _addScalePoint = function ( evt ){
     
     var metric = _interactionState.metric,
         points = metric.ref.points,
-        layer  = metric.dom.layers['data'],
+        layer  = metric.dom.pointGroup,
         rmX    = evt.pageX - metric.dom.container.offsetLeft, // relative mouse X pos
         rmY    = evt.pageY - metric.dom.container.offsetTop,  // relative mouse Y pos
         d      = D.chart_dimensions,                          // dimensions shortcut
@@ -362,8 +374,16 @@ _addScalePoint = function ( evt ){
                 .append("g")
                 .attr("data-point", points.length)
                 .attr("data-uid", U.uid() )
-                .attr("transform", U.mts(rmX, rmY) )
-                .attr("cursor", "pointer");
+                .attr("cursor", "pointer")
+                .on("mousedown", function ( ) {
+                    var pIndx =  d3.select(this).attr('data-point');
+                    
+                    _interactionState.activeE    = "point";   // we are using the range rect
+                    _interactionState.metric     = metric;    // save the metric being acted upon
+                    _interactionState.pointIndex = pIndx;     // save the point intex
+                    
+                    return _startDrag( );                     // begin registering events 
+                });
                  
     point
         .append("circle")
@@ -373,10 +393,13 @@ _addScalePoint = function ( evt ){
         .append("circle")
         .attr(D.bound_inner_circle)
         .attr("fill","#585a5a");
-    
-    
-    
+        
+    points.push({ el : point, top : rmY, left : rmX });
+
     U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
+    
+    /* update the score curve */
+    metric.updateCurve( );
     
     _whipeInteractionState( false );
 };
@@ -463,6 +486,26 @@ _moveWeight = function ( top ) {
     this.pub.weight = Math.ceil( wp );
 };
 
+_movePoint = function ( left, top ) {
+    var indx  = _interactionState.pointIndex,
+        point = this.ref.points[indx],
+        minX  = D.chart_dimensions.left,
+        maxX  = minX + D.chart_dimensions.width,
+        minY  = D.chart_dimensions.top,
+        maxY  = minY + D.chart_dimensions.height;
+
+    if( left < minX ) { left = minX; }
+    if( left > maxX ) { left = maxX; }
+    
+    if( top < minY ) { top = minY; }
+    if( top > maxY ) { top = maxY; }
+    
+   
+    
+    point.top  = top;
+    point.left = left;
+};
+
 /* _doDrag
  *
  * Handles mouse movements
@@ -493,6 +536,9 @@ _doDrag = function ( evt ) {
             break; 
         case "ww" :
             _moveWeight.call( metric, relativeTop ); 
+            break;
+        case "point" :
+            _movePoint.call( metric, relativeLeft, relativeTop );
         default : 
             break;
     };
@@ -500,7 +546,7 @@ _doDrag = function ( evt ) {
     /* we have offically moved (at least once) */
     _interactionState.hasMoved = true;
     
-    return metric.redraw( );
+    return (activeE === "point") ? metric.updateCurve( ) : metric.reDraw( );
 };
 
 /* _doDrag
@@ -522,9 +568,10 @@ _endDrag = function ( evt ) {
  * @param {boolean} wasDrag A flag for if the interaction was a drag
 */
 _whipeInteractionState = function ( wasDrag ) {
-    _interactionState.metric   = null;
-    _interactionState.activeE  = null; 
-    _interactionState.lastXpos = null;
+    _interactionState.metric          = null;
+    _interactionState.activeE         = null; 
+    _interactionState.initialDistance = null;
+    _interactionState.pointIndex      = null;
     
     /* if it wasnt a drag, we can just go head and set the hasMoved to false */
     if( !wasDrag ){
@@ -617,7 +664,8 @@ data = function ( layer ) {
     var metric = this,
         dom    = metric.dom,
         rangeRect, leftBound, rightBound,
-        weightNode, coverRect;
+        weightNode, coverRect, 
+        curvePath, pointGroup;
     
     coverRect = layer.append("rect")
                     .attr( D.svg_cover )
@@ -630,6 +678,7 @@ data = function ( layer ) {
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
+                    .attr("data-name", "range-rectangle")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
                         _interactionState.metric  = metric; // save the metric being acted upon
@@ -666,6 +715,14 @@ data = function ( layer ) {
                         return _startDrag( );
                     });
     
+    curvePath = layer.append("g")
+                    .attr("data-name", "curve-group")
+                    .append("path")
+                    .attr(D.curve_path);
+    
+    pointGroup = layer.append("g")
+                    .attr("data-name", "point-group");
+    
     leftBound.append("circle").attr(D.bound_outer_circle);
     rightBound.append("circle").attr(D.bound_outer_circle);
     
@@ -694,11 +751,12 @@ data = function ( layer ) {
         .attr("y", 5)
         .text( 4 );
     
-    
-    dom.weightNode = weightNode; // save the weight node
-    dom.rangeRect  = rangeRect;  // save the range rectangle
-    dom.leftNode   = leftBound;  // save the left bound
-    dom.rightNode  = rightBound; // save the right bound 
+    dom.curvePath   = curvePath;  // ref to the bezier curve
+    dom.pointGroup  = pointGroup; // save the group for data points
+    dom.weightNode  = weightNode; // save the weight node
+    dom.rangeRect   = rangeRect;  // save the range rectangle
+    dom.leftNode    = leftBound;  // save the left bound
+    dom.rightNode   = rightBound; // save the right bound 
 };
 
 /* dump the layer prepping functions back out */
@@ -752,10 +810,24 @@ Metric.prototype = {
         
         /* an object reference to store things like scales and etc.. */
         this.ref = {
-            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]), // the x scale            
-            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),                // the y scale   
-            points      : [ ],                                                      // an array of points
-            weightscale : d3.scale.linear().domain([0,10]).range([h+t,t])
+            
+            /* the x scale */
+            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]),            
+            
+            /* the y scale */
+            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),
+            
+            /* an array for points to be placed in */  
+            points      : [ ],                                                     
+            
+            /* the scale used for calculating weight positions */
+            weightscale : d3.scale.linear().domain([0,10]).range([h+t,t]),          
+            
+            /* the svg path element command generator */
+            linegen     : d3.svg.line()
+                            .x(function (d) { return d.x; })
+                            .y(function (d) { return d.y; })
+                            .interpolate("cardinal")
         };
         
         this.uid = U.uid(); // give this metric a unique identifier
@@ -795,14 +867,14 @@ Metric.prototype = {
         dom.svg_element = context;   // save the svg element
         dom.layers      = layers;    // save the "g" layers
         
-        return this.redraw( );
+        return this.reDraw( );
     },
     
-    /* metric.redraw
+    /* metric.reDraw
      *
      * called after the metric's range has changed
     */
-    redraw : function () {
+    reDraw : function () {
         var xs         = this.ref.xscale,
             ys         = this.ref.yscale,
             ws         = this.ref.weightscale,
@@ -833,6 +905,35 @@ Metric.prototype = {
             .selectAll("text").text( weight.toFixed(0) );
 
     },
+    
+    
+    /* metric.updateCurve
+     *
+     * called after the metric's score curve has changed
+    */
+    updateCurve : function ( ) {
+        var points  = this.ref.points,
+            linegen = this.ref.linegen,
+            curve   = this.dom.curvePath,
+            layer   = this.dom.layers['data'],
+            indx, point, parts = [ ];
+        
+        for( indx = 0; indx < points.length; indx++ ) {
+            /* grab the current point */
+            point = points[indx];
+            
+            parts.push({ x : point.left, y : point.top });
+            
+            /* move the point */
+            point.el.attr("transform", U.mts(point.left, point.top) );
+        }
+        
+        curve
+            .datum(parts)
+            .attr("d", this.ref.linegen);
+        
+    },
+    
     
     /* metric.strip
      *

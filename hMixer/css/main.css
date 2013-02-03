@@ -47,14 +47,21 @@ section.config article.demographics div.block dl dd button.g-toggle{
     background: rgba(0,0,0,0.0);
     border-radius: 6px;
     cursor: pointer;
+    
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.0),
+                0px 0px 1px 1px rgba(255, 255, 255, 0.0);
 }
+section.config article.demographics div.block dl dd button.g-toggle:first-child{ margin-right: 10px; }
 section.config article.demographics div.block.gender dl dd{ 
-    width: 120px;
+    width: 130px;
     margin-top: 0px;
 }
 
 section.config article.demographics div.block dl dd button.g-toggle:hover{
-    background: rgba(0,0,0,0.10);
+    background: rgba(0,0,0,0.1);
+    
+    box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.2),
+                0px 0px 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 section.config article.demographics div.block dl dd button.g-toggle span{
