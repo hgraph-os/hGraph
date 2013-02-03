@@ -21,8 +21,120 @@ div.no-vis{
 section.config img.logo{ 
     display: block; 
     margin: 0px auto; 
-    padding-bottom: 30px;
+    padding-bottom: 20px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+section.config article.demographics{ text-align: center; }
+section.config article.demographics h4{ font-size: 12px; color: #939695; font-weight: normal; }
+
+section.config article.demographics div.block{
+    margin-top: 20px;
+}
+
+section.config article.demographics div.block dl{ color: #3c3f3d; }
+section.config article.demographics div.block dl dt,
+section.config article.demographics div.block dl dd{ display: block; font-size: 16px; line-height: 1.5em; }
+
+section.config article.demographics div.block dl dt,
+section.config article.demographics div.block dl dd{ }
+
+section.config article.demographics div.block dl dd button.g-toggle{        
+    display: block;
+    width: 60px;
+    height: 100px;
+    background: rgba(0,0,0,0.0);
+    border-radius: 6px;
+    cursor: pointer;
+}
+section.config article.demographics div.block.gender dl dd{ 
+    width: 120px;
+    margin-top: 0px;
+}
+
+section.config article.demographics div.block dl dd button.g-toggle:hover{
+    background: rgba(0,0,0,0.10);
+}
+
+section.config article.demographics div.block dl dd button.g-toggle span{
+    display: block;
+    width: 60px;
+    height: 100px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+}
+section.config article.demographics div.block dl dd button.g-toggle span:hover{
+    opacity: 0.8;
+}
+
+section.config article.demographics div.block dl dd button.g-toggle.male span{
+    background-size: 24px 65px;
+    background-image: url(../img/male1.png);
+}
+section.config article.demographics div.block dl dd button.g-toggle.female span{
+    background-image: url(../img/woman1.png);
+}
+
+section.config article.demographics div.block input.height-input{
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    background: white;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.4);
+    box-shadow: 0px 0px 0px 1px rgba(255,255,255,0.5), 
+                inset 1px 1px 1px rgba(0,0,0,0.1);
+                
+    display: block;
+    
+    margin: 5px 5px 0px 5px;
+    text-align: center;
+    line-height: 4px;
+    font-family: 'Droid Serif', serif;
+    color: #333;
+    font-size: 18px;
+}
+
+section.config article.demographics div.block.height dl dd{ width: 84px; }
+section.config article.demographics div.block.submit{
+    margin-top: 200px;
+}
+section.config article.demographics div.block.submit p{
+    font-size: 12px;
+    color: #9d9f9f;
+    width: 100px;
+}
+section.config article.demographics div.block.submit input[type="submit"]{
+    background: #6d89b4;
+    
+    color: white;
+    text-shadow: 0px 0px 1px rgba(0,0,0,0.9);
+    font-family: 'Droid Serif', serif;
+    font-size: 16px;              
+    line-height: 30px;
+    
+    
+    height: 30px;
+    border-radius: 4px;
+    width: 140px;
+    margin-top: 5px;
+    cursor: pointer;
+    display: block;
+    padding: 0px;
+    text-transform: capitalize;
+}
+
+section.config article.demographics div.block.submit a{
+    color: #494a49;
+    text-decoration: none;
+    font-family: 'Droid Serif', serif;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    text-transform: capitalize;
+    display: block;
 }
 
 section.metrics{ 
@@ -31,7 +143,7 @@ section.metrics{
 }
 
 article.metric{
-    width: 800px;
+    width: 900px;
     height: 250px;
     margin: 0px auto 30px;
 }

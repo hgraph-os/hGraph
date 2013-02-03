@@ -32,10 +32,10 @@ Defaults = D = {
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 800, height : 250 },
+    svg_element      : { width : 900, height : 250 },
     svg_layers       : ["ui", "data"],
     chart_dimensions : {
-        left   : 125,
+        left   : 225,
         top    : 40,
         width  : 550,
         height : 170
@@ -44,7 +44,7 @@ Defaults = D = {
         "fill"   : "rgba(0,0,0,0.0)",
         "x"      : 0,
         "y"      : 0,
-        "width"  : 800,
+        "width"  : 900,
         "height" : 250
     },
     svg_text : {
@@ -84,16 +84,16 @@ Defaults = D = {
         "cx"   : 0
     },
     title_text : {
-        "x"              : 100,
+        "x"              : 200,
         "y"              : 205,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
-        "font-size"      : "36px",
+        "font-size"      : "32px",
         "pointer-events" : "none",
         "text-anchor"    : "end"
     },
     unit_text : {
-        "x"              : 100,
+        "x"              : 200,
         "y"              : 220,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
@@ -102,8 +102,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     weight_bar : {
-        "x1"     : 737.5,
-        "x2"     : 737.5,
+        "x1"     : 837.5,
+        "x2"     : 837.5,
         "y1"     : 40,
         "y2"     : 210,
         "stroke" : "#c0c3c2"
@@ -111,7 +111,7 @@ Defaults = D = {
     weight_bounds : {
         "r"    : 2,
         "fill" : "#c0c3c2",
-        "cx"   : 737.5  
+        "cx"   : 837.5  
     }
 };
 
@@ -309,7 +309,7 @@ Metric.layerPrep = (function () {
         _addScalePoint,
         
         /* interaction properties */
-        _interactionState = { metric : null, activeE : null, hasMoved : false };
+        _interactionState = { metric : null, activeE : null, hasMoved : false, lastXpos : false<p>false</p> };
         
 
 /* _startDrag
@@ -334,15 +334,36 @@ _addScalePoint = function ( evt ){
     if( _interactionState.hasMoved ){ return; }
     
     var metric = _interactionState.metric,
+        points = metric.ref.points,
+        layer  = metric.dom.layers['data'],
         rmX    = evt.pageX - metric.dom.container.offsetLeft, // relative mouse X pos
         rmY    = evt.pageY - metric.dom.container.offsetTop,  // relative mouse Y pos
-        d      = D.chart_dimensions;                          // dimensions shortcut
+        d      = D.chart_dimensions,                          // dimensions shortcut
+        point; 
     
     /* boundary check */
     if( rmX < d.left || rmX > (d.left + d.width) || rmY > (d.top + d.bottom) || rmY < d.top){
         return;
     }
+    
+    point = layer
+                .append("g")
+                .attr("data-point", points.length)
+                .attr("data-uid", U.uid() )
+                .attr("transform", U.mts(rmX, rmY) )
+                .attr("cursor", "pointer");
+                 
+    point
+        .append("circle")
+        .attr(D.bound_outer_circle); 
         
+    point
+        .append("circle")
+        .attr(D.bound_inner_circle)
+        .attr("fill","#585a5a");
+    
+    
+    
     U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
     
     _whipeInteractionState( false );
@@ -477,7 +498,9 @@ _endDrag = function ( evt ) {
     d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
     
     /* clear out states */
-    _whipeInteractionState( true );
+    setTimeout(function () {
+        _whipeInteractionState( true );
+    }, 3);
 };
 
 /* _whipeInteractionState
@@ -793,7 +816,7 @@ Metric.prototype = {
             .selectAll("text").text( this.pub.saferange[1].toFixed(0) );
             
         weightNode
-            .attr("transform", U.mts(737.5, ws(weight) ) )
+            .attr("transform", U.mts(837.5, ws(weight) ) )
             .selectAll("text").text( weight.toFixed(0) );
 
     },
@@ -916,18 +939,26 @@ _populateMetrics = function ( metricData ) {
         return U.e("Improper data format; must be of type \"array\""); 
     }
 
-    var i, metric;
+    var i, j, metric, gender, mlist;
     
     for(i = 0; i < metricData.length; i++){
         
-        /* build a new metric */
-        metric = Metric( metricData[i] );
-        
-        /* render the new metric */
-        hRenderZone.appendChild( metric.dom.container );
-        
-        /* push the stripped metric into the hMetrics array */
-        hMetrics.push( metric.strip() );
+        gender = metricData[i].gender;  // which gender is this list
+        mlist  = metricData[i].metrics; // get the metric list
+    
+        /* loop through the metrics */        
+        for(j = 0; j < mlist.length; j++){
+                    
+            /* build a new metric */
+            metric = Metric( mlist[j] );
+            
+            /* render the new metric */
+            hRenderZone.appendChild( metric.dom.container );
+            
+            /* push the stripped metric into the hMetrics array */
+            hMetrics.push( metric.strip() );
+            
+        }
     }
     
     if( __ajaxCallback && U.type( __ajaxCallback ) === "function" ){
