@@ -30,8 +30,8 @@
     "metrics" : [{
         "name"     : "PDL",
         "features" : { 
-            "saferange"  : [12, 20],
-            "totalrange" : [10, 22],
+            "saferange"  : [50, 70],
+            "totalrange" : [10, 100],
             "weight"     : 4,
             "unitlabel"  : "mg/dL"
         }
