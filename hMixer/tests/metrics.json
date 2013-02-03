@@ -30,17 +30,17 @@
     "metrics" : [{
         "name"     : "PDL",
         "features" : { 
-            "saferange"  : [50, 60],
-            "totalrange" : [0, 60],
-            "weight"     : 10,
+            "saferange"  : [10, 20],
+            "totalrange" : [12, 18],
+            "weight"     : 4,
             "unitlabel"  : "mg/dL"
         }
     },{
         "name"     : "VDL",
         "features" : { 
-            "saferange"  : [0, 97],
-            "totalrange" : [0,130],
-            "weight"     : 1,
+            "saferange"  : [90, 100],
+            "totalrange" : [0,400],
+            "weight"     : 2,
             "unitlabel"  : "%"
         }
     },{
