@@ -27,7 +27,7 @@
         <section class="f config">
             <img src="img/page-logo.png" class="logo" alt="" width="130">
             <article class="demographics middle">
-                <form action="submit" method="post">
+                <form action="submit" method="post" class="submit-form">
                 
                     <h4>Demographics</h4>
                     
@@ -42,7 +42,7 @@
                         <dl>
                             <dt>Gender</dt>
                             <dd class="cf middle">
-                                <button class="f icon g-toggle male t" data-gender="male">
+                                <button class="f icon active g-toggle male t" data-gender="male">
                                         <span></span>
                                 </button>
                                 <button class="f icon g-toggle female t" data-gender="female">
@@ -56,8 +56,10 @@
                         <dl>
                             <dt>Height</dt>
                             <dd class="cf middle">
+                                <span>'</span>
                                 <input type="text" class="height-input f" data-name="feet" value="">
                                 <input type="text" class="height-input f" data-name="inches" value="">
+                                <span>"</span>
                             </dd>
                         </dl>
                     </div>

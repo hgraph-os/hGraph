@@ -28,7 +28,7 @@
 },{
     "gender"  : "female",
     "metrics" : [{
-        "name"     : "LDL",
+        "name"     : "PDL",
         "features" : { 
             "saferange"  : [50, 60],
             "totalrange" : [0, 60],
@@ -36,7 +36,7 @@
             "unitlabel"  : "mg/dL"
         }
     },{
-        "name"     : "HDL",
+        "name"     : "VDL",
         "features" : { 
             "saferange"  : [0, 97],
             "totalrange" : [0,130],

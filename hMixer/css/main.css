@@ -57,6 +57,7 @@ section.config article.demographics div.block.gender dl dd{
     margin-top: 0px;
 }
 
+section.config article.demographics div.block dl dd button.g-toggle.active,
 section.config article.demographics div.block dl dd button.g-toggle:hover{
     background: rgba(0,0,0,0.1);
     
@@ -72,9 +73,9 @@ section.config article.demographics div.block dl dd button.g-toggle span{
     background-repeat: no-repeat;
     opacity: 0.6;
 }
-section.config article.demographics div.block dl dd button.g-toggle span:hover{
-    opacity: 0.8;
-}
+
+section.config article.demographics div.block dl dd button.g-toggle.active span,
+section.config article.demographics div.block dl dd button.g-toggle span:hover{ opacity: 0.8; }
 
 section.config article.demographics div.block dl dd button.g-toggle.male span{
     background-size: 24px 65px;
@@ -95,6 +96,7 @@ section.config article.demographics div.block input.height-input{
                 inset 1px 1px 1px rgba(0,0,0,0.1);
                 
     display: block;
+    position: relative;
     
     margin: 5px 5px 0px 5px;
     text-align: center;
@@ -104,7 +106,17 @@ section.config article.demographics div.block input.height-input{
     font-size: 18px;
 }
 
-section.config article.demographics div.block.height dl dd{ width: 84px; }
+section.config article.demographics div.block.height dl dd{ width: 84px; position: relative; }
+section.config article.demographics div.block.height dl dd span{
+    position: absolute;
+    display: block;
+    color: #333;
+    font-size: 16px;
+    top: 3px;
+}
+section.config article.demographics div.block.height dl dd span:first-child{ left: 47%; }
+section.config article.demographics div.block.height dl dd span:last-child{ left: 98%; }
+
 section.config article.demographics div.block.submit{
     margin-top: 200px;
 }

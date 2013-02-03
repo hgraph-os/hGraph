@@ -19,15 +19,19 @@
         /* 
          * private (h) variable definitions
         */
-        hPrepped    = false, // Mixer object prep state
-        hMetrics    = [ ],   // Metric object array
-        hRenderZone = null;  // The container where metrics are to be dumped
+        hPrepped      = false, // Mixer object prep state
+        hMetrics      = [ ],   // Metric object array
+        hOriginalData = false,
+        hRenderZone   = null,  // The container where metrics are to be dumped
+        hSubmitForm   = null,  // The form that will be submitted
+        hGenderIndex  = 0;     // a gender number defining male of female
 
 
 ////////////////////////////////////////////   
 // Default storage and it's shortcut
 //
 Defaults = D = {
+    form_class       : "form.submit-form",
     safe_range       : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
@@ -960,10 +964,95 @@ Mixer = (function () {
         __ajaxCallback = false, // In case the ajax method is being used
     
         /* private functions */
-        _prepMixer,       // Initialization function
-        _populateMetrics, // Metric creation function 
-        _setOptions,      // Optional option setting
-        _svgDefs;         // creation of handy SVG styles
+        _prepMixer,         // Initialization function
+        _populateMetrics,   // Metric creation function 
+        _setOptions,        // Optional option setting
+        _svgDefs,           // creation of handy SVG styles
+        _prepSubmitForm,    // function for setting up the form
+        _keyManager,        // event listener for input boxes
+        _renderGenderData,  //
+        _prepGenderToggles, //
+        _genderToggle;      //
+
+
+/* _keyManager
+ *
+ * Prepares the input boxes for key events
+*/
+_keyManager = function ( ) {
+    var evt     = d3.event,
+        key     = evt.keyCode,
+        inpt    = d3.select( this ),
+        valu    = inpt.node().value,
+        keychar = parseInt( String.fromCharCode(key), 10 ),
+        isNum   = ( !isNaN(keychar) ) ? true : false;
+        
+    if( (valu.length > 1 && key !== 8 && key !== 9) || (!isNum && key !== 8 && key !== 9) ){ 
+        evt.preventDefault && evt.preventDefault(); 
+        return false; 
+    }
+    
+};
+
+
+/* _genderToggle
+ * 
+ * Re renders the metrics upon gender change
+*/
+_genderToggle = function ( ) {
+    var evt = d3.event,
+        gen = d3.select( this ).attr("data-gender"),
+        par = d3.select( this.parentNode ).select("button.active").classed("active", false);
+    
+    d3.select(this).classed("active", true);
+    
+    hGenderIndex = (gen === "male") ? 0 : 1;
+    
+    _renderGenderData( );
+    
+    return ( evt.preventDefault && evt.preventDefault() ) ? false : false;
+};
+
+/* _prepGenderToggles
+ * 
+ * Seeks gender toggles and binds events
+*/
+_prepGenderToggles = function ( ) {
+    var query = (hSubmitForm.querySelectorAll("button.g-toggle").length > 0) 
+                    ? hSubmitForm.querySelectorAll("button.g-toggle")
+                    : [ ],
+        button, indx;
+    
+    for( indx = 0; indx < query.length; indx++ ){
+        button = query[indx];
+        d3.select(button).on("click", _genderToggle);
+    }
+};
+
+
+/* _prepSubmitForm
+ *
+ * Prepares the form for events and such
+ * @param {string} formClass The query to be made for the object
+*/
+_prepSubmitForm = function ( formClass ) {
+    if( !document.querySelectorAll ){ return false; }
+    
+    var query  = document.querySelectorAll( formClass ),  
+        item   = (query.length > 0) ? query[0] : false,
+        inputs = (item) ? item.querySelectorAll("input.height-input") : [ ],
+        index, input;
+    
+    /* prep the input text elements */
+    for( index = 0; index < inputs.length; index++ ){
+        input = inputs[index];
+        
+        d3.select(input)
+            .on("keydown", _keyManager);
+    }
+    
+    return item;
+};
 
 
 /* _svgDefs
@@ -1014,7 +1103,6 @@ _svgDefs = function ( ) {
         "in2"      : "shadow"
     });
     
-    
     U.a.call(hider,"class","no-vis");
     
     document.body.appendChild( hider );
@@ -1031,6 +1119,7 @@ _setOptions = function ( options ) {
     D.svg_text.fill   = options.text_fill || D.svg_text.fill;    // text color
     D.safe_range      = options.safe_range || D.safe_range;      // safe range 
     D.total_range     = options.total_range || D.total_range;    // total range 
+    D.form_class      = options.form_class || D.form_class;      // form class
     
     
     /* remove text selection (highlighting) */
@@ -1041,6 +1130,38 @@ _setOptions = function ( options ) {
         };
     }
 };
+
+/* _renderGenderData
+ * 
+ * Reuseable rendering loop 
+ */
+_renderGenderData = function ( ){
+    var i, j, metric, gender, mlist;
+            
+    gender                 = hOriginalData[hGenderIndex].gender;  // which gender is this list
+    mlist                  = hOriginalData[hGenderIndex].metrics; // get the metric list
+    hMetrics[hGenderIndex] = [ ];                                 // reset metric array
+    
+    /* clear out old html */
+    hRenderZone.innerHTML = "";
+    
+    /* loop through the metrics */        
+    for(j = 0; j < mlist.length; j++){
+                
+        /* build a new metric */
+        metric = Metric( mlist[j] );
+        
+        /* render the new metric */
+        hRenderZone.appendChild( metric.dom.container );
+        
+        /* push the stripped metric into the hMetrics array */
+        hMetrics[hGenderIndex].push( metric.strip() );
+        
+    }
+    
+    return true;
+}
+
 
 /* _prepMixer
  * 
@@ -1053,32 +1174,14 @@ _populateMetrics = function ( metricData ) {
         return U.e("Improper data format; must be of type \"array\""); 
     }
 
-    var i, j, metric, gender, mlist;
-    
-    for(i = 0; i < metricData.length; i++){
-        
-        gender = metricData[i].gender;  // which gender is this list
-        mlist  = metricData[i].metrics; // get the metric list
-    
-        /* loop through the metrics */        
-        for(j = 0; j < mlist.length; j++){
-                    
-            /* build a new metric */
-            metric = Metric( mlist[j] );
-            
-            /* render the new metric */
-            hRenderZone.appendChild( metric.dom.container );
-            
-            /* push the stripped metric into the hMetrics array */
-            hMetrics.push( metric.strip() );
-            
-        }
-    }
+    hRenderZone.innerHTML = "";         // clear out old metrics
+    hOriginalData         = metricData; // save a reference 
     
     if( __ajaxCallback && U.type( __ajaxCallback ) === "function" ){
         __ajaxCallback( );
     }
     
+    return _renderGenderData( );
 };
 
 
@@ -1094,6 +1197,14 @@ _prepMixer = function ( metricList ) {
     
     /* add the svg definitions to the page */
     _svgDefs( );
+    
+    /* try prepping the submit form */
+    hSubmitForm = _prepSubmitForm( D.form_class );
+    
+    if( hSubmitForm !== false ) {
+        /* prep the gender toggles */
+        _prepGenderToggles( );
+    }
     
     /* find the context to render metrics inside */
     hRenderZone = document.getElementById("metrics")
