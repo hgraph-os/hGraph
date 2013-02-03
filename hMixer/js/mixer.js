@@ -309,7 +309,7 @@ Metric.layerPrep = (function () {
         _addScalePoint,
         
         /* interaction properties */
-        _interactionState = { metric : null, activeE : null, hasMoved : false, lastXpos : false<p>false</p> };
+        _interactionState = { metric : null, activeE : null, hasMoved : false, initialDistance : false };
         
 
 /* _startDrag
@@ -317,6 +317,18 @@ Metric.layerPrep = (function () {
  * Prepares the document to handle "mousemove" events 
 */    
 _startDrag = function ( evt ) {
+    
+    var metric           = _interactionState.metric,
+        xscale           = metric.ref.xscale,
+        initialRelativeX = d3.event.pageX - metric.dom.container.offsetLeft,
+        initialLeft      = xscale( metric.pub.saferange[0] ),
+        initialRight     = xscale( metric.pub.saferange[1] ),
+        initialWidth     = initialRight - initialLeft,
+        initialMiddle    = initialLeft + (initialWidth * 0.5),
+        initialDistance  = initialMiddle - initialRelativeX;
+        
+    /* save this initial distance */
+    _interactionState.initialDistance = initialDistance;
     /* reset the hasMoved - nothing has happened yet... */
     _interactionState.hasMoved = false;
 
@@ -380,11 +392,12 @@ _moveRange = function (left) {
     var xs       = this.ref.xscale,
         leftb    = this.pub.saferange[0],
         rightb   = this.pub.saferange[1],
+        diff     = _interactionState.initialDistance,
         width    = rightb - leftb,
-        xpos     = xs.invert(left),
+        xpos     = xs.invert(left + diff),
         newRight = xpos + (width * 0.5),
         newLeft  = xpos - (width * 0.5);
-        
+    
     /* catch the boundary issues */
     if( newLeft < this.pub.totalrange[0] ){
         newLeft  = 0;
@@ -509,8 +522,9 @@ _endDrag = function ( evt ) {
  * @param {boolean} wasDrag A flag for if the interaction was a drag
 */
 _whipeInteractionState = function ( wasDrag ) {
-    _interactionState.metric  = null;
-    _interactionState.activeE = null; 
+    _interactionState.metric   = null;
+    _interactionState.activeE  = null; 
+    _interactionState.lastXpos = null;
     
     /* if it wasnt a drag, we can just go head and set the hasMoved to false */
     if( !wasDrag ){
@@ -629,9 +643,9 @@ data = function ( layer ) {
                     .attr("data-name","left-node")
                     .attr("cursor","pointer")
                     .on("mousedown", function ( ) {
-                        _interactionState.activeE = "lb";   // we are using the range rect
-                        _interactionState.metric  = metric; // save the metric being acted upon
-                        return _startDrag( );               // begin registering events 
+                        _interactionState.activeE  = "lb";   // we are using the range rect
+                        _interactionState.metric   = metric; // save the metric being acted upon
+                        return _startDrag( );                // begin registering events 
                     });
                     
     rightBound = layer.append("g")
@@ -777,7 +791,6 @@ Metric.prototype = {
             layers[name] = layer;
         }
                 
-        
         dom.container   = container; // save the html container
         dom.svg_element = context;   // save the svg element
         dom.layers      = layers;    // save the "g" layers
