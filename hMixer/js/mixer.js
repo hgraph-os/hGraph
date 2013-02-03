@@ -403,6 +403,8 @@ _scrubPath = function ( evt ) {
             closePoint = pathPoint;
             minDist    = distance;
         }
+        /* if it's close enough, stop looking */
+        if( distance < 2){ break; }
         
         pathPoint = pathe.getPointAtLength( dec );
         distance  = Math.abs( rLeft - pathPoint.x );
