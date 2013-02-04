@@ -26,12 +26,12 @@
         }
     },
         {
-        "name"     : "Happiness",
+        "name"     : "Sleep",
         "features" : { 
-            "saferange"  : [0, 150],
-            "totalrange" : [0, 600],
+            "saferange"  : [7, 10],
+            "totalrange" : [0, 18],
             "weight"     : 3,
-            "unitlabel"  : "mg/dL"
+            "unitlabel"  : "hours/night"
         }
     }]
 },{
@@ -59,6 +59,14 @@
             "totalrange" : [0, 600],
             "weight"     : 3,
             "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "Sleep",
+        "features" : { 
+            "saferange"  : [7, 10],
+            "totalrange" : [0, 18],
+            "weight"     : 3,
+            "unitlabel"  : "hours/night"
         }
     }]
 }]
