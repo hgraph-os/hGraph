@@ -24,7 +24,7 @@ metrics = [{
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [0, 130],
+            "healthyrange"  : [0, 130],
             "totalrange" : [0, 160],
             "weight"     : 10,
             "unitlabel"  : "mg/dL"
@@ -32,7 +32,7 @@ metrics = [{
     },{
         "name"     : "HDL",
         "features" : { 
-            "saferange"  : [0, 97],
+            "healthyrange"  : [0, 97],
             "totalrange" : [0,130],
             "weight"     : 1,
             "unitlabel"  : "%"
@@ -40,7 +40,7 @@ metrics = [{
     },{
         "name"     : "Triglycerides",
         "features" : { 
-            "saferange"  : [0, 150],
+            "healthyrange"  : [0, 150],
             "totalrange" : [0, 600],
             "weight"     : 3,
             "unitlabel"  : "mg/dL"
@@ -51,7 +51,7 @@ metrics = [{
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [50, 60],
+            "healthyrange"  : [50, 60],
             "totalrange" : [0, 60],
             "weight"     : 10,
             "unitlabel"  : "mg/dL"
@@ -59,7 +59,7 @@ metrics = [{
     },{
         "name"     : "HDL",
         "features" : { 
-            "saferange"  : [0, 97],
+            "healthyrange"  : [0, 97],
             "totalrange" : [0,130],
             "weight"     : 1,
             "unitlabel"  : "%"
@@ -67,7 +67,7 @@ metrics = [{
     },{
         "name"     : "Triglycerides",
         "features" : { 
-            "saferange"  : [0, 150],
+            "healthyrange"  : [0, 150],
             "totalrange" : [0, 600],
             "weight"     : 3,
             "unitlabel"  : "mg/dL"
@@ -84,7 +84,7 @@ ajaxconf = {
 /* example usage of the "options" parameter */
 options = {
     allowTextSelection : false
-    // safe_range         : [0, 400],
+    // healthy_range         : [0, 400],
     // total_range        : [0, 800]
     // range_fill : "#ff0000" 
     // text_fill  : "#ff0000"

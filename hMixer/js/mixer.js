@@ -32,7 +32,7 @@
 //
 Defaults = D = {
     form_class       : "form.submit-form",
-    safe_range       : [50, 80],
+    healthy_range       : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
@@ -356,8 +356,8 @@ _startDrag = function ( evt ) {
     var metric           = _interactionState.metric,
         xscale           = metric.ref.xscale,
         initialRelativeX = d3.event.pageX - metric.dom.container.offsetLeft,
-        initialLeft      = xscale( metric.pub.saferange[0] ),
-        initialRight     = xscale( metric.pub.saferange[1] ),
+        initialLeft      = xscale( metric.pub.healthyrange[0] ),
+        initialRight     = xscale( metric.pub.healthyrange[1] ),
         initialWidth     = initialRight - initialLeft,
         initialMiddle    = initialLeft + (initialWidth * 0.5),
         initialDistance  = initialMiddle - initialRelativeX;
@@ -508,8 +508,8 @@ _addScalePoint = function ( evt ){
 */
 _moveRange = function (left) {
     var xs       = this.ref.xscale,
-        leftb    = this.pub.saferange[0],
-        rightb   = this.pub.saferange[1],
+        leftb    = this.pub.healthyrange[0],
+        rightb   = this.pub.healthyrange[1],
         diff     = _interactionState.initialDistance,
         width    = rightb - leftb,
         xpos     = xs.invert(left + diff),
@@ -525,7 +525,7 @@ _moveRange = function (left) {
         newLeft  = newRight - width;
     }
         
-    this.pub.saferange = [newLeft, newRight];
+    this.pub.healthyrange = [newLeft, newRight];
 };
 
 
@@ -538,13 +538,13 @@ _moveRange = function (left) {
 _moveLeftBound = function ( left ) {
     var xs  = this.ref.xscale,
         lp  = xs.invert(left),
-        rb  = this.pub.saferange[1],
+        rb  = this.pub.healthyrange[1],
         max = this.pub.totalrange[0]; 
     
     if( lp < max ) { lp = max; }
     if( lp > rb ) { lp = rb; }
     
-    this.pub.saferange[0] = lp;
+    this.pub.healthyrange[0] = lp;
 };
 
 /* _moveRightBound
@@ -556,13 +556,13 @@ _moveLeftBound = function ( left ) {
 _moveRightBound = function ( left ) {
     var xs  = this.ref.xscale,
         rp  = xs.invert(left),
-        lb  = this.pub.saferange[0],
+        lb  = this.pub.healthyrange[0],
         max = this.pub.totalrange[1];
     
     if( rp > max ) { rp = max; }
     if( rp < lb ) { rp = lb; }
     
-    this.pub.saferange[1] = rp;
+    this.pub.healthyrange[1] = rp;
 };
 
 /* _moveWeight
@@ -908,9 +908,9 @@ Metric.prototype = {
             name       : opts.name || "N/A",
             
             /* {array} range of values that are okay (green) */
-            saferange  : (opts.features && opts.features.saferange) 
-                            ? opts.features.saferange 
-                            : D.safe_range,
+            healthyrange  : (opts.features && opts.features.healthyrange) 
+                            ? opts.features.healthyrange 
+                            : D.healthy_range,
             
             /* {array} maximum range of values */         
             totalrange : (opts.features && opts.features.totalrange) 
@@ -1010,8 +1010,8 @@ Metric.prototype = {
             rightNode  = dom.rightNode,
             weightNode = dom.weightNode,
             weight     = this.pub.weight,
-            leftb      = xs( this.pub.saferange[0] ),
-            rightb     = xs( this.pub.saferange[1] ),
+            leftb      = xs( this.pub.healthyrange[0] ),
+            rightb     = xs( this.pub.healthyrange[1] ),
             width      = rightb - leftb;
         
         rect 
@@ -1020,11 +1020,11 @@ Metric.prototype = {
         
         leftNode
             .attr("transform", U.mts(leftb) ) // move the left node into postion
-            .selectAll("text").text( this.pub.saferange[0].toFixed(0) );
+            .selectAll("text").text( this.pub.healthyrange[0].toFixed(0) );
             
         rightNode
             .attr("transform", U.mts(rightb) ) // move the right node into postion 
-            .selectAll("text").text( this.pub.saferange[1].toFixed(0) );
+            .selectAll("text").text( this.pub.healthyrange[1].toFixed(0) );
             
         weightNode
             .attr("transform", U.mts(837.5, ws(weight) ) )
@@ -1238,7 +1238,7 @@ _setOptions = function ( options ) {
 
     D.range_rect.fill = options.range_fill || D.range_rect.fill; // range box color
     D.svg_text.fill   = options.text_fill || D.svg_text.fill;    // text color
-    D.safe_range      = options.safe_range || D.safe_range;      // safe range 
+    D.healthy_range      = options.healthy_range || D.healthy_range;      // healthy range 
     D.total_range     = options.total_range || D.total_range;    // total range 
     D.form_class      = options.form_class || D.form_class;      // form class
     
