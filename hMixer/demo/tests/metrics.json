@@ -1,13 +1,72 @@
 [{
-    "name"     : "LDL",
-    "features" : { 
-        "saferange"  : [50, 60],
-        "totalrange" : [0, 60]
-    }
+    "gender"  : "male",
+    "metrics" : [{
+        "name"     : "LDL",
+        "features" : { 
+            "healthyrange"  : [0, 130],
+            "totalrange" : [0, 160],
+            "weight"     : 6,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "HDL",
+        "features" : { 
+            "healthyrange"  : [50, 60],
+            "totalrange" : [0, 60],
+            "weight"     : 6,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "Triglycerides",
+        "features" : { 
+            "healthyrange"  : [0, 150],
+            "totalrange" : [0, 600],
+            "weight"     : 5,
+            "unitlabel"  : "mg/dL"
+        }
+    },
+        {
+        "name"     : "Sleep",
+        "features" : { 
+            "healthyrange"  : [7, 10],
+            "totalrange" : [0, 18],
+            "weight"     : 3,
+            "unitlabel"  : "hours/night"
+        }
+    }]
 },{
-    "name"     : "HDL",
-    "features" : { 
-        "saferange"  : [0, 97],
-        "totalrange" : [0,130]
-    }
+    "gender"  : "female",
+    "metrics" : [{
+        "name"     : "LDL",
+        "features" : { 
+            "healthyrange"  : [0, 100],
+            "totalrange" : [0, 160],
+            "weight"     : 4,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "HDL",
+        "features" : { 
+            "healthyrange"  : [40, 60],
+            "totalrange" : [0, 60],
+            "weight"     : 2,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "Triglycerides",
+        "features" : { 
+            "healthyrange"  : [0, 150],
+            "totalrange" : [0, 600],
+            "weight"     : 3,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "Sleep",
+        "features" : { 
+            "healthyrange"  : [7, 10],
+            "totalrange" : [0, 18],
+            "weight"     : 3,
+            "unitlabel"  : "hours/night"
+        }
+    }]
 }]
