@@ -3,7 +3,7 @@
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [0, 130],
+            "healthyrange"  : [0, 130],
             "totalrange" : [0, 160],
             "weight"     : 6,
             "unitlabel"  : "mg/dL"
@@ -11,7 +11,7 @@
     },{
         "name"     : "HDL",
         "features" : { 
-            "saferange"  : [50, 60],
+            "healthyrange"  : [50, 60],
             "totalrange" : [0, 60],
             "weight"     : 6,
             "unitlabel"  : "mg/dL"
@@ -19,7 +19,7 @@
     },{
         "name"     : "Triglycerides",
         "features" : { 
-            "saferange"  : [0, 150],
+            "healthyrange"  : [0, 150],
             "totalrange" : [0, 600],
             "weight"     : 5,
             "unitlabel"  : "mg/dL"
@@ -28,7 +28,7 @@
         {
         "name"     : "Sleep",
         "features" : { 
-            "saferange"  : [7, 10],
+            "healthyrange"  : [7, 10],
             "totalrange" : [0, 18],
             "weight"     : 3,
             "unitlabel"  : "hours/night"
@@ -39,7 +39,7 @@
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [0, 100],
+            "healthyrange"  : [0, 100],
             "totalrange" : [0, 160],
             "weight"     : 4,
             "unitlabel"  : "mg/dL"
@@ -47,7 +47,7 @@
     },{
         "name"     : "HDL",
         "features" : { 
-            "saferange"  : [40, 60],
+            "healthyrange"  : [40, 60],
             "totalrange" : [0, 60],
             "weight"     : 2,
             "unitlabel"  : "mg/dL"
@@ -55,7 +55,7 @@
     },{
         "name"     : "Triglycerides",
         "features" : { 
-            "saferange"  : [0, 150],
+            "healthyrange"  : [0, 150],
             "totalrange" : [0, 600],
             "weight"     : 3,
             "unitlabel"  : "mg/dL"
@@ -63,7 +63,7 @@
     },{
         "name"     : "Sleep",
         "features" : { 
-            "saferange"  : [7, 10],
+            "healthyrange"  : [7, 10],
             "totalrange" : [0, 18],
             "weight"     : 3,
             "unitlabel"  : "hours/night"
