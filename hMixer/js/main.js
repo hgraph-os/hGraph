@@ -24,8 +24,8 @@ metrics = [{
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [50, 60],
-            "totalrange" : [0, 60],
+            "saferange"  : [0, 130],
+            "totalrange" : [0, 160],
             "weight"     : 10,
             "unitlabel"  : "mg/dL"
         }
