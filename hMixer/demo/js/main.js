@@ -38,7 +38,7 @@ ajaxconf = {
 /* example usage of the "options" parameter */
 options = {
     allowTextSelection : false
-    // safe_range         : [0, 400],
+    // healthy_range         : [0, 400],
     // total_range        : [0, 800]
     // range_fill : "#ff0000" 
     // text_fill  : "#ff0000"
