@@ -23,7 +23,8 @@
             "totalrange" : [0, 600],
             "weight"     : 3,
             "unitlabel"  : "mg/dL"
-        },
+        }
+    },
         {
         "name"     : "Happiness",
         "features" : { 
