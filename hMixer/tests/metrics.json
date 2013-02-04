@@ -5,23 +5,23 @@
         "features" : { 
             "saferange"  : [0, 130],
             "totalrange" : [0, 160],
-            "weight"     : 10,
+            "weight"     : 6,
             "unitlabel"  : "mg/dL"
         }
     },{
         "name"     : "HDL",
         "features" : { 
-            "saferange"  : [0, 97],
-            "totalrange" : [0,130],
-            "weight"     : 1,
-            "unitlabel"  : "%"
+            "saferange"  : [50, 60],
+            "totalrange" : [0, 60],
+            "weight"     : 6,
+            "unitlabel"  : "mg/dL"
         }
     },{
         "name"     : "Triglycerides",
         "features" : { 
             "saferange"  : [0, 150],
             "totalrange" : [0, 600],
-            "weight"     : 3,
+            "weight"     : 5,
             "unitlabel"  : "mg/dL"
         }
     },
@@ -37,20 +37,20 @@
 },{
     "gender"  : "female",
     "metrics" : [{
-        "name"     : "PDL",
+        "name"     : "LDL",
         "features" : { 
-            "saferange"  : [50, 70],
-            "totalrange" : [10, 100],
+            "saferange"  : [0, 100],
+            "totalrange" : [0, 160],
             "weight"     : 4,
             "unitlabel"  : "mg/dL"
         }
     },{
-        "name"     : "VDL",
+        "name"     : "HDL",
         "features" : { 
-            "saferange"  : [90, 100],
-            "totalrange" : [0, 400],
+            "saferange"  : [40, 60],
+            "totalrange" : [0, 60],
             "weight"     : 2,
-            "unitlabel"  : "%"
+            "unitlabel"  : "mg/dL"
         }
     },{
         "name"     : "Triglycerides",
