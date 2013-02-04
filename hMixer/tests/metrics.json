@@ -3,8 +3,8 @@
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "saferange"  : [50, 60],
-            "totalrange" : [0, 60],
+            "saferange"  : [0, 130],
+            "totalrange" : [0, 160],
             "weight"     : 10,
             "unitlabel"  : "mg/dL"
         }
@@ -18,6 +18,14 @@
         }
     },{
         "name"     : "Triglycerides",
+        "features" : { 
+            "saferange"  : [0, 150],
+            "totalrange" : [0, 600],
+            "weight"     : 3,
+            "unitlabel"  : "mg/dL"
+        },
+        {
+        "name"     : "Happiness",
         "features" : { 
             "saferange"  : [0, 150],
             "totalrange" : [0, 600],
