@@ -36,20 +36,20 @@ Defaults = D = {
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 900, height : 250 },
+    svg_element      : { width : 900, height : 175 },
     svg_layers       : ["ui", "data"],
     chart_dimensions : {
         left   : 225,
         top    : 40,
         width  : 550,
-        height : 170
+        height : 95
     },
     svg_cover : {
         "fill"   : "rgba(0,0,0,0.0)",
         "x"      : 0,
         "y"      : 0,
         "width"  : 900,
-        "height" : 250
+        "height" : 175
     },
     svg_text : {
         "fill"           : "#9d9f9f",
@@ -63,7 +63,7 @@ Defaults = D = {
     range_rect : {
         "fill"   : "#bdcb9e",
         "y"      : 40,
-        "height" : 169,
+        "height" : 94,
         "cursor" : "move"
     },
     bound_text : {
@@ -89,7 +89,7 @@ Defaults = D = {
     },
     title_text : {
         "x"              : 200,
-        "y"              : 205,
+        "y"              : 134,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
         "font-size"      : "32px",
@@ -98,7 +98,7 @@ Defaults = D = {
     },
     unit_text : {
         "x"              : 200,
-        "y"              : 220,
+        "y"              : 150,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
         "font-size"      : "12px",
@@ -109,7 +109,7 @@ Defaults = D = {
         "x1"     : 837.5,
         "x2"     : 837.5,
         "y1"     : 40,
-        "y2"     : 210,
+        "y2"     : 135,
         "stroke" : "#c0c3c2"
     },
     weight_bounds : {
@@ -750,7 +750,7 @@ ui = function ( layer ) {
     
     layer.append("circle")
         .attr(D.weight_bounds)
-        .attr("cy", 210);
+        .attr("cy", 135);
     
     layer.append("rect")
         .attr(D.svg_cover);
@@ -870,8 +870,13 @@ data = function ( layer ) {
         .text( 4 );
         
     layer.on("mousemove", function () {
-        _interactionState.metric  = metric; // save the metric being acted upon
-        _scrubPath( d3.event );
+        
+        /* only call scrubber if there is no dragging */
+        if( !_interactionState.hasMoved ) {          
+            _interactionState.metric  = metric; // save the metric being acted upon
+            _scrubPath( d3.event );             // update the scrubber information
+        }
+        
     }).on("mouseout", function () {
         metric.dom.curveBubble.transition().duration(20).attr("opacity", 0.0);
     });
