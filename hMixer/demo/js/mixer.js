@@ -31,13 +31,9 @@
 // Default storage and it's shortcut
 //
 Defaults = D = {
-<<<<<<< HEAD
-    healthy_range       : [50, 80],
-=======
     boundary_flags   : [false, false],
     form_class       : "form.submit-form",
     healthy_range    : [50, 80],
->>>>>>> code from gh-pages brought over
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
@@ -520,10 +516,7 @@ _moveRange = function (left) {
     var xs       = this.ref.xscale,
         leftb    = this.pub.healthyrange[0],
         rightb   = this.pub.healthyrange[1],
-<<<<<<< HEAD
-=======
         diff     = _interactionState.initialDistance,
->>>>>>> code from gh-pages brought over
         width    = rightb - leftb,
         xpos     = xs.invert(left + diff),
         newRight = xpos + (width * 0.5),
@@ -1033,11 +1026,7 @@ Metric.prototype = {
             dayscore : opts.dayscore || false,
             
             /* {array} range of values that are okay (green) */
-<<<<<<< HEAD
-            healthyrange  : (opts.features && opts.features.healthyrange) 
-=======
             healthyrange : (opts.features && opts.features.healthyrange) 
->>>>>>> code from gh-pages brought over
                             ? opts.features.healthyrange 
                             : D.healthy_range,
             
@@ -1595,5 +1584,4 @@ window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();
-
 
