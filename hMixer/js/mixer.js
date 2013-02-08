@@ -31,8 +31,9 @@
 // Default storage and it's shortcut
 //
 Defaults = D = {
+    boundary_flags   : [false, false],
     form_class       : "form.submit-form",
-    healthy_range       : [50, 80],
+    healthy_range    : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
     unitlabel        : "mg/dL",
@@ -136,6 +137,10 @@ Defaults = D = {
         "text-anchor"    : "middle",
         "x"              : 0,
         "y"              : 5
+    },
+    daily_inputbox : {
+        "class" : "daily-input",
+        "type"  : "text"
     }
 };
 
@@ -316,20 +321,23 @@ Metric.layerPrep = (function () {
         data, // data layer function (returned)
         
         /* "generic" interaction definitions */
-        _startDrag, // mouse downs 
-        _doDrag,    // mouse moves
-        _endDrag,   // mouse ups
+        _startDrag,       // mouse downs 
+        _doDrag,          // mouse moves
+        _endDrag,         // mouse ups
+        _dailyKeymanager, // keypress for handling the daily inputs
+        _dailySubmit, 
         
         /* "handle" dependent functions */
         _moveRange,      // moves the whole range
         _moveLeftBound,  // moves the left bound circle
         _moveRightBound, // moves the right bound
         _moveWeight,     // moves the weight
-        _movePoint,
-        _scrubPath,
+        _movePoint,      // moves individual points 
+        _scrubPath,      // updates the scubbber bubble
         
         /* helper functions */
         _whipeInteractionState,
+        _drawInitialPoints,
         
         /* click function -> adds scale curve points */
         _addScalePoint,
@@ -345,8 +353,8 @@ Metric.layerPrep = (function () {
         
         /* fade out for the scrubber */
         _fadeOutTimeout = null;
-        
-
+    
+    
 /* _startDrag
  *
  * Prepares the document to handle "mousemove" events 
@@ -361,7 +369,9 @@ _startDrag = function ( evt ) {
         initialWidth     = initialRight - initialLeft,
         initialMiddle    = initialLeft + (initialWidth * 0.5),
         initialDistance  = initialMiddle - initialRelativeX;
-        
+    
+    U.e("starting a drag interaction on: (" + metric.pub.name + ")", "log");
+    
     /* save this initial distance */
     _interactionState.initialDistance = initialDistance;
     /* reset the hasMoved - nothing has happened yet... */
@@ -390,9 +400,9 @@ _scrubPath = function ( evt ) {
         minDist = Number.MAX_VALUE, 
         scrubVal, pathPoint, closePoint,
         distance, inc, dec;
-    
+
     /* if there is not enough points, forget about it */
-    if( points.length < 2){ return; }
+    if( points.length < 2 || pLength < 1 ){ return; }
     
     for(inc = 0, dec = parseInt(pLength,10); inc < pLength && dec > 0; dec--, inc++){
         
@@ -417,7 +427,10 @@ _scrubPath = function ( evt ) {
         /* if it's close enough, stop looking */
         if( distance < 2){ break; }
     }
-         
+
+    /* if no close point was found */
+    if( !closePoint ) { return; }
+    
     /* get the real values of these coordinates */
     scrubVal = {
         y : yscale.invert( closePoint.y ).toFixed(0),
@@ -445,25 +458,19 @@ _scrubPath = function ( evt ) {
 
 /* _addScalePoint
  * 
- * Click event for adding points to the scale path
- * @param {object} evt The d3.event that was fired on click
+ * Function for adding points to the scale path
+ * @param {number} rmX The desired initial left position
+ * @param {number} rmY The desired initial top position
 */
-_addScalePoint = function ( evt ){
+_addScalePoint = function ( rmX, rmY ){
     /* if there was some sort of drag, forget about it */
     if( _interactionState.hasMoved ){ return; }
     
     var metric = _interactionState.metric,
         points = metric.ref.points,
         layer  = metric.dom.pointGroup,
-        rmX    = evt.pageX - metric.dom.container.offsetLeft, // relative mouse X pos
-        rmY    = evt.pageY - metric.dom.container.offsetTop,  // relative mouse Y pos
-        d      = D.chart_dimensions,                          // dimensions shortcut
-        point; 
-    
-    /* boundary check */
-    if( rmX < d.left || rmX > (d.left + d.width) || rmY > (d.top + d.bottom) || rmY < d.top){
-        return;
-    }
+        d      = D.chart_dimensions,
+        point, dpoint; 
     
     point = layer
                 .append("g")
@@ -488,15 +495,14 @@ _addScalePoint = function ( evt ){
         .append("circle")
         .attr(D.bound_inner_circle)
         .attr("fill","#585a5a");
-        
-    points.push({ el : point, top : rmY, left : rmX });
+    
+    dpoint = { el : point, top : rmY, left : rmX };
+    
+    points.push( dpoint );
 
     U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
-    
-    /* update the score curve */
-    metric.updateCurve( );
-    
-    _whipeInteractionState( false );
+
+    return dpoint;
 };
 
 /* _moveRange
@@ -612,7 +618,7 @@ _movePoint = function ( left, top ) {
  * Handles mouse movements
 */  
 _doDrag = function ( evt ) {  
-    
+
     /* if the listener got fired without an event - give up */
     if ( !d3.event || _interactionState.metric === null || _interactionState.activeE === null ){ 
         return false; 
@@ -685,7 +691,73 @@ _whipeInteractionState = function ( wasDrag ) {
         _interactionState.hasMoved = false;
     }, 3);
 };
+
+
+/* _drawInitialPoints
+ *
+ * Called during the initialization of the
+ * data layer in order to populate the fixed 
+ * scale points
+*/
+_drawInitialPoints = function ( ) {
+    _interactionState.metric = this;
+    
+    this.dom.leftCurveAnchor   = _addScalePoint( 0, 0 );
+    this.dom.middleCurveAnchor = _addScalePoint( 0, 0 );
+    this.dom.rightCurveAnchor  = _addScalePoint( 0, 0 ); 
+    
+    return _whipeInteractionState( false );  
+};
+
+
+/* _dailyKeymanager
+ *
+ * Called on keydown events inside the
+ * daily input box
+*/
+_dailyKeymanager = function ( ) {   
+    var evt    = d3.event,
+        code   = evt.keyCode,
+        isChar = isNaN( parseInt( String.fromCharCode(code), 10) ),
+        metric = _interactionState.metric,
+        name   = metric.pub.name,
+        input  = d3.select( this ),
+        value;
+
+    /* only allow numbers, enter, and backspace */
+    if( code !== 190 && code !== 8 && code !== 13 && isChar ){ 
+        return evt.preventDefault && evt.preventDefault(); 
+    }
+};
         
+/* _dailySubmit
+ *
+ * Called on keyup events inside the
+ * daily input box when the keycode is
+ * 13 (enter key)
+*/  
+_dailySubmit = function ( ) {
+    var evt    = d3.event,
+        code   = evt.keyCode,
+        input  = d3.select(this),
+        metric = _interactionState.metric,
+        value;
+    
+    if( code !== 13 ){ return; }
+    
+    value = parseFloat( input.node().value );
+    
+    if( value > metric.pub.totalrange[1] ){ value = metric.pub.totalrange[1]; }
+    if( value < metric.pub.totalrange[0] ){ value = metric.pub.totalrange[0]; }
+    
+    input
+        .style({"left" : metric.ref.xscale(value) + "px"})
+        .node().value = value;
+    
+    U.e("setting the daily score of " + metric.pub.name + " to " + value, "log");
+    
+    metric.pub.dayscore = value;
+};
         
 /* Metric.layerPrep.ui
  *
@@ -695,17 +767,24 @@ _whipeInteractionState = function ( wasDrag ) {
 ui = function ( layer ) {  
     var xs = this.ref.xscale,
         ys = this.ref.yscale,
+        or = this.ref.boundaryflags[1], // open on the right boundary?
+        ol = this.ref.boundaryflags[0], // open on the left boundary?
         xt = xs.ticks(10),
         yt = ys.ticks(3);
-    
+        
+        
     layer
         .selectAll("text.xticks")
         .data(xt).enter().append("text")
-        .text(function (d, i) { return d; })
+        .text(function (d, ind) { 
+            return ( (d === xt[xt.length-1] && or) || (d === xt[0] && ol) ) 
+                        ? d + "+" 
+                        : d; 
+        })
         .attr("x", function(d, i) { return xs(d); })
         .attr("text-anchor", "middle")
         .attr(D.svg_text)
-        .attr("y", D.chart_dimensions.top + D.chart_dimensions.height + 15);
+        .attr("y", D.chart_dimensions.top + D.chart_dimensions.height + 18);
         
     layer
         .selectAll("text.yticks")
@@ -756,6 +835,8 @@ ui = function ( layer ) {
         .attr(D.svg_cover);
 };
 
+
+
 /* Metric.layerPrep.data
  *
  * Prepares the metric's data layer for
@@ -764,17 +845,18 @@ ui = function ( layer ) {
 data = function ( layer ) {
     var metric = this,
         dom    = metric.dom,
+        points = metric.ref.points,
         rangeRect, leftBound, rightBound,
         weightNode, coverRect, 
         curvePath, pointGroup, curveGroup,
-        curveBubble;
+        curveBubble, pastValue;
     
     coverRect = layer.append("rect")
                     .attr( D.svg_cover )
                     .attr("data-name","click-catcher")
                     .on("click", function () {
-                        _interactionState.metric = metric;
-                        return _addScalePoint( d3.event );
+                        // _interactionState.metric = metric;
+                        // return _addScalePoint( d3.event );
                     });
     
     
@@ -786,8 +868,8 @@ data = function ( layer ) {
                         _interactionState.metric  = metric; // save the metric being acted upon
                         return _startDrag( );               // begin registering events  
                     }).on("click", function ( ) {
-                        _interactionState.metric  = metric;
-                        return _addScalePoint( d3.event );
+                        // _interactionState.metric  = metric;
+                        // return _addScalePoint( d3.event );
                     });
                     
     leftBound  = layer.append("g")
@@ -822,12 +904,14 @@ data = function ( layer ) {
     
     curvePath = curveGroup
                     .append("path")
-                    .attr(D.curve_path);
+                    .attr(D.curve_path)
+                    .attr("pointer-events", "none");
                     
     curveBubble = curveGroup
                     .append("g")
                     .attr("data-name", "curve-bubble")
-                    .attr("opacity", 0.0);
+                    .attr("opacity", 0.0)
+                    .attr("pointer-events", "none");
     
     pointGroup = layer.append("g")
                     .attr("data-name", "point-group");
@@ -868,7 +952,7 @@ data = function ( layer ) {
         .attr("fill","#fff")
         .attr("y", 5)
         .text( 4 );
-        
+    
     layer.on("mousemove", function () {
         
         /* only call scrubber if there is no dragging */
@@ -881,6 +965,29 @@ data = function ( layer ) {
         metric.dom.curveBubble.transition().duration(20).attr("opacity", 0.0);
     });
     
+    /* attatch the keypress to the input box */
+    dom.dayInput
+        .on("focus", function () {  
+            var input = d3.select(this),
+                value = input.attr("value");
+            
+            pastValue = value;
+            _interactionState.metric = metric; 
+            
+            input.attr("value",""); 
+        })
+        .on("keydown", _dailyKeymanager )
+        .on("keyup", _dailySubmit )
+        .on("blur", function () {
+            var input = d3.select(this),
+                value = input.attr("value");
+            if( value === "" ){
+                input.attr("value", pastValue );
+            }
+            _whipeInteractionState( );
+        });
+    
+    
     dom.curveBubble = curveBubble; // the scrubber bubble group
     dom.curvePath   = curvePath;   // ref to the bezier curve (<path>)
     dom.pointGroup  = pointGroup;  // save the group for data points
@@ -888,6 +995,9 @@ data = function ( layer ) {
     dom.rangeRect   = rangeRect;   // save the range rectangle
     dom.leftNode    = leftBound;   // save the left bound
     dom.rightNode   = rightBound;  // save the right bound 
+    
+    
+    return _drawInitialPoints.call(metric);
 };
 
 /* dump the layer prepping functions back out */
@@ -897,7 +1007,7 @@ return { ui : ui, data : data };
 
 Metric.prototype = {
     constructor : Metric,
-    version     : "1.0",
+    version     : "1.2",
     
     /* metric.rig
      *
@@ -906,14 +1016,17 @@ Metric.prototype = {
     */
     rig : function ( opts ) {
     
-        /* the object that will keep references to values, names.. etc */
+        /* the object that will keep references to values, names.. etc !VISIBLE! */
         this.pub = { 
             
             /* {string} the name of the metric */
-            name       : opts.name || "N/A",
+            name : opts.name || "N/A",
+            
+            /* {number} the score entered in today or the previous day */
+            dayscore : opts.dayscore || false,
             
             /* {array} range of values that are okay (green) */
-            healthyrange  : (opts.features && opts.features.healthyrange) 
+            healthyrange : (opts.features && opts.features.healthyrange) 
                             ? opts.features.healthyrange 
                             : D.healthy_range,
             
@@ -923,12 +1036,12 @@ Metric.prototype = {
                             : D.total_range,
             
             /* {number} how significant this score is to the hScore */
-            weight     : (opts.features && opts.features.weight) 
+            weight : (opts.features && opts.features.weight) 
                             ? opts.features.weight 
                             : D.weight,
             
             /* {string} how this metric is measured (mg/dL) */
-            unitlabel  : (opts.features && opts.features.unitlabel) 
+            unitlabel : (opts.features && opts.features.unitlabel) 
                             ? opts.features.unitlabel 
                             : D.unitlabel
             
@@ -942,20 +1055,28 @@ Metric.prototype = {
         /* an object reference to store things like scales and etc.. */
         this.ref = {
             
+            /* boundary conditions (open, closed)? */
+            boundaryflags : (opts.features && opts.features.boundaryflags) 
+                            ? opts.features.boundaryflags 
+                            : D.boundary_flags,
+            
             /* the x scale */
-            xscale      : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]),            
+            xscale : d3.scale.linear().domain(this.pub.totalrange).range([l, l + w]),            
             
             /* the y scale */
-            yscale      : d3.scale.linear().domain([0,100]).range([h+t,t]),
+            yscale : d3.scale.linear().domain([0,100]).range([h+t,t]),
             
             /* an array for points to be placed in */  
-            points      : [ ],                                                     
+            points : [ ],                                                     
             
             /* the scale used for calculating weight positions */
             weightscale : d3.scale.linear().domain([0,10]).range([h+t,t]),          
             
+            /* a quick property for half of the total range */
+            halftotal : this.pub.totalrange[0] + ( ( this.pub.totalrange[1] - this.pub.totalrange[0] ) * 0.5 ),
+            
             /* the svg path element command generator */
-            linegen     : d3.svg.line()
+            linegen : d3.svg.line()
                             .x(function (d) { return d.x; })
                             .y(function (d) { return d.y; })
                             .interpolate("cardinal")
@@ -968,35 +1089,49 @@ Metric.prototype = {
         this.render( );
     },
     
-    
     /* metric.render
      *
      * creates the necessary DOM elements 
     */
     render : function ( ) {
-        var container = document.createElement("article"),
+        var i = 0, layer, name,
+            container = document.createElement("article"),
             context   = d3.select(container).append("svg"),
+            dayInput  = d3.select(container).append("input"),
             dom       = this.dom,
-            layers    = { }, i = 0, layer, name;
-    
-        U.a.call(container,"class","metric cf middle"); // set the metric container's class
-        context.attr(D['svg_element']);                 // set the default properties of the svg element
+            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 4,
+            inputX    = (this.pub.dayscore) 
+                            ? this.ref.xscale(this.pub.dayscore) 
+                            : D.chart_dimensions.left + (D.chart_dimensions.width * 0.5);
+                        
+        d3.select(container) // set the metric container's class
+            .attr("class", "metric cf middle"); 
+        
+        context // set the default properties of the svg element
+            .attr(D.svg_element); 
+        
+        dayInput // set the default properties of the input box
+            .attr(D.daily_inputbox)
+            .style({"top"  : inputY + "px", "left" : inputX + "px"})
+            .attr("value", this.ref.xscale.invert( inputX ) );
+        
+        dom.dayInput    = dayInput;
+        dom.container   = container; // save the html container
+        dom.svg_element = context;   // save the svg element
+        dom.layers      = { };
         
         /* make SVG groups that will represent layers */
         for(i; name = D.svg_layers[i], i < D.svg_layers.length; i++){
             layer = context.append("g").attr("data-name", name);
             
+            dom.layers[name] = layer;
+                    
             /* if there is a prep function defined for this layer */
             if( Metric.layerPrep[name] && U.type(Metric.layerPrep[name]) === "function" ){
                 Metric.layerPrep[name].call(this, layer);
             }
-            
-            layers[name] = layer;
+    
         }
-                
-        dom.container   = container; // save the html container
-        dom.svg_element = context;   // save the svg element
-        dom.layers      = layers;    // save the "g" layers
         
         return this.reDraw( );
     },
@@ -1035,6 +1170,8 @@ Metric.prototype = {
             .attr("transform", U.mts(837.5, ws(weight) ) )
             .selectAll("text").text( weight.toFixed(0) );
 
+            
+        this.updateCurve( );
     },
     
     
@@ -1043,12 +1180,40 @@ Metric.prototype = {
      * called after the metric's score curve has changed
     */
     updateCurve : function ( ) {
-        var points  = this.ref.points,
-            linegen = this.ref.linegen,
-            curve   = this.dom.curvePath,
-            layer   = this.dom.layers['data'],
-            indx, point, parts = [ ];
+        var xscale       = this.ref.xscale,
+            yscale       = this.ref.yscale,
+            healthyLeft  = xscale( this.pub.healthyrange[0] ),
+            healthyRight = xscale( this.pub.healthyrange[1] ), 
+            healthyMid   = healthyLeft + ( (healthyRight - healthyLeft) * 0.5 ),
+            totalLeft    = xscale( this.pub.totalrange[0] ),
+            totalRight   = xscale( this.pub.totalrange[1] ),
+            vertRoom     = yscale(0) - yscale(100),
+            points       = this.ref.points,
+            linegen      = this.ref.linegen,
+            curve        = this.dom.curvePath,
+            indx, point, parts = [ ], lAnchorY = 0, rAnchorY = 0;
         
+        /* hide the curve bubble while moving */
+        this.dom.curveBubble.attr("opacity", 0);
+        
+        /* if the anchors are close the to the edge, account for it */
+        if( vertRoom > (totalRight - healthyRight) ) {
+            rAnchorY = 100 - ( ( (totalRight - healthyRight) / vertRoom) * 100);
+        } 
+        if ( vertRoom > (healthyLeft - totalLeft) ) {
+            lAnchorY = 100 - ( ( (healthyLeft - totalLeft) / vertRoom) * 100);
+        }
+        
+        /* force anchor positions */
+        this.dom.leftCurveAnchor.left = totalLeft;
+        this.dom.leftCurveAnchor.top  = yscale( lAnchorY );
+        
+        this.dom.middleCurveAnchor.left = healthyMid;
+        this.dom.middleCurveAnchor.top  = yscale( 100 );
+        
+        this.dom.rightCurveAnchor.left = totalRight;
+        this.dom.rightCurveAnchor.top  = yscale( rAnchorY );
+    
         for( indx = 0; indx < points.length; indx++ ) {
             /* grab the current point */
             point = points[indx];
@@ -1117,7 +1282,7 @@ _keyManager = function ( ) {
         evt.preventDefault && evt.preventDefault(); 
         return false; 
     }
-    
+
 };
 
 
@@ -1284,6 +1449,12 @@ _renderGenderData = function ( ){
         hMetrics[hGenderIndex].push( metric.strip() );
         
     }
+
+    /* prevent strange interaction behavior */
+    setTimeout(function () {
+        d3.select(hRenderZone)
+            .style("height", "auto");
+    }, 20);
     
     return true;
 }
@@ -1318,6 +1489,8 @@ _populateMetrics = function ( metricData ) {
 */
 _prepMixer = function ( metricList ) {
 
+    
+
     /* do not prep the mixer more than once */
     hPrepped = true;
     
@@ -1338,8 +1511,12 @@ _prepMixer = function ( metricList ) {
                     || document.getElementById("hMixer")
                     || document.body.appendChild(document.createElement("section"));
     
-    /* apply or re-define some attributes */
-    U.a.call(hRenderZone,"class","f metrics cf").call(hRenderZone,"id","metrics");
+    
+    d3.select(hRenderZone)
+        .attr("class","f metrics cf")
+        .attr("id", "metrics")
+        .style("height", "1px");
+    
     
     if( metricList && metricList.length >= 0 && U.type(metricList) == "array"){
         /* use the array and get the list populated */
@@ -1358,7 +1535,7 @@ _prepMixer = function ( metricList ) {
 
 __mixer = {  
      
-    version : "1.0", 
+    version : "1.2", 
     
     /* Mixer.init
      * 
@@ -1368,7 +1545,7 @@ __mixer = {
     */
     init : function ( metricList, opts ) {
         if( opts && U.type(opts) === "object" ){ _setOptions( opts ); }
-
+        
         return (hPrepped) ? U.e("Mixer was already prepped.") : _prepMixer( metricList || false );
     },
     
