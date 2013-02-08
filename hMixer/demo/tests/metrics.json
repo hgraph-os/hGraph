@@ -1,14 +1,8 @@
+
 [{
     "gender"  : "male",
     "metrics" : [{
         "name"     : "LDL",
-<<<<<<< HEAD
-        "features" : { 
-            "healthyrange"  : [0, 130],
-            "totalrange" : [0, 160],
-            "weight"     : 6,
-            "unitlabel"  : "mg/dL"
-=======
         "dayscore" : 10,
         "features" : { 
             "healthyrange"  : [0, 130],
@@ -16,53 +10,34 @@
             "boundaryflags" : [false, true],            
             "weight"        : 6,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },{
         "name"     : "HDL",
         "features" : { 
             "healthyrange"  : [50, 60],
-<<<<<<< HEAD
-            "totalrange" : [0, 60],
-            "weight"     : 6,
-            "unitlabel"  : "mg/dL"
-=======
             "totalrange"    : [0, 60],
             "boundaryflags" : [false, true],
             "weight"        : 6,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },{
         "name"     : "Triglycerides",
         "features" : { 
             "healthyrange"  : [0, 150],
-<<<<<<< HEAD
-            "totalrange" : [0, 600],
-            "weight"     : 5,
-            "unitlabel"  : "mg/dL"
-=======
             "totalrange"    : [0, 600],
             "boundaryflags" : [false, true],
             "weight"        : 5,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },
         {
         "name"     : "Sleep",
         "features" : { 
             "healthyrange"  : [7, 10],
-<<<<<<< HEAD
-            "totalrange" : [0, 18],
-            "weight"     : 3,
-            "unitlabel"  : "hours/night"
-=======
             "totalrange"    : [0, 18],
             "boundaryflags" : [false, true],
             "weight"        : 3,
             "unitlabel"     : "hours/night"
->>>>>>> code from gh-pages brought over
         }
     }]
 },{
@@ -71,61 +46,37 @@
         "name"     : "LDL",
         "features" : { 
             "healthyrange"  : [0, 100],
-<<<<<<< HEAD
-            "totalrange" : [0, 160],
-            "weight"     : 4,
-            "unitlabel"  : "mg/dL"
-=======
             "totalrange"    : [0, 160],
             "boundaryflags" : [false, true],
             "weight"        : 4,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },{
         "name"     : "HDL",
         "features" : { 
             "healthyrange"  : [40, 60],
-<<<<<<< HEAD
-            "totalrange" : [0, 60],
-            "weight"     : 2,
-            "unitlabel"  : "mg/dL"
-=======
             "totalrange"    : [0, 60],
             "boundaryflags" : [false, true],
             "weight"        : 2,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },{
         "name"     : "Triglycerides",
         "features" : { 
             "healthyrange"  : [0, 150],
-<<<<<<< HEAD
-            "totalrange" : [0, 600],
-            "weight"     : 3,
-            "unitlabel"  : "mg/dL"
-=======
             "totalrange"    : [0, 600],
             "boundaryflags" : [false, true],
             "weight"        : 3,
             "unitlabel"     : "mg/dL"
->>>>>>> code from gh-pages brought over
         }
     },{
         "name"     : "Sleep",
         "features" : { 
             "healthyrange"  : [7, 10],
-<<<<<<< HEAD
-            "totalrange" : [0, 18],
-            "weight"     : 3,
-            "unitlabel"  : "hours/night"
-=======
             "totalrange"    : [0, 18],
             "boundaryflags" : [false, true],
             "weight"        : 3,
             "unitlabel"     : "hours/night"
->>>>>>> code from gh-pages brought over
         }
     }]
 }]
