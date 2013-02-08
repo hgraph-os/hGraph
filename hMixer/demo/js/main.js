@@ -14,19 +14,65 @@
 
 /* example callback for when the ajax method is complete */
 onloaded = function ( ) {
-
-    console.log( Mixer.getMetric("hdl") );  
-
+    
 };
 
 
 /* example array for metric structures */
 metrics = [{
-    name     : "LDL",
-    features : { }
+    "gender"  : "male",
+    "metrics" : [{
+        "name"     : "LDL",
+        "features" : { 
+            "healthyrange"  : [0, 130],
+            "totalrange" : [0, 160],
+            "weight"     : 10,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "HDL",
+        "features" : { 
+            "healthyrange"  : [0, 97],
+            "totalrange" : [0,130],
+            "weight"     : 1,
+            "unitlabel"  : "%"
+        }
+    },{
+        "name"     : "Triglycerides",
+        "features" : { 
+            "healthyrange"  : [0, 150],
+            "totalrange" : [0, 600],
+            "weight"     : 3,
+            "unitlabel"  : "mg/dL"
+        }
+    }]
 },{
-    name     : "LDL",
-    features : { }
+    "gender"  : "female",
+    "metrics" : [{
+        "name"     : "LDL",
+        "features" : { 
+            "healthyrange"  : [50, 60],
+            "totalrange" : [0, 60],
+            "weight"     : 10,
+            "unitlabel"  : "mg/dL"
+        }
+    },{
+        "name"     : "HDL",
+        "features" : { 
+            "healthyrange"  : [0, 97],
+            "totalrange" : [0,130],
+            "weight"     : 1,
+            "unitlabel"  : "%"
+        }
+    },{
+        "name"     : "Triglycerides",
+        "features" : { 
+            "healthyrange"  : [0, 150],
+            "totalrange" : [0, 600],
+            "weight"     : 3,
+            "unitlabel"  : "mg/dL"
+        }
+    }]
 }];
 
 /* example ajax method setup */

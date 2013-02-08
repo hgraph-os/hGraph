@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title>hMixer | of hGraph</title>
     
-    <meta name="description" content="">
-    <meta name="keywords" content="">
+    <meta name="description" content="hMixer">
+    <meta name="keywords" content="hGraph, health">
     <meta name="application-name" content="hMixer">
     <meta name="author" content="hGraph Dev team">
     
@@ -19,13 +19,87 @@
 <body>
 
     <section class="middle content pw cf">
-        
-        <section class="f metrics" id="hMixer">
-        
+        <section class="f cf">
+            <nav class="main-nav middle">
+                <ul class="cf middle">
+                    <li class="f">
+                        <a class="active t" href="#" title="">Core</a>
+                    </li>
+                    <li class="f">
+                        <a class="t" href="#" title="">Labs</a>
+                    </li>
+                    <li class="f">
+                        <a class="t" href="#" title="">Conditions</a>
+                    </li>
+                    <li class="f">
+                        <a class="t" href="#" title="">Environment</a>
+                    </li>
+                    <li class="f">
+                        <a class="t" href="#" title="">Vaccinations</a>
+                    </li>
+                    <li class="f">
+                        <a class="t" href="#" title="">Medications</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <section class="metrics" id="hMixer">
+            
+            </section>
         </section>
         
         <section class="f config">
             <img src="img/page-logo.png" class="logo" alt="" width="130">
+            <article class="preview middle">
+                <img src="img/preview.png" alt="" class="middle">
+            </article>
+            <article class="demographics middle">
+                <form action="submit" method="post" class="submit-form">
+                
+                    <h4>Demographics</h4>
+                    
+                    <div class="block middle">
+                        <dl>
+                            <dt>Age</dt>
+                            <dd>40yo</dd>
+                        </dl>
+                    </div>
+                    
+                    <div class="block middle gender">
+                        <dl>
+                            <dt>Gender</dt>
+                            <dd class="cf middle">
+                                <button class="f icon active g-toggle male t" data-gender="male">
+                                        <span></span>
+                                </button>
+                                <button class="f icon g-toggle female t" data-gender="female">
+                                        <span></span>
+                                </button>
+                            </dd>
+                        </dl>
+                    </div>
+                    
+                    <div class="block middle height">
+                        <dl>
+                            <dt>Height</dt>
+                            <dd class="cf middle">
+                                <span>'</span>
+                                <input type="text" class="height-input f" data-name="feet" value="">
+                                <input type="text" class="height-input f" data-name="inches" value="">
+                                <span>"</span>
+                            </dd>
+                        </dl>
+                    </div>
+                    
+                    <div class="block middle submit">
+                        <p class="middle">Submit your mixed hScore</p>
+                        <input class="submit middle" value="submit" type="submit">
+                        <a href="mailto:hgraph@goinvo.com" class="feedback">Feedback</a>
+                    </div>
+                
+                </form>
+                
+            </article>
         </section>
         
     </section>
@@ -33,5 +107,6 @@
     <script type="text/javascript" src="js/d3.min.js"></script>
     <script type="text/javascript" src="js/mixer.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    
 </body>
 </html>
