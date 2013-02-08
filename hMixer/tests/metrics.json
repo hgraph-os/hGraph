@@ -2,11 +2,11 @@
     "gender"  : "male",
     "metrics" : [{
         "name"     : "LDL",
-        "dayscore" : 10,
+        "dayvalue" : 10,
         "features" : { 
             "healthyrange"  : [0, 130],
             "totalrange"    : [0, 160],
-            "boundaryflags" : [false, true],            
+            "boundaryflags" : [true, true],            
             "weight"        : 6,
             "unitlabel"     : "mg/dL"
         }

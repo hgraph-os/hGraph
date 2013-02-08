@@ -217,6 +217,73 @@ article.metric{
     position: relative;
 }
 
+article.metric div.interaction-lock{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    background: #f6f7f6;
+    z-index: 100;
+    opacity: 1.0;
+}
+article.metric div.interaction-lock span{
+    display: block;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    left: 50%;
+    top: 50%;
+    margin-left: -20px;
+    margin-top: -20px;
+    border-radius: 40px;
+    box-shadow: inset 0px 0px 0px 4px #bdcb9e;
+    
+    
+    /* animation: name duration timing-function delay iteration-count direction; */
+    -webkit-animation: spinner 6s linear 0ms infinite;
+    -moz-animation: spinner 6s linear 0ms infinite;
+    -o-animation: spinner 6s linear 0ms infinite;
+    animation: spinner 6s linear 0ms infinite;
+}
+article.metric div.interaction-lock span:after{
+    content: '';
+    background: #f6f7f6;
+    position: absolute;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    top: 0%;
+}
+
+@keyframes spinner {
+    0%   { transform: rotate(0deg); }
+    50% {  transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-moz-keyframes spinner {
+    0%   { -moz-transform: rotate(0deg); }
+    50% {  -moz-transform: rotate(180deg); }
+    100% { -moz-transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spinner {
+    0%   { -webkit-transform: rotate(0deg); }
+    50% {  -webkit-transform: rotate(180deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@-o-keyframes spinner {
+    0%   { -o-transform: rotate(0deg); }
+    50% {  -o-transform: rotate(180deg); }
+    100% { -o-transform: rotate(360deg); }
+}
+
+article.metric div.interaction-lock.ready{ opacity: 0.0; }
+
+article.metric svg{ position: relative; z-index: 90; }
+
 article.metric input.daily-input{
     width: 30px;
     height: 14px;
@@ -225,10 +292,20 @@ article.metric input.daily-input{
     border: 2px solid #6c6d70;
     display: block;
     position: absolute;
+    z-index: 95;
     margin: 0px;
     margin-left: -16px;
     text-align: center;
     font-family: 'Droid Serif', serif;
-    color: #333;
+    color: #aeaeae;
     font-size: 10px;
+    
+    -webkit-transition-property: color;
+    -moz-transition-property: color;
+    -o-transition-property: color;
+    transition-property: color;
 }
+article.metric input.daily-input:focus{
+    color: #333;
+}
+
