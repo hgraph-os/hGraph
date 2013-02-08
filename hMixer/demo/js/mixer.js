@@ -24,7 +24,8 @@
         hOriginalData = false,
         hRenderZone   = null,  // The container where metrics are to be dumped
         hSubmitForm   = null,  // The form that will be submitted
-        hGenderIndex  = 0;     // a gender number defining male of female
+        hGenderIndex  = 0,     // a gender number defining male of female
+        hMetricIndex  = 0;
 
 
 ////////////////////////////////////////////   
@@ -36,9 +37,11 @@ Defaults = D = {
     healthy_range    : [50, 80],
     total_range      : [0, 100],
     weight           : 1,
+    fade_delay       : 100,
     unitlabel        : "mg/dL",
     svg_element      : { width : 900, height : 175 },
     svg_layers       : ["ui", "data"],
+    block            : {"class" : "interaction-lock"},
     chart_dimensions : {
         left   : 225,
         top    : 40,
@@ -132,15 +135,29 @@ Defaults = D = {
     curve_text : {
         "fill"           : "#fff",
         "font-family"    : "'Droid Serif',serif",
-        "font-size"      : "12px",
+        "font-size"      : "10px",
         "pointer-events" : "none",
         "text-anchor"    : "middle",
         "x"              : 0,
         "y"              : 5
     },
     daily_inputbox : {
-        "class" : "daily-input",
+        "class" : "daily-input t",
         "type"  : "text"
+    },
+    input_line : {
+        "stroke"           : "#9d9f9f",
+        "stroke-dasharray" : "3,3"
+    },
+    input_score_circle : {
+        "fill" : "#e16851",
+        "cy"   : 0,
+        "cx"   : 0,
+        "r"    : 10
+    },
+    health_colors : {
+        "healthy"   : "#585a5a",
+        "unhealthy" : "#e16851"
     }
 };
 
@@ -292,7 +309,7 @@ Utils = U = {
         var _hHeight = (D.chart_dimensions.height * 0.5),
             _hYPos   = _hHeight + D.chart_dimensions.top,
             _mtsf    = function (left, top) {
-                return "translate(" + left + "," + (top || _hYPos) + ")";
+                return "translate(" + left + "," + ( (U.type(top) == "number") ? top : _hYPos) + ")";
             };
             
         return _mtsf;
@@ -348,7 +365,8 @@ Metric.layerPrep = (function () {
             activeE         : null, 
             hasMoved        : false, 
             initialDistance : null,
-            pointIndex      : null
+            pointIndex      : null,
+            isFocused       : false
         },
         
         /* fade out for the scrubber */
@@ -388,45 +406,13 @@ _startDrag = function ( evt ) {
 _scrubPath = function ( evt ) { 
     if( _interactionState.hasMoved ){ return false; }
     
-    var metric  = _interactionState.metric,
-        yscale  = metric.ref.yscale,
-        xscale  = metric.ref.xscale,
-        pathe   = metric.dom.curvePath.node(),
-        bubble  = metric.dom.curveBubble,
-        mouseX  = evt.pageX,
-        rLeft   = mouseX - metric.dom.container.offsetLeft,
-        points  = metric.ref.points,
-        pLength = pathe.getTotalLength(),
-        minDist = Number.MAX_VALUE, 
-        scrubVal, pathPoint, closePoint,
-        distance, inc, dec;
-
-    /* if there is not enough points, forget about it */
-    if( points.length < 2 || pLength < 1 ){ return; }
-    
-    for(inc = 0, dec = parseInt(pLength,10); inc < pLength && dec > 0; dec--, inc++){
-        
-        pathPoint = pathe.getPointAtLength( inc );
-        distance  = Math.abs( rLeft - pathPoint.x );
-        
-        if( distance < minDist ){
-            closePoint = pathPoint;
-            minDist    = distance;
-        }
-        /* if it's close enough, stop looking */
-        if( distance < 2){ break; }
-        
-        pathPoint = pathe.getPointAtLength( dec );
-        distance  = Math.abs( rLeft - pathPoint.x );
-        
-        if( distance < minDist ){
-            closePoint = pathPoint;
-            minDist    = distance;
-        }
-    
-        /* if it's close enough, stop looking */
-        if( distance < 2){ break; }
-    }
+    var metric     = _interactionState.metric,
+        yscale     = metric.ref.yscale,
+        xscale     = metric.ref.xscale,
+        bubble     = metric.dom.curveBubble,
+        rLeft      = evt.pageX - metric.dom.container.offsetLeft,
+        closePoint = metric.getScoreAlongCurve( rLeft ),
+        scrubVal;
 
     /* if no close point was found */
     if( !closePoint ) { return; }
@@ -485,7 +471,7 @@ _addScalePoint = function ( rmX, rmY ){
                     _interactionState.pointIndex = pIndx;     // save the point intex
                     
                     return _startDrag( );                     // begin registering events 
-                });
+                }).attr("opacity", "0.0");
                  
     point
         .append("circle")
@@ -606,9 +592,7 @@ _movePoint = function ( left, top ) {
     
     if( top < minY ) { top = minY; }
     if( top > maxY ) { top = maxY; }
-    
-   
-    
+
     point.top  = top;
     point.left = left;
 };
@@ -679,6 +663,7 @@ _whipeInteractionState = function ( wasDrag ) {
     _interactionState.activeE         = null; 
     _interactionState.initialDistance = null;
     _interactionState.pointIndex      = null;
+    _interactionState.isFocused       = false;
     
     /* if it wasnt a drag, we can just go head and set the hasMoved to false */
     if( !wasDrag ){
@@ -702,9 +687,11 @@ _whipeInteractionState = function ( wasDrag ) {
 _drawInitialPoints = function ( ) {
     _interactionState.metric = this;
     
-    this.dom.leftCurveAnchor   = _addScalePoint( 0, 0 );
-    this.dom.middleCurveAnchor = _addScalePoint( 0, 0 );
-    this.dom.rightCurveAnchor  = _addScalePoint( 0, 0 ); 
+    this.dom.leftCurveAnchor         = _addScalePoint( 0, 0 );
+    this.dom.healthyLeftCurveAnchor  = _addScalePoint( 0, 0 );
+    this.dom.middleCurveAnchor       = _addScalePoint( 0, 0 );
+    this.dom.healthyRightCurveAnchor = _addScalePoint( 0, 0 );
+    this.dom.rightCurveAnchor        = _addScalePoint( 0, 0 ); 
     
     return _whipeInteractionState( false );  
 };
@@ -718,12 +705,8 @@ _drawInitialPoints = function ( ) {
 _dailyKeymanager = function ( ) {   
     var evt    = d3.event,
         code   = evt.keyCode,
-        isChar = isNaN( parseInt( String.fromCharCode(code), 10) ),
-        metric = _interactionState.metric,
-        name   = metric.pub.name,
-        input  = d3.select( this ),
-        value;
-
+        isChar = isNaN( parseInt( String.fromCharCode(code), 10) );
+        
     /* only allow numbers, enter, and backspace */
     if( code !== 190 && code !== 8 && code !== 13 && isChar ){ 
         return evt.preventDefault && evt.preventDefault(); 
@@ -741,22 +724,20 @@ _dailySubmit = function ( ) {
         code   = evt.keyCode,
         input  = d3.select(this),
         metric = _interactionState.metric,
-        value;
+        value  = parseFloat( input.node().value );
     
     if( code !== 13 ){ return; }
     
-    value = parseFloat( input.node().value );
+    value = ( isNaN(value) ) ? 0 : value;
     
-    if( value > metric.pub.totalrange[1] ){ value = metric.pub.totalrange[1]; }
-    if( value < metric.pub.totalrange[0] ){ value = metric.pub.totalrange[0]; }
+    // if( value > metric.pub.totalrange[1] ){ value = metric.pub.totalrange[1]; }
+    // if( value < metric.pub.totalrange[0] ){ value = metric.pub.totalrange[0]; }
+        
+    metric.pub.dayvalue = value;
     
-    input
-        .style({"left" : metric.ref.xscale(value) + "px"})
-        .node().value = value;
+    metric.refreshInput( );
     
-    U.e("setting the daily score of " + metric.pub.name + " to " + value, "log");
-    
-    metric.pub.dayscore = value;
+    return input.node().blur && input.node().blur();
 };
         
 /* Metric.layerPrep.ui
@@ -849,7 +830,8 @@ data = function ( layer ) {
         rangeRect, leftBound, rightBound,
         weightNode, coverRect, 
         curvePath, pointGroup, curveGroup,
-        curveBubble, pastValue;
+        curveBubble, pastValue, inputGroup,
+        inputScoreGroup;
     
     coverRect = layer.append("rect")
                     .attr( D.svg_cover )
@@ -913,9 +895,14 @@ data = function ( layer ) {
                     .attr("opacity", 0.0)
                     .attr("pointer-events", "none");
     
-    pointGroup = layer.append("g")
-                    .attr("data-name", "point-group");
+    inputGroup = layer
+                    .append("g")
+                    .attr("data-name", "input-group");
     
+    pointGroup = layer
+                    .append("g")
+                    .attr("data-name", "point-group");
+
     curveBubble
         .append("circle")
         .attr(D.curve_bubble);
@@ -956,7 +943,7 @@ data = function ( layer ) {
     layer.on("mousemove", function () {
         
         /* only call scrubber if there is no dragging */
-        if( !_interactionState.hasMoved ) {          
+        if( !_interactionState.hasMoved && !_interactionState.isFocused ) {          
             _interactionState.metric  = metric; // save the metric being acted upon
             _scrubPath( d3.event );             // update the scrubber information
         }
@@ -965,29 +952,53 @@ data = function ( layer ) {
         metric.dom.curveBubble.transition().duration(20).attr("opacity", 0.0);
     });
     
+    inputGroup
+        .append("line")
+        .attr(D.input_line)
+        .attr("y1", D.chart_dimensions.top)
+        .attr("y2", D.chart_dimensions.top + D.chart_dimensions.height);
+    
+    inputScoreGroup = inputGroup
+                        .append("g")
+                        .attr("data-name", "input-score-group");
+                        
+    inputScoreGroup 
+        .append("circle")
+        .attr(D.input_score_circle);
+        
+    inputScoreGroup 
+        .append("text")
+        .attr(D.curve_text);
+    
     /* attatch the keypress to the input box */
     dom.dayInput
         .on("focus", function () {  
-            var input = d3.select(this),
-                value = input.attr("value");
-            
-            pastValue = value;
-            _interactionState.metric = metric; 
-            
-            input.attr("value",""); 
+            if( !_interactionState.hasMoved ) {             
+                var input = d3.select(this),
+                    value = input.attr("value");
+                
+                pastValue = value;
+                _interactionState.metric    = metric; 
+                _interactionState.isFocused = true;
+                
+                input.attr("value",""); 
+            }
         })
         .on("keydown", _dailyKeymanager )
         .on("keyup", _dailySubmit )
         .on("blur", function () {
             var input = d3.select(this),
                 value = input.attr("value");
+                
             if( value === "" ){
                 input.attr("value", pastValue );
             }
+            
             _whipeInteractionState( );
         });
     
     
+    dom.inputGroup  = inputGroup;
     dom.curveBubble = curveBubble; // the scrubber bubble group
     dom.curvePath   = curvePath;   // ref to the bezier curve (<path>)
     dom.pointGroup  = pointGroup;  // save the group for data points
@@ -1007,7 +1018,7 @@ return { ui : ui, data : data };
 
 Metric.prototype = {
     constructor : Metric,
-    version     : "1.2",
+    version     : "1.3",
     
     /* metric.rig
      *
@@ -1015,7 +1026,7 @@ Metric.prototype = {
      * @param {object} opts The options to build a metric with
     */
     rig : function ( opts ) {
-    
+
         /* the object that will keep references to values, names.. etc !VISIBLE! */
         this.pub = { 
             
@@ -1023,7 +1034,7 @@ Metric.prototype = {
             name : opts.name || "N/A",
             
             /* {number} the score entered in today or the previous day */
-            dayscore : opts.dayscore || false,
+            dayvalue : opts.dayvalue || false,
             
             /* {array} range of values that are okay (green) */
             healthyrange : (opts.features && opts.features.healthyrange) 
@@ -1046,7 +1057,7 @@ Metric.prototype = {
                             : D.unitlabel
             
         };
-        
+            
         var w = D.chart_dimensions.width,
             l = D.chart_dimensions.left,
             t = D.chart_dimensions.top,
@@ -1079,11 +1090,12 @@ Metric.prototype = {
             linegen : d3.svg.line()
                             .x(function (d) { return d.x; })
                             .y(function (d) { return d.y; })
-                            .interpolate("cardinal")
+                            .interpolate("line")
         };
         
-        this.uid = U.uid(); // give this metric a unique identifier
-        this.dom = { };     // save room for the metric's dom elements
+        this.uid   = U.uid(); // give this metric a unique identifier
+        this.index = hMetricIndex;
+        this.dom   = { };     // save room for the metric's dom elements
         
         /* finish by rendering up the article and svg */
         this.render( );
@@ -1098,27 +1110,29 @@ Metric.prototype = {
             container = document.createElement("article"),
             context   = d3.select(container).append("svg"),
             dayInput  = d3.select(container).append("input"),
+            block     = d3.select(container).append("div"),
             dom       = this.dom,
-            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 4,
-            inputX    = (this.pub.dayscore) 
-                            ? this.ref.xscale(this.pub.dayscore) 
-                            : D.chart_dimensions.left + (D.chart_dimensions.width * 0.5);
+            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 4;
                         
         d3.select(container) // set the metric container's class
             .attr("class", "metric cf middle"); 
+            
+        block
+            .attr(D.block)
+            .append("span");
         
         context // set the default properties of the svg element
             .attr(D.svg_element); 
         
         dayInput // set the default properties of the input box
             .attr(D.daily_inputbox)
-            .style({"top"  : inputY + "px", "left" : inputX + "px"})
-            .attr("value", this.ref.xscale.invert( inputX ) );
-        
-        dom.dayInput    = dayInput;
-        dom.container   = container; // save the html container
-        dom.svg_element = context;   // save the svg element
-        dom.layers      = { };
+            .style({"top"  : inputY + "px"});
+                    
+        dom.dayInput         = dayInput;
+        dom.loader           = block;
+        dom.container        = container; // save the html container
+        dom.svg_element      = context;   // save the svg element
+        dom.layers           = { };
         
         /* make SVG groups that will represent layers */
         for(i; name = D.svg_layers[i], i < D.svg_layers.length; i++){
@@ -1132,8 +1146,8 @@ Metric.prototype = {
             }
     
         }
-        
-        return this.reDraw( );
+                
+        return this.reDraw( ) && this.refreshInput( );
     },
     
     /* metric.reDraw
@@ -1149,29 +1163,39 @@ Metric.prototype = {
             leftNode   = dom.leftNode,
             rightNode  = dom.rightNode,
             weightNode = dom.weightNode,
+            or         = this.ref.boundaryflags[1],
+            ol         = this.ref.boundaryflags[0],
             weight     = this.pub.weight,
             leftb      = xs( this.pub.healthyrange[0] ),
             rightb     = xs( this.pub.healthyrange[1] ),
-            width      = rightb - leftb;
-        
+            leftt      = xs( this.pub.totalrange[0] ),
+            rightt     = xs( this.pub.totalrange[1] ),
+            width      = rightb - leftb,
+            rtext      = (or && rightt === rightb) 
+                            ? this.pub.healthyrange[1].toFixed(0) + "+" 
+                            : this.pub.healthyrange[1].toFixed(0),
+            ltext      = (ol && leftt === leftb) 
+                            ? this.pub.healthyrange[0].toFixed(0) + "+" 
+                            : this.pub.healthyrange[0].toFixed(0);
+                                        
         rect 
             .attr("x", leftb)
             .attr("width", width);
         
         leftNode
             .attr("transform", U.mts(leftb) ) // move the left node into postion
-            .selectAll("text").text( this.pub.healthyrange[0].toFixed(0) );
+            .selectAll("text").text( ltext );
             
         rightNode
             .attr("transform", U.mts(rightb) ) // move the right node into postion 
-            .selectAll("text").text( this.pub.healthyrange[1].toFixed(0) );
+            .selectAll("text").text( rtext );
             
         weightNode
             .attr("transform", U.mts(837.5, ws(weight) ) )
             .selectAll("text").text( weight.toFixed(0) );
 
             
-        this.updateCurve( );
+       return this.updateCurve( );
     },
     
     
@@ -1206,13 +1230,20 @@ Metric.prototype = {
         
         /* force anchor positions */
         this.dom.leftCurveAnchor.left = totalLeft;
-        this.dom.leftCurveAnchor.top  = yscale( lAnchorY );
+        this.dom.leftCurveAnchor.top  = yscale( ( (healthyLeft - totalLeft) < 2 ) ? 100 : 0 );
+        
+        this.dom.healthyLeftCurveAnchor.left = healthyLeft;
+        this.dom.healthyLeftCurveAnchor.top  = yscale( ( (healthyLeft - totalLeft) < 2 ) ? 100 : 70 );
         
         this.dom.middleCurveAnchor.left = healthyMid;
         this.dom.middleCurveAnchor.top  = yscale( 100 );
         
+        this.dom.healthyRightCurveAnchor.left = healthyRight;
+        this.dom.healthyRightCurveAnchor.top  = yscale( ( (totalRight - healthyRight) < 2 ) ? 100 : 70 );
+        
+        
         this.dom.rightCurveAnchor.left = totalRight;
-        this.dom.rightCurveAnchor.top  = yscale( rAnchorY );
+        this.dom.rightCurveAnchor.top  = yscale( ( (totalRight - healthyRight) < 2 ) ? 100 : 0 );
     
         for( indx = 0; indx < points.length; indx++ ) {
             /* grab the current point */
@@ -1226,9 +1257,117 @@ Metric.prototype = {
         
         curve
             .datum(parts)
-            .attr("d", this.ref.linegen);        
+            .attr("d", this.ref.linegen);   
+        
+        return this.refreshInput( );     
     },
     
+    
+    /* metric.getScoreAlongCurve
+     *
+     * Given an xposition relative to the SVG container,
+     * returns a point object with x and y values of a 
+     * point along the path
+     * @param {number} xposition X value reltive to the SVG
+    */
+    getScoreAlongCurve : function ( xposition ) {
+    
+        var metric  = this,
+            yscale  = metric.ref.yscale,
+            xscale  = metric.ref.xscale,
+            pathe   = metric.dom.curvePath.node(),
+            points  = metric.ref.points,
+            pLength = pathe.getTotalLength(),
+            minDist = Number.MAX_VALUE, 
+            scrubVal, pathPoint, closePoint,
+            distance, inc, dec;
+
+        for(inc = 0, dec = parseInt(pLength,10); inc < pLength && dec > 0; dec--, inc++){
+            
+            pathPoint = pathe.getPointAtLength( inc );
+            distance  = Math.abs( xposition - pathPoint.x );
+            
+            if( distance < minDist ){
+                closePoint = pathPoint;
+                minDist    = distance;
+            }
+            /* if it's close enough, stop looking */
+            if( distance < 2){ break; }
+            
+            pathPoint = pathe.getPointAtLength( dec );
+            distance  = Math.abs( xposition - pathPoint.x );
+            
+            if( distance < minDist ){
+                closePoint = pathPoint;
+                minDist    = distance;
+            }
+        
+            /* if it's close enough, stop looking */
+            if( distance < 2){ break; }
+        }
+        
+        return closePoint;
+    },
+    
+    
+    /* metric.refreshInput
+     *
+     * Moves the input box and input group inside the SVG
+    */
+    refreshInput : function ( ){
+        var value   = (U.type(this.pub.dayvalue) === "number") ? this.pub.dayvalue : 0,
+            xscale  = this.ref.xscale,
+            yscale  = this.ref.yscale,
+            inpute  = this.dom.dayInput,
+            inputg  = this.dom.inputGroup,
+            or      = this.ref.boundaryflags[1],
+            ol      = this.ref.boundaryflags[0],
+            hr      = this.pub.healthyrange[1],
+            hl      = this.pub.healthyrange[0],
+            tr      = this.pub.totalrange[1],
+            tl      = this.pub.totalrange[0],
+            healthy = !( (value > hr) || (value < hl) ),
+            inputX  = (U.type(value) === "number") 
+                        ? xscale(value) 
+                        : D.chart_dimensions.left + (D.chart_dimensions.width * 0.5),
+            scorep  = this.getScoreAlongCurve( inputX ); 
+        
+        /* lock the x position to the edges */
+        if( value > tr ){ inputX = xscale( tr ); }
+        if( value < tl ){ inputX = xscale( tl ); }
+        
+        /* if it is on an open side and greater than the max */
+        if( ( (tr == hr) && (value >= hr) && or ) || ( (tl == hl) && (value <= hl) && ol ) ){ 
+            healthy = true;
+        }
+        
+        inpute
+            .style({"left" : inputX+'px'})
+            .node().value = value;
+            
+        inputg
+            .attr("transform", U.mts(inputX, 0.0) );
+        
+        inputg
+            .select("line")
+            .attr("y1", scorep.y);
+        
+        inputg
+            .select("g")
+            .attr("transform", U.mts(0, scorep.y) );
+        
+        inputg
+            .select("g")
+            .select("circle")
+            .attr("fill", (healthy) ? D.health_colors["healthy"] : D.health_colors["unhealthy"] );
+            
+        inputg
+            .select("g")
+            .select("text")
+            .text( Math.floor( yscale.invert( scorep.y ) ) );
+                     
+        return true;
+    },
     
     /* metric.strip
      *
@@ -1236,7 +1375,32 @@ Metric.prototype = {
      * to the DOM elements or it's functions 
     */
     strip : function () {
+        
+        var metric = this,
+            fader  = (function (metric) {
+                return function () {
+                    metric.dom.loader
+                        .transition()
+                        .duration(300)
+                        .delay( metric.index * 200 )
+                        .style({"opacity":"0.0"})
+                        .each("end", metric.hideLoader.bind(metric) );
+                };
+            })(metric);
+        
+        /* fade the metric in after safe time */
+        setTimeout(fader, D.fade_delay);
+         
         return this.pub;
+    },
+    
+    /* metric.hideLoader
+     * 
+     * Hides the loading div after it fades out
+    */
+    hideLoader : function () {
+        this.dom.loader
+            .style({"display":"none"});
     }
 };
 
@@ -1263,7 +1427,28 @@ Mixer = (function () {
         _keyManager,        // event listener for input boxes
         _renderGenderData,  //
         _prepGenderToggles, //
-        _genderToggle;      //
+        _genderToggle,      //
+        _finalize;          //
+        
+
+/* _finalize
+ *
+ * Loops through the list of metric objects,
+ * add their striped object to the global 
+ * private hMetrics array
+ * @param {array} metrics A list of created metrics
+*/
+_finalize = function (metrics) {
+    var i, pub;
+    
+    for(i = 0; i < metrics.length; i++){
+        pub = metrics[i].strip( );
+        
+        hMetrics.push( pub );
+    }
+    
+    return true;
+};
 
 
 /* _keyManager
@@ -1406,12 +1591,11 @@ _svgDefs = function ( ) {
 */
 _setOptions = function ( options ) {    
 
-    D.range_rect.fill = options.range_fill || D.range_rect.fill; // range box color
-    D.svg_text.fill   = options.text_fill || D.svg_text.fill;    // text color
-    D.healthy_range      = options.healthy_range || D.healthy_range;      // healthy range 
-    D.total_range     = options.total_range || D.total_range;    // total range 
-    D.form_class      = options.form_class || D.form_class;      // form class
-    
+    D.range_rect.fill = options.range_fill || D.range_rect.fill;     // range box color
+    D.svg_text.fill   = options.text_fill || D.svg_text.fill;        // text color
+    D.healthy_range   = options.healthy_range || D.healthy_range; // healthy range 
+    D.total_range     = options.total_range || D.total_range;        // total range 
+    D.form_class      = options.form_class || D.form_class;          // form class
     
     /* remove text selection (highlighting) */
     if( options.allowTextSelection === false ){
@@ -1427,14 +1611,18 @@ _setOptions = function ( options ) {
  * Reuseable rendering loop 
  */
 _renderGenderData = function ( ){
-    var i, j, metric, gender, mlist;
-            
-    gender                 = hOriginalData[hGenderIndex].gender;  // which gender is this list
-    mlist                  = hOriginalData[hGenderIndex].metrics; // get the metric list
-    hMetrics[hGenderIndex] = [ ];                                 // reset metric array
+    var i, j, metric, gender, mlist, metrics;
+    
+    
+    gender  = hOriginalData[hGenderIndex].gender;  // which gender is this list
+    mlist   = hOriginalData[hGenderIndex].metrics; // get the metric list
+    metrics = [ ];                                 // reset metric array
     
     /* clear out old html */
     hRenderZone.innerHTML = "";
+    /* reset old gender index */
+    hMetricIndex = 0;
+    
     
     /* loop through the metrics */        
     for(j = 0; j < mlist.length; j++){
@@ -1442,21 +1630,17 @@ _renderGenderData = function ( ){
         /* build a new metric */
         metric = Metric( mlist[j] );
         
+        hMetricIndex++;
+        
         /* render the new metric */
         hRenderZone.appendChild( metric.dom.container );
         
         /* push the stripped metric into the hMetrics array */
-        hMetrics[hGenderIndex].push( metric.strip() );
+        metrics.push( metric );
         
     }
 
-    /* prevent strange interaction behavior */
-    setTimeout(function () {
-        d3.select(hRenderZone)
-            .style("height", "auto");
-    }, 20);
-    
-    return true;
+    return _finalize( metrics );
 }
 
 
@@ -1514,8 +1698,7 @@ _prepMixer = function ( metricList ) {
     
     d3.select(hRenderZone)
         .attr("class","f metrics cf")
-        .attr("id", "metrics")
-        .style("height", "1px");
+        .attr("id", "metrics");
     
     
     if( metricList && metricList.length >= 0 && U.type(metricList) == "array"){
@@ -1534,8 +1717,7 @@ _prepMixer = function ( metricList ) {
 };
 
 __mixer = {  
-     
-    version : "1.2", 
+    version : "1.3", 
     
     /* Mixer.init
      * 
@@ -1584,4 +1766,5 @@ window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();
+
 
