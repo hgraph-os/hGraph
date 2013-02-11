@@ -1,4 +1,3 @@
-
 [{
     "gender"  : "male",
     "metrics" : [{
@@ -8,7 +7,7 @@
             "healthyrange"  : [0, 130],
             "totalrange"    : [0, 160],
             "boundaryflags" : [false, true],            
-            "weight"        : 6,
+            "weight"        : 1,
             "unitlabel"     : "mg/dL"
         }
     },{
@@ -17,7 +16,7 @@
             "healthyrange"  : [50, 60],
             "totalrange"    : [0, 60],
             "boundaryflags" : [false, true],
-            "weight"        : 6,
+            "weight"        : 1,
             "unitlabel"     : "mg/dL"
         }
     },{
@@ -26,7 +25,7 @@
             "healthyrange"  : [0, 150],
             "totalrange"    : [0, 600],
             "boundaryflags" : [false, true],
-            "weight"        : 5,
+            "weight"        : 1,
             "unitlabel"     : "mg/dL"
         }
     },
@@ -36,7 +35,7 @@
             "healthyrange"  : [7, 10],
             "totalrange"    : [0, 18],
             "boundaryflags" : [false, true],
-            "weight"        : 3,
+            "weight"        : 1,
             "unitlabel"     : "hours/night"
         }
     }]
