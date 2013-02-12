@@ -1,1 +1,1 @@
-  <%= @submissions.first.to_json(:include => [:user, :contributions => {:include => :metric}]) %>
+  <%= @submissions_json.to_s.html_safe %>
