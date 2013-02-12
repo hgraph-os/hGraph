@@ -21,7 +21,8 @@ class TestsController < ApplicationController
   #primarily to handle created of nested Submission object
   def new
     @submission = Submission.new
-    @submission.
+    @submission.user = User.find_or_create_by_email(:email => params['submitter']['email'], :full_name => params['submitter']['full_name'])
+
 
   def create
 
