@@ -38,3 +38,5 @@ gem 'jquery-rails'
  gem 'execjs'
  gem 'therubyracer', :platforms => :ruby
  gem 'mysql2'
+ gem 'activerecord-mysql-adapter'
+
