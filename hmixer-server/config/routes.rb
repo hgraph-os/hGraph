@@ -1,4 +1,10 @@
 HmixerServer::Application.routes.draw do
+  
+
+  devise_for :data_managers
+
+  mount RailsAdmin::Engine => '/admin', :as => 'rails_admin'
+
   get "tests/metrics"
 
   # The priority is based upon order of creation:

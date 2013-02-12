@@ -40,3 +40,5 @@ gem 'jquery-rails'
  gem 'mysql2'
  gem 'activerecord-mysql-adapter'
 
+
+
