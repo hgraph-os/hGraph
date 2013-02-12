@@ -1,6 +1,7 @@
 class TestsController < ApplicationController
   def metrics
-    @submissions = Submission.all
+    @submissions = Submission.all(:include => [:user, :contributions])
+
     respond_to do |format|
       format.html
       format.json
