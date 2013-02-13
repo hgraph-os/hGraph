@@ -23,27 +23,41 @@ metrics = [{
     "gender"  : "male",
     "metrics" : [{
         "name"     : "LDL",
+        "dayvalue" : 10,
         "features" : { 
             "healthyrange"  : [0, 130],
-            "totalrange" : [0, 160],
-            "weight"     : 10,
-            "unitlabel"  : "mg/dL"
+            "totalrange"    : [0, 160],
+            "boundaryflags" : [true, true],            
+            "weight"        : 6,
+            "unitlabel"     : "mg/dL"
         }
     },{
         "name"     : "HDL",
         "features" : { 
-            "healthyrange"  : [0, 97],
-            "totalrange" : [0,130],
-            "weight"     : 1,
-            "unitlabel"  : "%"
+            "healthyrange"  : [50, 60],
+            "totalrange"    : [0, 60],
+            "boundaryflags" : [false, true],
+            "weight"        : 6,
+            "unitlabel"     : "mg/dL"
         }
     },{
         "name"     : "Triglycerides",
         "features" : { 
             "healthyrange"  : [0, 150],
-            "totalrange" : [0, 600],
-            "weight"     : 3,
-            "unitlabel"  : "mg/dL"
+            "totalrange"    : [0, 600],
+            "boundaryflags" : [false, true],
+            "weight"        : 5,
+            "unitlabel"     : "mg/dL"
+        }
+    },
+        {
+        "name"     : "Sleep",
+        "features" : { 
+            "healthyrange"  : [7, 10],
+            "totalrange"    : [0, 18],
+            "boundaryflags" : [false, true],
+            "weight"        : 3,
+            "unitlabel"     : "hours/night"
         }
     }]
 },{
@@ -51,26 +65,38 @@ metrics = [{
     "metrics" : [{
         "name"     : "LDL",
         "features" : { 
-            "healthyrange"  : [50, 60],
-            "totalrange" : [0, 60],
-            "weight"     : 10,
-            "unitlabel"  : "mg/dL"
+            "healthyrange"  : [0, 100],
+            "totalrange"    : [0, 160],
+            "boundaryflags" : [false, true],
+            "weight"        : 4,
+            "unitlabel"     : "mg/dL"
         }
     },{
         "name"     : "HDL",
         "features" : { 
-            "healthyrange"  : [0, 97],
-            "totalrange" : [0,130],
-            "weight"     : 1,
-            "unitlabel"  : "%"
+            "healthyrange"  : [40, 60],
+            "totalrange"    : [0, 60],
+            "boundaryflags" : [false, true],
+            "weight"        : 2,
+            "unitlabel"     : "mg/dL"
         }
     },{
         "name"     : "Triglycerides",
         "features" : { 
             "healthyrange"  : [0, 150],
-            "totalrange" : [0, 600],
-            "weight"     : 3,
-            "unitlabel"  : "mg/dL"
+            "totalrange"    : [0, 600],
+            "boundaryflags" : [false, true],
+            "weight"        : 3,
+            "unitlabel"     : "mg/dL"
+        }
+    },{
+        "name"     : "Sleep",
+        "features" : { 
+            "healthyrange"  : [7, 10],
+            "totalrange"    : [0, 18],
+            "boundaryflags" : [false, true],
+            "weight"        : 3,
+            "unitlabel"     : "hours/night"
         }
     }]
 }];
@@ -83,7 +109,8 @@ ajaxconf = {
 
 /* example usage of the "options" parameter */
 options = {
-    allowTextSelection : false
+    allowTextSelection : false,
+    // read_only : true
     // healthy_range         : [0, 400],
     // total_range        : [0, 800]
     // range_fill : "#ff0000" 
@@ -91,8 +118,8 @@ options = {
 };
 
 ready = function () {
-    Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
-    //Mixer.init( metrics );       // initialize the Mixer (array version)
+    // Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
+    Mixer.init( metrics, options);       // initialize the Mixer (array version)
 };
 
 Entry( ready ); // Use the Entry funciton defined in Utils
