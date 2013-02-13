@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  age_min: 1
+  age_max: 1
+  demographic: 
+
+two:
+  name: MyString
+  age_min: 1
+  age_max: 1
+  demographic: 
