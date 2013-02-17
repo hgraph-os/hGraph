@@ -25,7 +25,8 @@
         hRenderZone   = null,  // The container where metrics are to be dumped
         hSubmitForm   = null,  // The form that will be submitted
         hGenderIndex  = 0,     // a gender number defining male of female
-        hMetricIndex  = 0;
+        hMetricIndex  = 0,
+        readOnly = false;
 
 
 ////////////////////////////////////////////   
@@ -378,24 +379,25 @@ Metric.layerPrep = (function () {
  * Prepares the document to handle "mousemove" events 
 */    
 _startDrag = function ( evt ) {
-    
-    var metric           = _interactionState.metric,
-        xscale           = metric.ref.xscale,
-        initialRelativeX = d3.event.pageX - metric.dom.container.offsetLeft,
-        initialLeft      = xscale( metric.pub.healthyrange[0] ),
-        initialRight     = xscale( metric.pub.healthyrange[1] ),
-        initialWidth     = initialRight - initialLeft,
-        initialMiddle    = initialLeft + (initialWidth * 0.5),
-        initialDistance  = initialMiddle - initialRelativeX;
-    
-    U.e("starting a drag interaction on: (" + metric.pub.name + ")", "log");
-    
-    /* save this initial distance */
-    _interactionState.initialDistance = initialDistance;
-    /* reset the hasMoved - nothing has happened yet... */
-    _interactionState.hasMoved = false;
+    if(!readOnly){
+        var metric           = _interactionState.metric,
+            xscale           = metric.ref.xscale,
+            initialRelativeX = d3.event.pageX - metric.dom.container.offsetLeft,
+            initialLeft      = xscale( metric.pub.healthyrange[0] ),
+            initialRight     = xscale( metric.pub.healthyrange[1] ),
+            initialWidth     = initialRight - initialLeft,
+            initialMiddle    = initialLeft + (initialWidth * 0.5),
+            initialDistance  = initialMiddle - initialRelativeX;
+        
+        U.e("starting a drag interaction on: (" + metric.pub.name + ")", "log");
+        
+        /* save this initial distance */
+        _interactionState.initialDistance = initialDistance;
+        /* reset the hasMoved - nothing has happened yet... */
+        _interactionState.hasMoved = false;
 
-    d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
+        d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
+    }
 };
 
 /* _scrubPath
@@ -853,6 +855,9 @@ data = function ( layer ) {
                         // _interactionState.metric  = metric;
                         // return _addScalePoint( d3.event );
                     });
+    if(readOnly){
+        rangeRect.attr('cursor', 'auto');
+    }
                     
     leftBound  = layer.append("g")
                     .attr("data-name","left-node")
@@ -863,23 +868,7 @@ data = function ( layer ) {
                         return _startDrag( );                // begin registering events 
                     });
                     
-    rightBound = layer.append("g")
-                    .attr("data-name","right-node")
-                    .attr("cursor","pointer")
-                    .on("mousedown", function ( ) {
-                        _interactionState.activeE = "rb";   // we are using the range rect
-                        _interactionState.metric  = metric; // save the metric being acted upon
-                        return _startDrag( );               // begin registering events 
-                    });
-    
-    weightNode = layer.append("g")
-                    .attr("data-name", "weight-node")
-                    .attr("cursor", "pointer")
-                    .on("mousedown", function ( ) {
-                        _interactionState.activeE = "ww";   // we are using the weight circle
-                        _interactionState.metric  = metric; // save the metric being acted upon
-                        return _startDrag( );
-                    });
+
     
     curveGroup = layer.append("g")
                     .attr("data-name", "curve-group");
@@ -911,17 +900,39 @@ data = function ( layer ) {
         .append("text")
         .attr(D.curve_text);
     
+    rightBound = layer.append("g")
+                    .attr("data-name","right-node")
+                    .attr("cursor","pointer")
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "rb";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );               // begin registering events 
+                    });
     
-    leftBound.append("circle").attr(D.bound_outer_circle);
-    rightBound.append("circle").attr(D.bound_outer_circle);
+    weightNode = layer.append("g")
+                    .attr("data-name", "weight-node")
+                    .attr("cursor", "pointer")
+                    .on("mousedown", function ( ) {
+                        _interactionState.activeE = "ww";   // we are using the weight circle
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        return _startDrag( );
+                    });
+    if(!readOnly){
+        //If it is read only, we don't want to have our end points.
+        leftBound.append("circle").attr(D.bound_outer_circle);
+        rightBound.append("circle").attr(D.bound_outer_circle);
+        leftBound.append("circle").attr(D.bound_inner_circle);
+        rightBound.append("circle").attr(D.bound_inner_circle);
+    }
+
+    
     
     weightNode
         .append("circle")
         .attr(D.bound_outer_circle)
         .attr("r", 16.5);
     
-    leftBound.append("circle").attr(D.bound_inner_circle);
-    rightBound.append("circle").attr(D.bound_inner_circle);
+    
     
     weightNode
         .append("circle")
@@ -1596,6 +1607,8 @@ _setOptions = function ( options ) {
     D.healthy_range   = options.healthy_range || D.healthy_range; // healthy range 
     D.total_range     = options.total_range || D.total_range;        // total range 
     D.form_class      = options.form_class || D.form_class;          // form class
+    readOnly          = options.read_only;
+    console.log("ReadOnly is "+readOnly);
     
     /* remove text selection (highlighting) */
     if( options.allowTextSelection === false ){
@@ -1766,5 +1779,3 @@ window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
 
 })();
-
-
