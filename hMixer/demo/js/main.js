@@ -77,7 +77,7 @@ metrics = [{
 
 /* example ajax method setup */
 ajaxconf = {
-    url      : "tests/metrics.json",
+    url      : "/tests/metrics.json",
     callback : onloaded
 };
 
