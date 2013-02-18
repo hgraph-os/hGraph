@@ -1,7 +1,7 @@
 class TestsController < ApplicationController
   def metrics
     #@submissions = Submission.includes(:user, :contributions).find(1) #Submission 1 is currently a default defined in seeds.rb
-    @submissions = Submission.find(1, :include => [:user, :contributions => :metric])
+    @submissions = Submission.find(1, :include => [:user, :contributions => [:metric, :demographic]])
     @hmixer = submission_to_hmixer(@submissions)
     @hmixer_json = @hmixer.to_json() 
     #@submissions = Submission.all(:include => [:user, :contributions])
@@ -15,7 +15,7 @@ class TestsController < ApplicationController
 
   def show
     @submission = Submission.find(params[:id], :include => [:user, :contributions])
-
+ 
     respond_to do |format|
       format.html
       format.json
@@ -29,21 +29,33 @@ class TestsController < ApplicationController
   #end
 
   def create
+    @vari = JSON.parse(params[:mixer])
+    @submissions = Submission.find(1, :include => [:user, :contributions => [:metric, :demographic]])
+   # @contributions_male = @submissions.contributions.joins(:demographic).where(:demographics => {:gender => "male"})
 
+    @metrics = @vari.map{|c| {:name => c['name'], :features => 
+        {:healthyrange => [c['healthyrange'][0],c['healthyrange'][1]], :totalrange => [c['totalrange'][0],c['totalrange'][1]], 
+        :boundayflags => [false,true], :weight => c['weight'], :unitlabel => c['unitlabel']} } }
+    @demo = {:gender => params[:gender]}
+    met = [:demographics => @demo, :metrics => @metrics]
+    
+    puts @submissions.contributions.inspect
+    puts met
+    @submissions.update_attributes(:contributions => met)
   end
 
   private
   def submission_to_hmixer(submission)
-    @contributions_male = submission.contributions.where(:gender => "male")
-    @contributions_female = submission.contributions.where(:gender => "female")
+    @contributions_male = submission.contributions.joins(:demographic).where(:demographics => {:gender => "male"})
+    @contributions_female = submission.contributions.joins(:demographic).where(:demographics => {:gender => "female"})
     
     @metrics_male = @contributions_male.map{|c| {:name => c.metric.name, :features => 
         {:healthyrange => [c.healthy_min,c.healthy_max], :totalrange => [c.total_min,c.total_max], 
-        :boundayflags => [false,true], :weight => c.weight, :unitlabel => c.metric.unit} } }
+        :boundayflags => [false,true], :weight => c.score_weight, :unitlabel => c.metric.unit} } }
 
     @metrics_female = @contributions_female.map{|c| {:name => c.metric.name, :features => 
         {:healthyrange => [c.healthy_min,c.healthy_max], :totalrange => [c.total_min,c.total_max], 
-        :boundayflags => [false,true], :weight => c.weight, :unitlabel => c.metric.unit} } }
+        :boundayflags => [false,true], :weight => c.score_weight, :unitlabel => c.metric.unit} } }
     
     male = { :gender => "male", :metrics => @metrics_male }
     female = { :gender => "female", :metrics => @metrics_female }
