@@ -1,6 +1,6 @@
 class Submission < ActiveRecord::Base
   belongs_to :user
-  attr_accessible :message
+  attr_protected :message, :contribution
   has_many :contributions
 
 end
