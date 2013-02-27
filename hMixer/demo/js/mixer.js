@@ -1476,6 +1476,7 @@ _keyManager = function ( ) {
  * Re renders the metrics upon gender change
 */
 _genderToggle = function ( ) {
+	console.log('gender toggled');
     var evt = d3.event,
         gen = d3.select( this ).attr("data-gender"),
         par = d3.select( this.parentNode ).select("button.active").classed("active", false);
@@ -1498,7 +1499,7 @@ _prepGenderToggles = function ( ) {
                     ? hSubmitForm.querySelectorAll("button.g-toggle")
                     : [ ],
         button, indx;
-    
+    console.log('prep Gender');
     for( indx = 0; indx < query.length; indx++ ){
         button = query[indx];
         d3.select(button).on("click", _genderToggle);
@@ -1512,6 +1513,7 @@ _prepGenderToggles = function ( ) {
  * @param {string} formClass The query to be made for the object
 */
 _prepSubmitForm = function ( formClass ) {
+	console.log(document.querySelectorAll + " " + !document.querySelectorAll)
     if( !document.querySelectorAll ){ return false; }
     
     var query  = document.querySelectorAll( formClass ),  
@@ -1526,7 +1528,7 @@ _prepSubmitForm = function ( formClass ) {
         d3.select(input)
             .on("keydown", _keyManager);
     }
-    
+    console.log(item);
     return item;
 };
 
@@ -1650,7 +1652,7 @@ _renderGenderData = function ( ){
  * @param {array} metricData An array of metric information 
 */
 _populateMetrics = function ( metricData ) {    
-    
+    console.log(metricData);
     if( U.type(metricData) !== "array" ){ 
         return U.e("Improper data format; must be of type \"array\""); 
     }
@@ -1680,13 +1682,13 @@ _prepMixer = function ( metricList ) {
     
     /* add the svg definitions to the page */
     _svgDefs( );
-    
     /* try prepping the submit form */
     hSubmitForm = _prepSubmitForm( D.form_class );
-    
+    console.log(hSubmitForm);
     if( hSubmitForm !== false ) {
         /* prep the gender toggles */
-        _prepGenderToggles( );
+    	console.log('after hsubmit');
+    	_prepGenderToggles( );
     }
     
     /* find the context to render metrics inside */
