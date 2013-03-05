@@ -69,7 +69,8 @@ class TestsController < ApplicationController
         end
       end 
       @submissions = Submission.create(:user_id => @user[0].id, :contributions => @contr, :message => params[:message])
-      hmixer_to_submission(@submissions, params);
+	@submissions.update_attribute('message', params[:message])
+      hmixer_to_submission(@submissions, params)
     rescue NoMethodError
       @user = User.new(:email => params[:email], :full_name => params[:name])
             puts 'test' + @user.inspect
@@ -87,7 +88,8 @@ class TestsController < ApplicationController
         end
       end 
       @submissions = Submission.create(:user_id => @user.id, :message => params[:message], :contributions => @contr)
-      hmixer_to_submission(@submissions, params);
+	@submissions.update_attribute('message', params[:message])
+      hmixer_to_submission(@submissions, params)
     end  
     render :status => 200
   end
