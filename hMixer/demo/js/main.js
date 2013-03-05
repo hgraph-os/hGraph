@@ -221,7 +221,7 @@ $('#submit').on('click', function(event){
 			cancel: "cancel"
 		},
 		buttonFocus: "none"
-		})
+		});
 		alertify.prompt('<div class="container"><form><label>Email:  </label><input type="text" value="" class="email" onchange="fillData();" id="email"><br /><br /><label style="">Name: </label><input type="text" class="name" value="" id="name"><br /><br /><label>Message: </label><input type="text" class="message" value="" id="message"></form></div><br/><br/><p>All of the above fields are required!</p>', function(e){
 			if(e){
 				eml =  $('#email').val();
@@ -286,6 +286,9 @@ $('#submit').on('click', function(event){
 				}
 			}
 		});
+		$('#alertify').css('top', '50%');
+		$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
+		console.log($('#alertify').css('margin-top'));
 	} else {
 		$.ajax({
 			method: 'post',
