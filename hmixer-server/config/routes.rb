@@ -6,8 +6,11 @@ HmixerServer::Application.routes.draw do
   
 
   get "tests/metrics"
+  get "tests/create"
   post "tests/create"
   get "tests/getuser"
+  get "tests/getsubmissions"
+  get "tests/getuserparams"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

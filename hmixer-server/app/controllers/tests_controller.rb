@@ -28,6 +28,22 @@ class TestsController < ApplicationController
     end
   end
 
+  def getsubmissions
+    begin
+      # @users = User.where(:email => params[:email])
+      @submissions = Submission.all(:include => [:user, :contributions => [:metric, :demographic]])
+      @submissions_json = @submissions.to_json()
+    rescue RuntimeError
+    end
+  end
+
+  def getuserparams
+    begin
+      @user = User.where(:id => params[:user_id])
+      @user_json = @user.to_json()
+    end
+  end
+
   def show
     @submission = Submission.find(params[:id], :include => [:user, :contributions])
  
