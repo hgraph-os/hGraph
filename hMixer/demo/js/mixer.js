@@ -1730,7 +1730,7 @@ _prepMixer = function ( metricList ) {
 
 			console.log('prepMixer email = ' + JSON.stringify(email) + ' email = ' + email.email);
 
-			this.url = 'http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com:3000/tests/metrics.json?email=' + email.email;
+			this.url = 'tests/metrics.json?email=' + email.email;
 
 			console.log('prepMixer url = ' + this.url);
 

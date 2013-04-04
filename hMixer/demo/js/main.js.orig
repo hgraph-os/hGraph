@@ -6,7 +6,7 @@
  *  - Matthew Madonna <matthew@myimedia.com>	           *
  * ******************************************************* */
 (function () {
-
+    
     var ready,    // the ready function
         metrics,  // the metrics to populate with      (optional)
         options,  // options for how the hMixer works  (optional)
@@ -17,27 +17,13 @@
 
 /* example callback for when the ajax method is complete */
 onloaded = function ( ) {
-
+    
 };
-$.extend({
-  getUrlVars: function(){
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for(var i = 0; i < hashes.length; i++) {
-      hash = hashes[i].split('=');
-      vars.push(hash[0]);
-      vars[hash[0]] = hash[1];
-    }
-    return vars;
-  },
-  getUrlVar: function(name){
-    return $.getUrlVars()[name];
-  }
-});
+
 function getCookie(c_name)
 {
 	var i,x,y,ARRcookies=document.cookie.split(";");
-
+	
 	for (i=0;i<ARRcookies.length;i++)
 	  {
 	  x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
@@ -61,9 +47,9 @@ function setCookie(c_name,value,exdays)
 
 var cookieEmail = getCookie('email');
 var cookieName = getCookie('name');
-var cookieMessage = getCookie('message');
+var cookieMessage = getCookie('message'); 
 
-if (cookieName != null)
+if (cookieName != null) 
 	alertify.success("Welcome Back " + cookieName);
 
 /* example array for metric structures */
@@ -146,19 +132,14 @@ metrics = [{"gender":"male",
 
 
 
-if($.getUrlVar('email') != null){
+if (cookieEmail != null) {
 	ajaxconf = {
-	    url      : "/tests/metrics.json?email=" + $.getUrlVar('email'),
+	    url      : "http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/metrics.json?email=" + cookieEmail,
 	    callback : onloaded
 	};
-} else if  (cookieEmail != null)  {
+} else  {
 	ajaxconf = {
-	    url      : "/tests/metrics.json?email=" + cookieEmail,
-	    callback : onloaded
-	};;
-} else {
-	ajaxconf = {
-	    url      : "/tests/metrics.json",
+	    url      : "http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/metrics.json",
 	    callback : onloaded
 	};
 }
@@ -168,7 +149,7 @@ options = {
     allowTextSelection : false
     // healthy_range         : [0, 400],
     // total_range        : [0, 800]
-    // range_fill : "#ff0000"
+    // range_fill : "#ff0000" 
     // text_fill  : "#ff0000"
 };
 
@@ -178,7 +159,7 @@ ready = function () {
 
 Entry( ready ); // Use the Entry funciton defined in Utils
 
-function validateEmail(str) {
+function validateEmail(str) { 
 	var at="@"
 	var dot="."
 	var lat=str.indexOf(at)
@@ -196,10 +177,10 @@ function validateEmail(str) {
 		return false
 	if (str.indexOf(dot,(lat+2))==-1)
 		return false
-
+	
 	if (str.indexOf(" ")!=-1)
 		return false
-
+	
 	return true
 }
 
@@ -210,13 +191,13 @@ fillData = function(){
 			method: 'get',
 			beforeSend: function(xhr){  var token = $("meta[name='csrf-token']").attr("content");
 				  				xhr.setRequestHeader("X-CSRF-Token", token);},
-			url: '/tests/getuser',
+			url: 'http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/getuser',
 			data: {
 				'email' : email
 			},
 			dataType: 'json',
 			async: false,
-
+			
 			complete: function(jqXHR) {
 
 				console.log('fillData complete, jqXHR readyState is ' + jqXHR.readyState);
@@ -230,14 +211,14 @@ fillData = function(){
 						console.log('str = ' + str);
 						str = str.substring(str.indexOf('<body>')+6, str.indexOf('</body>'));
 						console.log('jqXHR str = ' + str);
-						var json = $.parseJSON(str);
-						console.log('jqXHR json = ' + json);
+						var json = $.parseJSON(str);	
+						console.log('jqXHR json = ' + json);	
 						$('#name').val(json['name']);
 						$('#message').val(json['message']);
 	       			}
 	       		}
-	    	}
-
+	    	}        
+			
 		});
 	}
 }
@@ -254,26 +235,32 @@ $('#submissions').on('click', (function(event) {
 			|| document.getElementById("context")
 			|| document.getElementById("hMixer");
 
-	hRenderZone.innerHTML = "";
+	hRenderZone.innerHTML = ""; 
 
   // hRenderZone.insertAdjacentHTML('beforeend', '<table><tbody>');
   innerhtml = "<table class=\"table table-bordered\"><tbody>";
 
-	d3.json("/tests/getsubmissions.json", function(error, json) {
+	d3.json("http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com:3000/tests/getsubmissions.json", function(error, json) {
+		console.log('json = ' + JSON.stringify(json));
 
 
       count = json.length;
       i = 0;
 		 $.each(json, function (key, value) {
 
-			d3.json("/tests/getuserparams.json?user_id=" + value.user_id, function(error, params) {
+			d3.json("http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com:3000/tests/getuserparams.json?user_id=" + value.user_id, function(error, params) {
+				console.log('params = ' + JSON.stringify(params));
+				console.log('email = ' + params[0].email);
 				full_name = params[0].full_name;
+				console.log('full name = ' + full_name);
 				pemail = params[0].email;
 				div_onclick = function(pemail) {
-                        ajaxconf= {
-                        url      : "/tests/metrics.json?email=" + pemail,
-                        callback : onloaded
+					console.log('onclick mixer init ' + pemail);
+					ajaxconf = {
+            					url      : "http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/metrics.json?email=" + pemail,
+            					callback : onloaded
         				};
+					console.log('ajaxconf = ' + ajaxconf);
 					ready = function () {
 						console.log('ready');
 						Mixer.init(ajaxconf);
@@ -293,7 +280,8 @@ $('#submissions').on('click', (function(event) {
         console.log('innerhtml is ' + innerhtml);
 				$('.hasemail' + value.user_id).click( function() { div_onclick($(this).attr('data-email')); });
         //if(i == (count - 2)) {
-        //innerhtml = innerhtml + '</tbody></table>';
+        //innerhtml = innerhtml + '</tbody></table>'; 
+        console.log('done, inner html is ' + innerhtml);
         $('#metrics').html(innerhtml);
         //}
 			});
@@ -321,6 +309,7 @@ $('#submissions').on('click', (function(event) {
 $('#submit').on('click', function(event){
 
 	console.log('submit on click');
+
 	if (cookieEmail == null) {
 
 		console.log('cookie email is null');
@@ -346,25 +335,32 @@ $('#submit').on('click', function(event){
 					/* if male and length is 4, append the default female data */
 
 					allCookies = document.cookie;
+					console.log('all cookies = ' + allCookies);
 
 					gender = Mixer.getGender();
+					console.log('gender = ' + gender);
 
 					metric = Mixer.getMetric();
+					console.log('metric = ' + metric);
+
 					for (index = 0; index < metric.length; index++) {
 
 						console.log('metric index = ' + JSON.stringify(metric[index]) + ', ' + index);
-						
 
 					}
 
-					
 					metriclength = metric.length;
+					console.log('metric length = ' + metriclength);
 
 					mixer = JSON.stringify(Mixer.getMetric());
+					console.log('mixer getMetric = ' + mixer);
 
 					length = mixer.length;
-					console.log(JSON.stringify(metric[0]));
-					if (metric[0]['name'] != metric[Math.abs((metric.length-1)/2)]['name']) {
+					console.log('length = ' + length);
+
+					if ( (gender == "male") && (metriclength == 4) ) {
+
+						console.log('male and 4, add another copy of metrics');
 
 						/* get female metric from the default user */
 
@@ -377,16 +373,81 @@ $('#submit').on('click', function(event){
 
 						// defactostring = JSON.stringify(defactometric);
 						// console.log('defacto string = ' + defactostring);
-						secondMetric = metric
-						len = secondMetric.length
-						var i;
-						for (i = 0; i < len; i++) {
-							metric.push(secondMetric[i]);
-							console.log('in here')
-						}
+
+						console.log('metriclength = 4, attributedata = ' + JSON.stringify(window.attributedata));
+
+						console.log('attributedata 1 metrics = ' + JSON.stringify(window.attributedata.get('1')['metrics'][0]));
+						name = window.attributedata.get('1')['metrics'][0]['name'];
+						healthyrange = window.attributedata.get('1')['metrics'][0]['features']['healthyrange'];
+						totalrange = window.attributedata.get('1')['metrics'][0]['features']['totalrange'];
+						weight = window.attributedata.get('1')['metrics'][0]['features']['weight'];
+						unitlabel = window.attributedata.get('1')['metrics'][0]['features']['unitlabel'];
+
+						console.log('name, healthyrange, totalrange, weight, unitlabel = ' + name + ', ' + healthyrange + ', ' + totalrange + ', ' + weight + ', ' + unitlabel);
+						
+						metric0 = '{"name":"' + name + '","dayvalue":false,"healthyrange":[' + healthyrange + '],"totalrange":[' + totalrange + '],"weight":' + weight + ',"unitlabel":"' + unitlabel + '"}';
+						
+						console.log('metric0 = ' + metric0);
+						metric.push(JSON.parse(metric0));
 						// metric.push(metric[0]);
 						// metric.push(JSON.parse('{"name":"LDL","dayvalue":false,"healthyrange":[63,148],"totalrange":[0,160],"weight":5,"unitlabel":"mg/dl"}'));
+
+
+                                                name = window.attributedata.get('1')['metrics'][1]['name'];
+                                                healthyrange = window.attributedata.get('1')['metrics'][1]['features']['healthyrange'];
+                                                totalrange = window.attributedata.get('1')['metrics'][1]['features']['totalrange'];
+                                                weight = window.attributedata.get('1')['metrics'][1]['features']['weight'];
+                                                unitlabel = window.attributedata.get('1')['metrics'][1]['features']['unitlabel'];
+
+                                                console.log('name, healthyrange, totalrange, weight, unitlabel = ' + name + ', ' + healthyrange + ', ' + totalrange + ', ' + weight + ', ' + unitlabel);
+
+                                                metric1 = '{"name":"' + name + '","dayvalue":false,"healthyrange":[' + healthyrange + '],"totalrange":[' + totalrange + '],"weight":' + weight + ',"unitlabel":"' + unitlabel + '"}';
+
+                                                console.log('metric1 = ' + metric1);
+                                                metric.push(JSON.parse(metric1));
+						// metric.push(metric[1]);
+						// metric.push(JSON.parse('{"name":"HDL","dayvalue":false,"healthyrange":[28,102],"totalrange":[0,130],"weight":7,"unitlabel":"mg/dl"}'));
+
+
+                                                name = window.attributedata.get('1')['metrics'][2]['name'];
+                                                healthyrange = window.attributedata.get('1')['metrics'][2]['features']['healthyrange'];
+                                                totalrange = window.attributedata.get('1')['metrics'][2]['features']['totalrange'];
+                                                weight = window.attributedata.get('1')['metrics'][2]['features']['weight'];
+                                                unitlabel = window.attributedata.get('1')['metrics'][2]['features']['unitlabel'];
+
+                                                console.log('name, healthyrange, totalrange, weight, unitlabel = ' + name + ', ' + healthyrange + ', ' + totalrange + ', ' + weight + ', ' + unitlabel);
+
+                                                metric2 = '{"name":"' + name + '","dayvalue":false,"healthyrange":[' + healthyrange + '],"totalrange":[' + totalrange + '],"weight":' + weight + ',"unitlabel":"' + unitlabel + '"}';
+
+                                                console.log('metric2 = ' + metric2);
+                                                metric.push(JSON.parse(metric2));
+						// metric.push(metric[2]);
+						// metric.push(JSON.parse('{"name":"Triglycerides","dayvalue":false,"healthyrange":[291,454],"totalrange":[0,600],"weight":3,"unitlabel":"mg/dl"}'));
+
+
+                                                name = window.attributedata.get('1')['metrics'][3]['name'];
+                                                healthyrange = window.attributedata.get('1')['metrics'][3]['features']['healthyrange'];
+                                                totalrange = window.attributedata.get('1')['metrics'][3]['features']['totalrange'];
+                                                weight = window.attributedata.get('1')['metrics'][3]['features']['weight'];
+                                                unitlabel = window.attributedata.get('1')['metrics'][3]['features']['unitlabel'];
+
+                                                console.log('name, healthyrange, totalrange, weight, unitlabel = ' + name + ', ' + healthyrange + ', ' + totalrange + ', ' + weight + ', ' + unitlabel);
+
+                                                metric3 = '{"name":"' + name + '","dayvalue":false,"healthyrange":[' + healthyrange + '],"totalrange":[' + totalrange + '],"weight":' + weight + ',"unitlabel":"' + unitlabel + '"}';
+
+                                                console.log('metric3 = ' + metric3);
+                                                metric.push(JSON.parse(metric3));
+						// metric.push(metric[3]);
+						// metric.push(JSON.parse('{"name":"Sleep","dayvalue":false,"healthyrange":[6,9],"totalrange":[0,18],"weight":5,"unitlabel":"hours/night"}'));
+
+						console.log('metric after push = ' + JSON.stringify(metric));
+
 						mixerMetrics = metric;
+
+						/* add the metric from female */
+						// mlist = hOriginalData[1].metrics;
+						// console.log('mlist = ' + mlist);
+						// mixerMetrics = metric + ',' + female metric;
 
 
 					} else {
@@ -394,6 +455,8 @@ $('#submit').on('click', function(event){
 						mixerMetrics = metric;
 
 					}
+
+					console.log('mixerMetrics = ' + mixerMetrics);
 
 					setCookie('email', $('#email').val(), 20*365);
 					setCookie('name',  $('#name').val(), 20*365);
@@ -406,7 +469,7 @@ $('#submit').on('click', function(event){
 							method: 'post',
 					         beforeSend: function(xhr){  var token = $("meta[name='csrf-token']").attr("content");
 					  xhr.setRequestHeader("X-CSRF-Token", token);},
-							url: '/tests/create',
+							url: 'http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/create',
 							data: {
 								// 'mixer' : JSON.stringify(Mixer.getMetric()),
 								'mixer' : JSON.stringify(mixerMetrics),
@@ -436,13 +499,13 @@ $('#submit').on('click', function(event){
 					          		else
 					          			alertify.error("<h1>Data Submitted Unsuccessfully</h1>\n\nError: " + jqXHR.statusText);
 					       		}
-					    	}
-						});
+					    	}        
+						});	
 				}
 				else {
-
+					
 					$('#submit').click();
-					if (eml === "")
+					if (eml === "") 
 						$('#email').css('border', '1px solid #FF0000');
 					if (nm === "")
 						$('#name').css('border', '1px solid #FF0000');
@@ -457,7 +520,10 @@ $('#submit').on('click', function(event){
 		});
 		$('#alertify').css('top', '50%');
 		$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
+		console.log($('#alertify').css('margin-top'));
 	} else {
+
+		console.log('cookieEmail is not null');
 
 		$.ajax({
 			method: 'post',
@@ -465,7 +531,7 @@ $('#submit').on('click', function(event){
 				var token = $("meta[name='csrf-token']").attr("content");
 				xhr.setRequestHeader("X-CSRF-Token", token);
 			},
-			url: '/tests/create',
+			url: 'http://ec2-184-169-229-248.us-west-1.compute.amazonaws.com/tests/create',
 			data: {
 				'mixer' : JSON.stringify(Mixer.getMetric()),
 				'gender' : Mixer.getGender(),
@@ -498,10 +564,10 @@ $('#submit').on('click', function(event){
 	          			else
 	          				alertify.error("<h1>Data Submitted Unsuccessfully</h1>\n\nError: " + jqXHR.statusText);
 	       			}
-	    		}
-		});
+	    		}        
+		});	
 	}
-
+		
 });
 
 })();
