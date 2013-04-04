@@ -72,12 +72,13 @@ class TestsController < ApplicationController
       @user = User.where(:email => params[:email])
       @user[0].update_attribute(:full_name => params[:name])
       puts 'test' + @user.inspect
+      puts 'params length' + JSON.parse(params[:mixer]).length
       @contr = Array.new
       j = 1
       k = 1
-      for i in 1..8
+      for i in 1..JSON.parse(params[:mixer]).length
         @contr << Contribution.new(:metric_id => j, :demographic_id => k)
-        if i == 4
+        if i == JSON.parse(params[:mixer]).length/2
           j = 1
           k = 2
         else
@@ -94,9 +95,9 @@ class TestsController < ApplicationController
       @contr = Array.new
       j = 1
       k = 1
-      for i in 1..8
+      for i in 1..JSON.parse(params[:mixer]).length
         @contr << Contribution.new(:metric_id => j, :demographic_id => k)
-        if i == 4
+        if i == JSON.parse(params[:mixer]).length/2
           j = 1
           k = 2
         else

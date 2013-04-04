@@ -6,7 +6,6 @@ HmixerServer::Application.routes.draw do
   
 
   get "tests/metrics"
-  get "tests/create"
   post "tests/create"
   get "tests/getuser"
   get "tests/getsubmissions"
