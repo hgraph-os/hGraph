@@ -1764,6 +1764,16 @@ __mixer = {
         }
         
         return false;
+    },
+     /*Mixer.getGender
+     * 
+     * Returns gender
+     */
+    getGender : function() {
+    	if(hGenderIndex == 0)
+    		return 'male';
+    	else
+    		return 'female';
     }
 };
 
