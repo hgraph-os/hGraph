@@ -11,16 +11,16 @@ Requires:
 Authors:
 	Michael Bester <michael@kimili.com>
 	Danny Hadley <danny@goinvo.com>
-	
+
 License:
 	Copyright 2012, Involution Studios <http://goinvo.com>
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	  http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,7 +36,7 @@ var HGraph = function(opts) {
 	this.container        = opts.container || null;
 	this.context          = null;
 	this.width            = opts.width || 0;
-	this.hheight           = opts.height || 0;
+	this.height           = opts.height || 0;
 	this.rotation         = opts.rotation || 0;
 	this.zoomFactor       = opts.zoomFactor || 2.2;
 	this.zoomTime         = opts.zoomTime || 800;
@@ -88,7 +88,7 @@ HGraph.prototype.initialize = function() {
 	this.height     = this.height || this.container.offsetHeight;
 	this.halfWidth  = this.width / 2;
 	this.halfHeight = this.height / 2;
-	console.log(this.width + " " + this.height);
+
 	this.showLabels = ((this.width / this.height) > 1.2);
 
 	this.scaleRange = this.showLabels ?
@@ -174,6 +174,7 @@ HGraph.prototype.initialize = function() {
 		touch = e.touches[0];
 		touchstart.x = touch.pageX;
 		touchstart.y = touch.pageY;
+		console.log(touch);
 	});
 	this.container.addEventListener('touchmove', function(e){
 		var key, layer, delta, touch;
@@ -208,6 +209,41 @@ HGraph.prototype.initialize = function() {
 		that.originCoords.x = moveDelta.x;
 		that.originCoords.y = moveDelta.y;
 	});
+		this.container.addEventListener('mousedown',function(e){
+		that.dragging = true;
+		touch = e;
+		touchstart.x = touch.offsetX;
+		touchstart.y = touch.offsetY;
+	});
+	this.container.addEventListener('mousemove',function(e){
+		if(!that.dragging){ return; }
+		
+		var key, layer, delta, touch;
+		if ( ! that.isZoomedIn() ) {
+			return;
+		}
+
+		touch = e;
+		delta = {
+			x : touch.offsetX - touchstart.x,
+			y : touch.offsetY - touchstart.y
+		};
+
+		// Get the new origin coordinates, clamping it to the containter size
+		moveDelta.x = Math.max(0, Math.min(that.width, delta.x + that.originCoords.x));
+		moveDelta.y = Math.max(0, Math.min(that.height, delta.y + that.originCoords.y));
+
+		for ( key in that.layers ) {
+			if (that.layers.hasOwnProperty(key)) {
+				that.layers[key].attr('transform', 'translate(' + moveDelta.x + ', ' + moveDelta.y + ')');
+			}
+		}
+	});
+	this.container.addEventListener('mouseup',function(e){
+		that.dragging = false;
+		that.originCoords.x = moveDelta.x;
+		that.originCoords.y = moveDelta.y;
+	});
 
 };
 
@@ -224,14 +260,14 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 	var minHealthyValue = features.healthyrange[0];
 	var maxAcceptableValue = features.totalrange[1];
 	var minAcceptableValue = features.totalrange[0];
-	
+
 	if(myValue <= maxHealthyValue && myValue >= minHealthyValue){
-		//calculate if we are in healthy range 
+		//calculate if we are in healthy range
 		var healthyRangeMidPoint = (minHealthyValue + maxHealthyValue)/2;
 		//This value will have a score of 100.
 		var healthyHalfRange = (maxHealthyValue - minHealthyValue) / 2;
 		//This defines the slope of the curve in the healthy range
-		var score = 100 - (30 / healthyHalfRange) * (abs(myValue - healthyRangeMidPoint));
+		var score = 100 - (30 / healthyHalfRange) * (Math.abs(myValue - healthyRangeMidPoint));
 
 		if(maxHealthyValue == maxAcceptableValue){
 			//Our graph is clamped on the right side
@@ -249,10 +285,10 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 	}
 	else{
 		//We are outside the healthy range.
-		if(myValue > maxHealthyRange){
+		if(myValue > maxHealthyValue){
 			//We are on the high side
 			var highRange = (maxAcceptableValue - maxHealthyValue);
-			score = 100 + (70/highRange)*(myValue - maxHealthyValue);
+			//score = 100 + (70/highRange)*(myValue - maxHealthyValue);
 			//Note that this means we will get a value of up to 170 on the hGraph.
 			//This is likely to be problematic because it will have a tendancy to make people's hScore super low
 			//In the case where the healthy region is almost equal to the maxAcceptableValue and the patient
@@ -260,7 +296,7 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 			//For now, maybe we should go with it until we figure out the exact scales we want to use for the hGraph.
 
 			//This will show points that are high outside of the green circle. If we just want to get a 0-100 for everything:
-			//score = 70 - (70/highRange)*(myValue-maxHealthyValue);
+			score = 70 - (70/highRange)*(myValue-maxHealthyValue);
 
 			return score;
 		}
@@ -283,6 +319,7 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
  *      zoomFactor - *(Number)* The factor you want to zoom in by. If omitted, the instance's default zoom factor is used.
  */
 HGraph.prototype.zoomIn = function(zoomFactor) {
+	
 	var key, i, j, factor, details, layer, labels, that, zoomedWebFillString, getZoomedRingPath, getZoomedX, getZoomedY, scoreRange;
 
 	that = this;
@@ -418,7 +455,6 @@ HGraph.prototype.zoomIn = function(zoomFactor) {
 
 	this.originCoords.x = 0;
 	this.originCoords.y = 0;
-
 	this.isZoomed = true;
 };
 
