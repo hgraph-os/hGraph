@@ -256,25 +256,30 @@ $('#submissions').on('click', (function(event) {
 	$('#submit').on ('click', function(event){
 		window.location = '?';
 	});
-	var userarray = [];
+	userarray = [];
 	var User = Backbone.Model.extend({
 		initialize: function(){
 			this.isParseing = true;
 			userarray.push(this);
 		},
 		parse: function(response, options) {
-			$.ajax({
-			    type: 'GET',
-			    url: "/tests/getuserparams.json?user_id=" + response.user_id,
-			    dataType: 'json',
-			    success: function(params) {
-    				response = $.extend({}, response, params[0]);	
-			    },
-			    data: {},
-			    async: false
-			});
-			this.isParseing = false;
-			return response;
+			if (!options.fetch) {
+				var parent = this;
+				$.ajax({
+				    type: 'GET',
+				    url: "/tests/getuserparams.json?user_id=" + response.user_id,
+				    dataType: 'json',
+				    success: function(params) {
+	    				var res = $.extend({}, response, params[0]);
+						parent.set(res);
+				    },
+				    data: {}
+				});
+				this.isParseing = false;
+				return response;
+			} else {
+				return response;
+			}
 		}
 	})
 	var Users = Backbone.Collection.extend ({
@@ -287,7 +292,14 @@ $('#submissions').on('click', (function(event) {
 		className: "user-table",
 		initialize: function() {
 			this.collection.fetch();
-			this.listenTo(this.collection, "reset", this.render);
+			this.listenTo(this.collection, "reset", this.newListeners);
+		},
+		newListeners: function() {
+			var parent = this;
+			this.collection.each(function(usr) {
+				console.log(usr)
+				parent.listenTo(usr, "change", parent.render);
+			});
 		},
 		render: function() {
 			console.log('in here')
@@ -310,7 +322,7 @@ $('#submissions').on('click', (function(event) {
             		window.location = ("?email=" + pemail+"&readonly=true");
   			};
   			
-			$('#' + this.id).append(innerhtml);
+			$('#' + this.id).html(innerhtml);
 			this.collection.each( function (usr) {
 		        var c = usr.get('created_at').split("T");
 		        var u = usr.get('updated_at').split("T");
