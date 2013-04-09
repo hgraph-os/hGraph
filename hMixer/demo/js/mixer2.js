@@ -1754,13 +1754,11 @@ __mixer = {
         if( !name || hMetrics.length === 0) { return hMetrics; }  
         
         var i, j, metric, mname;
-        
         for(i = 0; i < hMetrics.length; i++) {
             for(j = 0; j < hMetrics[i].length; j++) {
             
                 metric = hMetrics[i][j];
                 mname  = metric.name;
-    
                 if(mname.toLowerCase() === name.toLowerCase()){ return metric; }
             }
         }
