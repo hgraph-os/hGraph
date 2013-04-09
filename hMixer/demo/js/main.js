@@ -147,33 +147,43 @@ metrics = [{"gender":"male",
 
 
 if($.getUrlVar('email') != null){
+	console.log($.getUrlVar('readonly'))
 	ajaxconf = {
 	    url      : "/tests/metrics.json?email=" + $.getUrlVar('email'),
 	    callback : onloaded
 	};
+	options = {
+    	allowTextSelection : false,
+	    read_only: (/^true$/i).test($.getUrlVar('readonly'))
+	}
 } else if  (cookieEmail != null)  {
 	ajaxconf = {
 	    url      : "/tests/metrics.json?email=" + cookieEmail,
 	    callback : onloaded
-	};;
+	};
+	options = {
+	    allowTextSelection : false
+	    // healthy_range         : [0, 400],
+	    // total_range        : [0, 800]
+	    // range_fill : "#ff0000"
+	    // text_fill  : "#ff0000"
+	};
 } else {
 	ajaxconf = {
 	    url      : "/tests/metrics.json",
 	    callback : onloaded
 	};
+	options = {
+	    allowTextSelection : false
+	    // healthy_range         : [0, 400],
+	    // total_range        : [0, 800]
+	    // range_fill : "#ff0000"
+	    // text_fill  : "#ff0000"
+	};
 }
 
-/* example usage of the "options" parameter */
-options = {
-    allowTextSelection : false
-    // healthy_range         : [0, 400],
-    // total_range        : [0, 800]
-    // range_fill : "#ff0000"
-    // text_fill  : "#ff0000"
-};
-
 ready = function () {
-    	Mixer.init(ajaxconf); // initialize the Mixer (ajax version)
+    	Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
 };
 
 Entry( ready ); // Use the Entry funciton defined in Utils
@@ -244,9 +254,64 @@ fillData = function(){
 
 /* submissions on metrics page */
 $('#submissions').on('click', (function(event) {
-
+	var User = Backbone.Model.extend({
+		initialize: function(){
+			this.isParseing = true;
+		},
+		parse: function(response, options) {
+			$.ajax({
+			    type: 'GET',
+			    url: "/tests/getuserparams.json?user_id=" + response.user_id,
+			    dataType: 'json',
+			    success: function(params) {
+    				response = $.extend({}, response, params[0]);	
+			    },
+			    data: {},
+			    async: false
+			});
+			this.isParseing = false;
+			return response;
+		}
+	})
+	var Users = Backbone.Collection.extend ({
+		model: User,
+		url: "/tests/getsubmissions.json"
+	})
+	
+	var UserTable = Backbone.View.extend({
+		tagName: "table",
+		className: "user-table",
+		initialize: function() {
+			this.collection.fetch();
+			this.listenTo(this.collection, "reset", this.render);
+		},
+		render: function() {
+  			innerhtml = $("<table class=\"table table-bordered user-table\"><tbody>");
+  			console.log(this.collection);
+  			div_onclick = function(pemail) {
+					console.log('onclick mixer init ' + pemail);
+            		window.location = ("?email=" + pemail+"&readonly=true");
+  			};
+			this.collection.each( function (usr) {
+				console.log(usr);
+		        var c = usr.get('created_at').split("T");
+		        var u = usr.get('updated_at').split("T");
+				// hRenderZone.insertAdjacentHTML('beforeend', '<div  data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><tr><font color="#000000"><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr></font></div>');
+				// hRenderZone.insertAdjacentHTML('beforeend', '<tr data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
+				innerhtml.append('<tr data-email="' + usr.get('email') + '" id="hasemail" class="hasemail' + usr.get('user_id') + '" ><td>' + usr.get('full_name') + '</td><td>' + usr.get('user_id') + '</td><td>' + usr.get('message') + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
+				console.log('in here')
+				innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email')); });
+			});
+			
+			console.log(innerhtml.html())
+			$('#' + this.id).append(innerhtml);
+		}
+	});
 	console.log('submissions on click');
-
+	
+	
+	
+	
 	var cookieEmail = getCookie('email');
 	console.log('email = ' + cookieEmail);
 
@@ -255,61 +320,7 @@ $('#submissions').on('click', (function(event) {
 			|| document.getElementById("hMixer");
 
 	hRenderZone.innerHTML = "";
-
-  // hRenderZone.insertAdjacentHTML('beforeend', '<table><tbody>');
-  innerhtml = "<table class=\"table table-bordered\"><tbody>";
-
-	d3.json("/tests/getsubmissions.json", function(error, json) {
-
-
-      count = json.length;
-      i = 0;
-		 $.each(json, function (key, value) {
-
-			d3.json("/tests/getuserparams.json?user_id=" + value.user_id, function(error, params) {
-				full_name = params[0].full_name;
-				pemail = params[0].email;
-				div_onclick = function(pemail) {
-                        ajaxconf= {
-                        url      : "/tests/metrics.json?email=" + pemail,
-                        callback : onloaded
-        				};
-					ready = function () {
-						console.log('ready');
-						Mixer.init(ajaxconf);
-					};
-					console.log(Entry);
-					_isLoaded = false;
-					_hasFired = false;
-					hPrepped = false;
-					Mixer.init(ajaxconf);
-					Entry( ready );
-				};
-        var c = value.created_at.split("T");
-        var u = value.updated_at.split("T");
-				// hRenderZone.insertAdjacentHTML('beforeend', '<div  data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><tr><font color="#000000"><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr></font></div>');
-				// hRenderZone.insertAdjacentHTML('beforeend', '<tr data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
-				innerhtml = innerhtml + '<tr data-email="' + params[0].email + '" id="hasemail" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>';
-        console.log('innerhtml is ' + innerhtml);
-				$('.hasemail' + value.user_id).click( function() { div_onclick($(this).attr('data-email')); });
-        //if(i == (count - 2)) {
-        //innerhtml = innerhtml + '</tbody></table>';
-        $('#metrics').html(innerhtml);
-        //}
-			});
-
-      i++;
-      });
-
-    // hRenderZone.insertAdjacentHTML('beforeend', '</tbody></table>');
-    // innerhtml = innerhtml + '</tbody></table>';
-    // console.log('innerhtml is ' + innerhtml);
-
-    // $('#metrics').append(innerhtml);
-
-		// $('.hasemail').click( function() { div_onclick($(this).attr('data-email')); });
-
-	 });
+	usertable = new UserTable({collection: new Users(), id: "metrics"});
 
   // hRenderZone.insertAdjacentHTML('beforeend', '</table>');
 
