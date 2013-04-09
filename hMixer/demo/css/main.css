@@ -14,6 +14,11 @@ div.hasemail:hover {
   background-color: white ;
 }
 
+.user-table  tr:hover{
+	background-color: lightgrey;
+	cursor: pointer;
+}
+
 nav.main-nav{ margin-top: 0px; }
 nav.main-nav ul{ 
     list-style: none;
