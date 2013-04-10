@@ -13,7 +13,14 @@ div.hasemail:hover {
   color: blue;
   background-color: white ;
 }
-
+/* SVG styles */
+.healthgraph.detailed text.overall {
+  font-size: 2rem;
+}
+svg.healthscore text.overall {
+  fill: #616363;
+  font-weight: bold;
+}
 .user-table  tr:hover{
 	background-color: lightgrey;
 	cursor: pointer;

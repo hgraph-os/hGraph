@@ -188,6 +188,60 @@ ready = function () {
 
 Entry( ready ); // Use the Entry funciton defined in Utils
 
+$.ajax({
+	method: 'get',
+	beforeSend: function(xhr){  var token = $("meta[name='csrf-token']").attr("content");
+		  				xhr.setRequestHeader("X-CSRF-Token", token);},
+	url: '/tests/metrics.json',
+	dataType: 'json',
+	async: true,
+	complete: function(jqXHR) {
+		console.log('fillData complete, jqXHR readyState is ' + jqXHR.readyState);
+
+		if(jqXHR.readyState === 4) {
+
+		console.log('jqXHR readyState = 4');
+
+   			if(jqXHR.status == 200){
+   				
+				var str = jqXHR.responseText;
+				var json = $.parseJSON(str);
+				var factors_array = [];
+				var factor_json;
+				if (json[0].gender === 'male')
+					factor_json = json[0].metrics;
+				else
+					factor_json = json[1].metrics;
+				for (var i = 0; i < factor_json.length; i++) {
+					var random = 0;
+						factors_array.push(
+						{
+							label: factor_json[i].name,
+							score: 0, 
+							value: 0 +  ' ' +  factor_json[i].features.unitlabel
+						}
+					)
+				}
+				var opts = {
+					container: document.getElementById("viz"),
+					userdata: {
+						hoverevents : true,
+			            factors: factors_array
+					}
+				};
+
+				graph = new HGraph(opts);
+				graph.height = 200;
+				graph.width = 200;
+				graph.initialize();
+				$('.label').remove;
+				$('#viz').css('margin-left', '-35px');
+				$('.overall').css('font-size', '2rem');
+   			}
+		}
+	}
+});
+
 function validateEmail(str) {
 	var at="@"
 	var dot="."
