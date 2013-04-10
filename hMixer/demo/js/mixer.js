@@ -25,7 +25,10 @@
         hRenderZone   = null,  // The container where metrics are to be dumped
         hSubmitForm   = null,  // The form that will be submitted
         hGenderIndex  = 0,     // a gender number defining male of female
-        hMetricIndex  = 0;
+        hMetricIndex  = 0,
+	attributedata;
+
+	var MetricSpace = MetricSpace || {};
 
 
 ////////////////////////////////////////////   
@@ -485,6 +488,8 @@ _addScalePoint = function ( rmX, rmY ){
     dpoint = { el : point, top : rmY, left : rmX };
     
     points.push( dpoint );
+
+    console.log('addScalePoint, rmX, rmY = ' + rmX + ', ' + rmY);
 
     U.e("adding a scale point at: (" + rmX + "," + rmY + ")", "log");
 
@@ -1095,6 +1100,8 @@ Metric.prototype = {
         
         this.uid   = U.uid(); // give this metric a unique identifier
         this.index = hMetricIndex;
+	console.log('hMetricIndex = ' + hMetricIndex);
+
         this.dom   = { };     // save room for the metric's dom elements
         
         /* finish by rendering up the article and svg */
@@ -1443,6 +1450,8 @@ _finalize = function (metrics) {
     
     for(i = 0; i < metrics.length; i++){
         pub = metrics[i].strip( );
+
+        console.log('Mixer finalize pub i = ' + JSON.stringify(pub) + ', ' + i);
         
         hMetrics.push( pub );
     }
@@ -1476,33 +1485,53 @@ _keyManager = function ( ) {
  * Re renders the metrics upon gender change
 */
 _genderToggle = function ( ) {
-    var evt = d3.event,
+
+	console.log('gender toggled');
+
+	var evt = d3.event,
         gen = d3.select( this ).attr("data-gender"),
         par = d3.select( this.parentNode ).select("button.active").classed("active", false);
     
-    d3.select(this).classed("active", true);
+	d3.select(this).classed("active", true);
     
-    hGenderIndex = (gen === "male") ? 0 : 1;
+	hGenderIndex = (gen === "male") ? 0 : 1;
     
-    _renderGenderData( );
+	_renderGenderData( );
     
-    return ( evt.preventDefault && evt.preventDefault() ) ? false : false;
+	return ( evt.preventDefault && evt.preventDefault() ) ? false : false;
+
 };
+
 
 /* _prepGenderToggles
  * 
  * Seeks gender toggles and binds events
 */
 _prepGenderToggles = function ( ) {
-    var query = (hSubmitForm.querySelectorAll("button.g-toggle").length > 0) 
-                    ? hSubmitForm.querySelectorAll("button.g-toggle")
-                    : [ ],
-        button, indx;
-    
-    for( indx = 0; indx < query.length; indx++ ){
-        button = query[indx];
-        d3.select(button).on("click", _genderToggle);
-    }
+
+	var query = (hSubmitForm.querySelectorAll("button.g-toggle").length > 0) 
+		? hSubmitForm.querySelectorAll("button.g-toggle")
+		: [ ], button, indx;
+
+	console.log('button, indx = ' + button + ', ' + indx);
+
+	console.log('prepGenderToggles query = ' + query);
+
+	for (var index = 0; index < query.length; index++) {
+
+		console.log('query index = ' + query[index] + ', ' + index);
+
+	}
+
+	for( indx = 0; indx < query.length; indx++ ){
+
+		button = query[indx];
+
+		console.log('button, indx = ' + button + ', ' + indx);
+
+		d3.select(button).on("click", _genderToggle);
+	}
+
 };
 
 
@@ -1512,22 +1541,31 @@ _prepGenderToggles = function ( ) {
  * @param {string} formClass The query to be made for the object
 */
 _prepSubmitForm = function ( formClass ) {
-    if( !document.querySelectorAll ){ return false; }
+
+	console.log('prepSubmitForm document querySelectorAll = ' + document.querySelectorAll + " " + !document.querySelectorAll);
+
+	if( !document.querySelectorAll ){ return false; }
+
+	var query  = document.querySelectorAll( formClass ),  
+		item   = (query.length > 0) ? query[0] : false,
+		inputs = (item) ? item.querySelectorAll("input.height-input") : [ ],
+		index, input;
     
-    var query  = document.querySelectorAll( formClass ),  
-        item   = (query.length > 0) ? query[0] : false,
-        inputs = (item) ? item.querySelectorAll("input.height-input") : [ ],
-        index, input;
-    
-    /* prep the input text elements */
-    for( index = 0; index < inputs.length; index++ ){
-        input = inputs[index];
-        
-        d3.select(input)
-            .on("keydown", _keyManager);
-    }
-    
-    return item;
+	/* prep the input text elements */
+	for( index = 0; index < inputs.length; index++ ){
+
+		input = inputs[index];
+
+		console.log('prepSubmitForm input = ' + input);
+
+		d3.select(input)
+			.on("keydown", _keyManager);
+	}
+
+	console.log('prepSubmitForm item = ' + item);
+
+	return item;
+
 };
 
 
@@ -1611,36 +1649,45 @@ _setOptions = function ( options ) {
  * Reuseable rendering loop 
  */
 _renderGenderData = function ( ){
-    var i, j, metric, gender, mlist, metrics;
-    
-    
-    gender  = hOriginalData[hGenderIndex].gender;  // which gender is this list
-    mlist   = hOriginalData[hGenderIndex].metrics; // get the metric list
-    metrics = [ ];                                 // reset metric array
-    
-    /* clear out old html */
-    hRenderZone.innerHTML = "";
-    /* reset old gender index */
-    hMetricIndex = 0;
-    
-    
-    /* loop through the metrics */        
-    for(j = 0; j < mlist.length; j++){
-                
-        /* build a new metric */
-        metric = Metric( mlist[j] );
-        
-        hMetricIndex++;
-        
-        /* render the new metric */
-        hRenderZone.appendChild( metric.dom.container );
-        
-        /* push the stripped metric into the hMetrics array */
-        metrics.push( metric );
-        
-    }
 
-    return _finalize( metrics );
+	var i, j, metric, gender, mlist, metrics;
+    
+    
+	gender  = hOriginalData[hGenderIndex].gender;  // which gender is this list
+	mlist   = hOriginalData[hGenderIndex].metrics; // get the metric list
+	metrics = [ ];                                 // reset metric array
+
+	console.log('renderGenderData gender = ' + gender);
+	console.log('renderGenderData mlist = ' + JSON.stringify(mlist));
+	console.log('renderGenderData hGenderIndex = ' + hGenderIndex);
+	console.log('renderGenderData hOriginalData = ' + JSON.stringify(hOriginalData));
+  
+	/* clear out old html */
+	hRenderZone.innerHTML = "";
+	/* reset old gender index */
+	hMetricIndex = 0;
+    
+    
+	/* loop through the metrics */        
+	for(j = 0; j < mlist.length; j++){
+                
+        	/* build a new metric */
+        	metric = Metric( mlist[j] );
+
+		console.log('renderGenderData metric j = ' + metric + ', ' + JSON.stringify(j));
+        
+        	hMetricIndex++;
+        
+        	/* render the new metric */
+        	hRenderZone.appendChild( metric.dom.container );
+        
+        	/* push the stripped metric into the hMetrics array */
+        	metrics.push( metric );
+        
+	}
+
+    	return _finalize( metrics );
+
 }
 
 
@@ -1649,8 +1696,10 @@ _renderGenderData = function ( ){
  * Gets rendering zone, populates metrics
  * @param {array} metricData An array of metric information 
 */
-_populateMetrics = function ( metricData ) {    
-    
+_populateMetrics = function ( metricData ) {
+
+    console.log('populate metrics ' + JSON.stringify(metricData));
+
     if( U.type(metricData) !== "array" ){ 
         return U.e("Improper data format; must be of type \"array\""); 
     }
@@ -1663,6 +1712,7 @@ _populateMetrics = function ( metricData ) {
     }
     
     return _renderGenderData( );
+
 };
 
 
@@ -1673,20 +1723,65 @@ _populateMetrics = function ( metricData ) {
 */
 _prepMixer = function ( metricList ) {
 
-    
+
+	var Attribute = Backbone.Model.extend({
+
+		initialize: function(email) {
+
+			console.log('prepMixer email = ' + JSON.stringify(email) + ' email = ' + email.email);
+
+			this.url = 'tests/metrics.json?email=' + email.email;
+
+			console.log('prepMixer url = ' + this.url);
+
+		},
+
+		parse: function(response) {
+
+			console.log('prepMixer attribute parse response = ' + JSON.stringify(response));
+
+			return response;
+		}
+
+	});
+
+
+	attributedata = new Attribute({email: 'drdefacto@defactomd.com'});
+
+
+	attributedata.fetch({
+
+		success: function() {
+			console.log('prepMixer data.fetch success');
+		},
+
+		error: function() {
+			console.log('data.fetch error');
+		}
+
+	}).done(function(){ console.log('prepMixer fetch done, data = ' + JSON.stringify(attributedata)); } );
+
+	console.log('prepMixer data = ' + JSON.stringify(attributedata));
+
+	window.attributedata = attributedata;
+
+    console.log('prepMixer metricList = ' + JSON.stringify(metricList));
 
     /* do not prep the mixer more than once */
     hPrepped = true;
     
     /* add the svg definitions to the page */
     _svgDefs( );
-    
+
     /* try prepping the submit form */
     hSubmitForm = _prepSubmitForm( D.form_class );
-    
+
+    console.log('prepMixer hSubmitForm = ' + hSubmitForm);
+
     if( hSubmitForm !== false ) {
         /* prep the gender toggles */
-        _prepGenderToggles( );
+    	console.log('prepMixer after hsubmit');
+    	_prepGenderToggles( );
     }
     
     /* find the context to render metrics inside */
@@ -1704,6 +1799,9 @@ _prepMixer = function ( metricList ) {
     if( metricList && metricList.length >= 0 && U.type(metricList) == "array"){
         /* use the array and get the list populated */
         _populateMetrics( metricList );
+
+	console.log('metric list > 0, populate metrics, metricList = ' + metricList);
+
     } else if( metricList && metricList.url ){
         /* if there was a callback sent in as well */
         if( metricList.callback ){
@@ -1726,8 +1824,11 @@ __mixer = {
      * @param {object} [opts] Options for the hMixer page
     */
     init : function ( metricList, opts ) {
+	console.log('got here, Mixer init');
         if( opts && U.type(opts) === "object" ){ _setOptions( opts ); }
-        
+        var returnresult = hPrepped ? true : false;
+	hPrepped = false;
+	console.log('return result is ' + returnresult);
         return (hPrepped) ? U.e("Mixer was already prepped.") : _prepMixer( metricList || false );
     },
     
@@ -1753,6 +1854,17 @@ __mixer = {
         }
         
         return false;
+    },
+    
+    /*Mixer.getGender
+     * 
+     * Returns gender
+     */
+    getGender : function() {
+    	if(hGenderIndex == 0)
+    		return 'male';
+    	else
+    		return 'female';
     }
 };
 
@@ -1764,7 +1876,9 @@ return __mixer;
     
 window.Mixer = Mixer;          // Show the Mixer object to the outside
 window.Entry = Utils.domReady; // Let the domReady function be used
+window.attributedata = attributedata;
 
 })();
+
 
 
