@@ -739,6 +739,12 @@ _dailySubmit = function ( ) {
     
     metric.refreshInput( );
     
+    console.log(metric);
+
+    graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
+		score: graph.calculateScoreFromValue(metric.pub, value),
+    	value: value + ' ' + metric.pub.unitlabel
+    });    
     return input.node().blur && input.node().blur();
 };
         

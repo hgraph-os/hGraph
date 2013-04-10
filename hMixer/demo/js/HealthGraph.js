@@ -41,8 +41,8 @@ var HGraph = function(opts) {
 	this.zoomFactor       = opts.zoomFactor || 2.2;
 	this.zoomTime         = opts.zoomTime || 800;
 	this.healthRange      = {
-		lower : 30,
-		upper : 80
+		lower : -30,
+		upper : 30
 	};
 	this.halfWidth        = 0;
 	this.halfHeight       = 0;
@@ -74,6 +74,47 @@ var HGraph = function(opts) {
 	};
 };
 
+
+/**
+ *  Function: HGraph.redraw
+ *     redraws the graph
+ */
+HGraph.prototype.redraw = function() {
+	$(this.container).html('');
+	this.initialize();
+}
+
+/**
+ * Function: HGraph.updatePoint
+ * 		updates a point on the graph
+ * 
+ *	id: Nubmer - Location of point within userdata.factors
+ *	json: JSON OBject - properties to update within the point
+ */
+HGraph.prototype.updatePoint = function(id, json) {
+	if (id === -1)
+		return false;
+	for(key in json){
+		this.userdata.factors[id][key] = json[key];
+	}
+	this.redraw();
+}
+
+/**
+ * Function: HGraph.getIdByLabel
+ * 		returns the id of the first instance where userdata.factors.lable == name
+ * 
+ *	id: Nubmer - Location of point within userdata.factors
+ *	json: JSON OBject - properties to update within the point
+ */
+HGraph.prototype.getIdByLabel = function(name) {
+	for (id in this.userdata.factors){
+		if(name === this.userdata.factors[id].label)
+			return id
+	}
+	return -1
+}
+
 /**
  *  Function: HGraph.initialize
  *     Sets up and draws the graph
@@ -98,7 +139,7 @@ HGraph.prototype.initialize = function() {
 	this.center      = 'translate(' + this.halfWidth + ',' + this.halfHeight + ')';
 	this.topleft     = 'translate(0,0)';
 
-	this.scale       = d3.scale.linear().domain([0,100]).range(this.scaleRange);
+	this.scale       = d3.scale.linear().domain([-100,100]).range(this.scaleRange);
 	this.context     = d3.select(this.container)
 	                      .append('svg')
 	                      .attr('class','healthscore')
@@ -260,55 +301,22 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 	var minHealthyValue = features.healthyrange[0];
 	var maxAcceptableValue = features.totalrange[1];
 	var minAcceptableValue = features.totalrange[0];
+	var healthyRangeMidPoint = (minHealthyValue + maxHealthyValue)/2.0;
+	var score = 0;
 
-	if(myValue <= maxHealthyValue && myValue >= minHealthyValue){
-		//calculate if we are in healthy range
-		var healthyRangeMidPoint = (minHealthyValue + maxHealthyValue)/2;
-		//This value will have a score of 100.
-		var healthyHalfRange = (maxHealthyValue - minHealthyValue) / 2;
-		//This defines the slope of the curve in the healthy range
-		var score = 100 - (30 / healthyHalfRange) * (Math.abs(myValue - healthyRangeMidPoint));
-
-		if(maxHealthyValue == maxAcceptableValue){
-			//Our graph is clamped on the right side
-			if(myValue>healthyRangeMidPoint){
-				score=100;
-			}
+	if ((myValue >= minHealthyValue)  && (myValue <= maxHealthyValue)){
+		if((minHealthyValue === minAcceptableValue && myValue < healthyRangeMidPoint) || (maxHealthyValue === maxAcceptableValue && myValue > healthyRangeMidPoint) || (myValue == healthyRangeMidPoint)){
+			score = 0;
+		} else {
+			score = 30 * ((myValue - healthyRangeMidPoint)/(maxHealthyValue - healthyRangeMidPoint))
 		}
-		if(minHealthyValue == minAcceptableValue){
-			//our graph is clamped on the left side.
-			if(myValue> healthyRangeMidPoint){
-				score=100;
-			}
-		}
-		return score;
+	} else if (myValue > maxHealthyValue){
+		score = 70 * ((myValue-maxHealthyValue)/(maxAcceptableValue-maxHealthyValue)) + 30
+	} else {
+		score = -(70 * ((minHealthyValue-myValue)/(minHealthyValue-minAcceptableValue)) + 30)
 	}
-	else{
-		//We are outside the healthy range.
-		if(myValue > maxHealthyValue){
-			//We are on the high side
-			var highRange = (maxAcceptableValue - maxHealthyValue);
-			//score = 100 + (70/highRange)*(myValue - maxHealthyValue);
-			//Note that this means we will get a value of up to 170 on the hGraph.
-			//This is likely to be problematic because it will have a tendancy to make people's hScore super low
-			//In the case where the healthy region is almost equal to the maxAcceptableValue and the patient
-			//Is just outside the healthyRange
-			//For now, maybe we should go with it until we figure out the exact scales we want to use for the hGraph.
 
-			//This will show points that are high outside of the green circle. If we just want to get a 0-100 for everything:
-			score = 70 - (70/highRange)*(myValue-maxHealthyValue);
-
-			return score;
-		}
-		else{
-			//We are on the low side
-			var lowRange = (minHealthyValue - minAcceptableValue);
-			score  = 70 - (70/lowRange)*(myValue - minAcceptableValue);
-			//This means we will get down to 0.
-			return score;
-		}
-
-	}
+	return score;
 }
 
 /**
@@ -333,7 +341,7 @@ HGraph.prototype.zoomIn = function(zoomFactor) {
 		for (i = 0; i < that.scaleRange.length; i++) {
 			zoomedScaleRange.push(that.scaleRange[i] * zoomFactor);
 		}
-		zoomedScale = d3.scale.linear().domain([0,100]).range(zoomedScaleRange);
+		zoomedScale = d3.scale.linear().domain([-100,100]).range(zoomedScaleRange);
 		zoomedRingPath = d3.svg.arc()
 		                     .startAngle(0)
 		                     .endAngle(360)
@@ -659,7 +667,7 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 			labelCoords.y = labelCoords.y * this.zoomFactor;
 		}
 
-		metricValue = datapoint.value || datapoint.score;
+		metricValue = datapoint.value || 100-Math.abs(datapoint.score);
 
 		label = this.layers.datapoints.append('text')
 				.text(datapoint.label + (labelWithDetail ? ' (' + metricValue + ')' : ''))
@@ -766,16 +774,19 @@ HGraph.prototype.calculateHealthScore = function(){
 	//V0.3 of hScore Algorithm.
 	if(this.userdata && this.userdata.factors){
 		var numPoints = this.userdata.factors.length;
-		var idealValue = (this.healthRange.lower + this.healthRange.upper)/2.0;
+		var idealValue = Math.abs((this.healthRange.lower + this.healthRange.upper)/2.0)-100;
 		var widthGood = this.healthRange.upper - this.healthRange.lower;
 		var factor, sumSquares=0;
 		for(factor in this.userdata.factors){
-			var score = this.userdata.factors[factor].score;
+			var score = Math.abs(this.userdata.factors[factor].score)-100;
 			sumSquares = sumSquares + Math.pow(idealValue - score,2);
+			console.log(sumSquares);
 		}
-		// console.log('idealValue='+idealValue);
-		// console.log('numPoints='+numPoints);
-		// console.log('sumSquares='+sumSquares);
+		/*console.log('idealValue='+idealValue);
+		console.log('numPoints='+numPoints);
+		console.log('sumSquares='+sumSquares);
+		console.log('score='+parseInt(100-(100/(Math.pow(100,2)*numPoints))*sumSquares));
+		*/
 		return parseInt(100-(100/(Math.pow(idealValue,2)*numPoints))*sumSquares);
 	}
 	return 50;
