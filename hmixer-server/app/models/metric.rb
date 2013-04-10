@@ -1,4 +1,4 @@
 class Metric < ActiveRecord::Base
-  attr_accessible :name, :unit
+  attr_protected :name, :unit
   has_many :contributions
 end
