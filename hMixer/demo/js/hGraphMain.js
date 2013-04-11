@@ -33,6 +33,7 @@ $(document).ready(function (){
 						score   : 0,
 						value : 0,
 						actual: 0,
+						weight: 0,
 						details : []
 					}
 					var bp = {
@@ -40,13 +41,15 @@ $(document).ready(function (){
 						score   : 0,
 						value : 0,
 						actual: 0,
+						weight: 0,
 						details : []
 					}					
-					console.log(HGraph.prototype)
 					if (json[0].gender === gender)
 						factor_json = json[0].metrics;
 					else
 						factor_json = json[1].metrics;
+					
+					console.log(factor_json);
 					for (var i = 0; i < factor_json.length; i++) {
 						var random = randomBetween(factor_json[i].features.totalrange[0], factor_json[i].features.totalrange[1]);
 						console.log(factor_json[i].name);
@@ -58,16 +61,17 @@ $(document).ready(function (){
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
 								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
-								actual: random
+								actual: random,
+								weight: factor_json[i].features.weight
 							});
 							if (cholesterol.details.length >= 3) {
 								for(var j = 0; j < cholesterol.details.length; j++) {
 									cholesterol.score = cholesterol.score + cholesterol.details[j].score
+									cholesterol.actual = cholesterol.actual + cholesterol.details[j].actual
+									cholesterol.weight = cholesterol.weight + cholesterol.details[j].weight
 								}
 								cholesterol.score /= 3;
-								for(var j = 0; j < cholesterol.details.length; j++) {
-									cholesterol.actual = cholesterol.actual + cholesterol.details[j].actual
-								}
+								cholesterol.weight /= 3;
 								cholesterol.value = parseFloat(cholesterol.actual).toFixed(2)  +  ' ' + factor_json[i].features.unitlabel;
 								factors_array.push(cholesterol);
 								cholesterol = null
@@ -80,14 +84,17 @@ $(document).ready(function (){
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
 								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
+								weight: factor_json[i].features.weight,
 								actual: random
 							});
 							if (bp.details.length >= 2) {
 								console.log(bp.score);
 								for(var j = 0; j < bp.details.length; j++) {
-									bp.score = bp.score + bp.details[j].score
+									bp.score = bp.score + bp.details[j].score;
+									bp.weight = bp.weight + bp.details[j].weight;
 								}
-								bp.score /= 3;
+								bp.score /= 2;
+								bp.weight /= 2;
 								bp.value = parseFloat(bp.details[0].actual).toFixed(2)  +  '/' + parseFloat(bp.details[1].actual).toFixed(2) + ' ' + factor_json[i].features.unitlabel;
 								factors_array.push(bp);
 								bp = null
@@ -100,7 +107,8 @@ $(document).ready(function (){
 							{
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
-								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel
+								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
+								weight: factor_json[i].features.weight
 							}
 						)
 					}
