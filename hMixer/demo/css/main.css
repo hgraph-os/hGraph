@@ -576,3 +576,7 @@ table th[class*="span"],
 .table-hover tbody tr.info:hover > td {
   background-color: #c4e3f3;
 }
+
+.table .loading {
+	  text-align: center;
+}

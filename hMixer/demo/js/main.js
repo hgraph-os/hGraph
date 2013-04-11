@@ -369,7 +369,7 @@ $('#submissions').on('click', (function(event) {
 					}
 			}
 			this.collection.length = userarray.length;
-  			innerhtml = $("<table class=\"table table-bordered user-table\"><tbody>");
+  			var innerhtml = $("<table class=\"table table-bordered user-table\"><tbody>");
   			console.log(this.collection);
   			div_onclick = function(pemail) {
 					console.log('onclick mixer init ' + pemail);
@@ -382,8 +382,26 @@ $('#submissions').on('click', (function(event) {
 		        var u = usr.get('updated_at').split("T");
 				// hRenderZone.insertAdjacentHTML('beforeend', '<div  data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><tr><font color="#000000"><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr></font></div>');
 				// hRenderZone.insertAdjacentHTML('beforeend', '<tr data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
-				innerhtml.append('<tr data-email="' + usr.get('email') + '" id="hasemail" class="hasemail' + usr.get('user_id') + '" ><td>' + usr.get('full_name') + '</td><td>' + usr.get('user_id') + '</td><td>' + usr.get('message') + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
-				innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email')); });
+				if(usr.get('email') != undefined) {					
+					innerhtml.append('<tr data-email="' + usr.get('email') + '" id="hasemail" class="hasemail' + usr.get('user_id') + '" ><td>' + usr.get('full_name') + '</td><td>' + usr.get('user_id') + '</td><td>' + usr.get('message') + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
+					innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email')); });
+				} else {
+					var row = $('<tr><td class="loading" colspan = "5">Loading<td></tr>')
+					innerhtml.append(row);
+					var fadeInFadeOut = function(which, row){
+							if(which){
+								row.fadeTo("slow", 0.5, function() {
+			   						 fadeInFadeOut(false, row);
+								});
+							} 
+							else {
+								row.fadeTo("slow", 1, function() {
+			   						 fadeInFadeOut(true, row);
+								});
+							}
+					}
+					fadeInFadeOut(true, row);
+				}
 			});
 		}
 	});
