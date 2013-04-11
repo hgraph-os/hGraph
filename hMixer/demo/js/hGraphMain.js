@@ -1,7 +1,6 @@
 (function () {
 var gender = 'male'
 $(document).ready(function (){
-	var graph;
 	$.ajax({
 		method: 'get',
 		beforeSend: function(xhr){  var token = $("meta[name='csrf-token']").attr("content");
@@ -34,6 +33,7 @@ $(document).ready(function (){
 						score   : 0,
 						value : 0,
 						actual: 0,
+						weight: 0,
 						details : []
 					}
 					var bp = {
@@ -41,36 +41,37 @@ $(document).ready(function (){
 						score   : 0,
 						value : 0,
 						actual: 0,
+						weight: 0,
 						details : []
 					}					
-					console.log(HGraph.prototype)
 					if (json[0].gender === gender)
 						factor_json = json[0].metrics;
 					else
 						factor_json = json[1].metrics;
+					
+					console.log(factor_json);
 					for (var i = 0; i < factor_json.length; i++) {
 						var random = randomBetween(factor_json[i].features.totalrange[0], factor_json[i].features.totalrange[1]);
-						console.log(factor_json[i].name + ' ' + HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random));
+						console.log(factor_json[i].name);
+						console.log(factor_json[i].features);
+						console.log(random);
 						if ((factor_json[i].name === 'LDL' || factor_json[i].name === 'HDL' || factor_json[i].name === 'Triglycerides') && cholesterol != null)
 						{
 							cholesterol.details.push({
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
 								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
-								actual: random
+								actual: random,
+								weight: factor_json[i].features.weight
 							});
-							console.log(cholesterol.details.length);
 							if (cholesterol.details.length >= 3) {
-								console.log(cholesterol.score);
 								for(var j = 0; j < cholesterol.details.length; j++) {
-									console.log(cholesterol.details[j]);
 									cholesterol.score = cholesterol.score + cholesterol.details[j].score
+									cholesterol.actual = cholesterol.actual + cholesterol.details[j].actual
+									cholesterol.weight = cholesterol.weight + cholesterol.details[j].weight
 								}
 								cholesterol.score /= 3;
-								for(var j = 0; j < cholesterol.details.length; j++) {
-									console.log(cholesterol.details[j]);
-									cholesterol.actual = cholesterol.actual + cholesterol.details[j].actual
-								}
+								cholesterol.weight /= 3;
 								cholesterol.value = parseFloat(cholesterol.actual).toFixed(2)  +  ' ' + factor_json[i].features.unitlabel;
 								factors_array.push(cholesterol);
 								cholesterol = null
@@ -83,16 +84,17 @@ $(document).ready(function (){
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
 								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
+								weight: factor_json[i].features.weight,
 								actual: random
 							});
-							console.log(bp.details.length);
 							if (bp.details.length >= 2) {
 								console.log(bp.score);
 								for(var j = 0; j < bp.details.length; j++) {
-									console.log(bp.details[j]);
-									bp.score = bp.score + bp.details[j].score
+									bp.score = bp.score + bp.details[j].score;
+									bp.weight = bp.weight + bp.details[j].weight;
 								}
-								bp.score /= 3;
+								bp.score /= 2;
+								bp.weight /= 2;
 								bp.value = parseFloat(bp.details[0].actual).toFixed(2)  +  '/' + parseFloat(bp.details[1].actual).toFixed(2) + ' ' + factor_json[i].features.unitlabel;
 								factors_array.push(bp);
 								bp = null
@@ -100,17 +102,18 @@ $(document).ready(function (){
 							
 							
 						}
-						else
+						else 
 							factors_array.push(
 							{
 								label: factor_json[i].name,
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
-								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel
+								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
+								weight: factor_json[i].features.weight
 							}
 						)
 					}
 					var opts = {
-						container: document.getElementById("graph_container"),
+						container: document.getElementById("viz"),
 						userdata: {
 							hoverevents : true,
 				            factors: factors_array

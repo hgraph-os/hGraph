@@ -730,7 +730,6 @@ _dailySubmit = function ( ) {
         input  = d3.select(this),
         metric = _interactionState.metric,
         value  = parseFloat( input.node().value );
-    
     if( code !== 13 ){ return; }
     
     value = ( isNaN(value) ) ? 0 : value;
@@ -1312,7 +1311,6 @@ Metric.prototype = {
             /* if it's close enough, stop looking */
             if( distance < 2){ break; }
         }
-        
         return closePoint;
     },
     
@@ -1471,7 +1469,6 @@ _keyManager = function ( ) {
         valu    = inpt.node().value,
         keychar = parseInt( String.fromCharCode(key), 10 ),
         isNum   = ( !isNaN(keychar) ) ? true : false;
-        
     if( (valu.length > 1 && key !== 8 && key !== 9) || (!isNum && key !== 8 && key !== 9) ){ 
         evt.preventDefault && evt.preventDefault(); 
         return false; 
