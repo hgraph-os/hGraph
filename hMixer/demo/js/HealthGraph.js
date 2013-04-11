@@ -85,6 +85,19 @@ HGraph.prototype.redraw = function() {
 }
 
 /**
+ * Functon: HGraph.zeroGraph
+ * 	redraws the graph with all scores = 0 and weights = 1
+ */
+HGraph.prototype.zeroGraph = function() {
+
+	for(key in this.userdata.factors){
+		this.userdata.factors[key].score = 0;
+		this.userdata.factors[key].weight = 1;
+	}
+	this.redraw();
+}
+
+/**
  * Function: HGraph.updatePoint
  * 		updates a point on the graph
  * 
@@ -185,6 +198,8 @@ HGraph.prototype.initialize = function() {
 
 	// Add the datapoints.
 	for (i = 0; i < this.userdata.factors.length; i++) {
+		var weight = this.userdata.factors[i].weight || 1;
+		this.userdata.factors[i].weight = weight;
 		datapoint = this.userdata.factors[i];
 		this.addPoint(datapoint, i);
 	}
@@ -773,14 +788,16 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 HGraph.prototype.calculateHealthScore = function(){
 	//V0.3 of hScore Algorithm.
 	if(this.userdata && this.userdata.factors){
-		var numPoints = this.userdata.factors.length;
+		var numPoints = 0;
 		var idealValue = Math.abs((this.healthRange.lower + this.healthRange.upper)/2.0)-100;
 		var widthGood = this.healthRange.upper - this.healthRange.lower;
 		var factor, sumSquares=0;
 		for(factor in this.userdata.factors){
+			numPoints += this.userdata.factors[factor].weight;
 			var score = Math.abs(this.userdata.factors[factor].score)-100;
-			sumSquares = sumSquares + Math.pow(idealValue - score,2);
-			console.log(sumSquares);
+			sumSquares = sumSquares + (Math.pow(idealValue - score,2) * this.userdata.factors[factor].weight);
+			console.log(this.userdata.factors[factor]);
+			console.log(this.userdata.factors[factor].weight + ' ' + sumSquares);
 		}
 		/*console.log('idealValue='+idealValue);
 		console.log('numPoints='+numPoints);

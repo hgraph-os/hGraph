@@ -218,7 +218,8 @@ $.ajax({
 						{
 							label: factor_json[i].name,
 							score: 0, 
-							value: 0 +  ' ' +  factor_json[i].features.unitlabel
+							value: 0 +  ' ' +  factor_json[i].features.unitlabel,
+							weight: 1
 						}
 					)
 				}
@@ -234,6 +235,9 @@ $.ajax({
 				graph.height = 200;
 				graph.width = 200;
 				graph.initialize();
+				$('.g-toggle').on ('click', function(){
+					graph.zeroGraph();
+				});
 				$('.label').remove;
 				$('#viz').css('margin-left', '-35px');
 				$('.overall').css('font-size', '2rem');
