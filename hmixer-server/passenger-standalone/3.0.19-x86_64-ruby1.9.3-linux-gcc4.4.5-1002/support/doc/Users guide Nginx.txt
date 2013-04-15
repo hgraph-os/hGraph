@@ -1,0 +1,1667 @@
+= Phusion Passenger users guide, Nginx version =
+
+image:images/phusion_banner.png[link="http://www.phusion.nl/"]
+
+Phusion Passenger is an Nginx module, which makes deploying Ruby and Ruby on
+Rails applications on Nginx a breeze. It follows the usual Ruby on Rails
+conventions, such as "Don't-Repeat-Yourself" and ease of setup, while at the
+same time providing enough flexibility.
+
+This users guide will teach you:
+
+- How to install Nginx with Phusion Passenger support.
+- How to configure Phusion Passenger.
+- How to deploy a Ruby on Rails application.
+- How to deploy a link:http://rack.rubyforge.org/[Rack]-based Ruby application.
+- How to solve common problems.
+
+This guide assumes that the reader is somewhat familiar with Nginx and with
+using the commandline.
+
+
+== Support information ==
+
+=== Supported operating systems ===
+
+Phusion Passenger works on any POSIX-compliant operating system. In other
+words: practically any operating system on earth, except Microsoft Windows.
+
+Phusion Passenger is confirmed on a large number of operating systems and Linux
+distributions, including, but not limited to, Ubuntu, Debian, CentOS/Fedora/RHEL,
+Gentoo, Mac OS X, FreeBSD and Solaris. Both 32-bit and 64-bit platforms are supported.
+Please
+link:http://code.google.com/p/phusion-passenger/issues/list[report a bug]
+or
+link:http://groups.google.com/group/phusion-passenger[join our discussion forum]
+if it doesn't work on your POSIX-compliant operating system.
+
+=== Where to get support ===
+
+* link:http://code.google.com/p/phusion-passenger/issues/list[Issue tracker] - report
+  bugs here.
+* link:http://groups.google.com/group/phusion-passenger[Discussion forum] - post a
+  message here if you're experiencing problems.
+
+
+== Installing Phusion Passenger ==
+
+=== Overview ===
+
+As you might already know, Nginx does not support loadable modules, in contrast
+to most other web servers (e.g. Apache). Therefore, to install Phusion Passenger
+for Nginx, one must recompile and reinstall Nginx with Phusion Passenger support.
+There are two ways to do this:
+
+1. By running the Phusion Passenger installer for Nginx. This installer will
+   guide you through the entire installation process, including downloading,
+   compiling and installing Nginx. You should be able to get Nginx with Phusion
+   Passenger support up-and-running in a matter of minutes. This is the
+   recommended installation method.
+2. By manually configuring and compiling Nginx with Phusion Passenger support,
+   through Nginx's `--add-module` configure option. Generally, using our
+   installer is easier, so you should only use this method if you're already
+   familiar with compiling Nginx.
+
+TIP: You might have to run the installation commands in the following sections
+as 'root'. If the installer fails because of permission errors, it will tell
+you.
+
+[[specifying_ruby_installation]]
+=== Specifying the correct Ruby installation ===
+
+If your system has multiple Ruby installations -- which is likely the case on
+MacOS X, or if you've also installed
+link:http://www.rubyenterpriseedition.com[Ruby Enterprise Edition] -- then you
+will need to tell the operating system which Ruby installation to use, prior to
+running the Phusion Passenger installer. If you only have one Ruby installation
+(the case on most Linux systems), then you can skip this section because Phusion
+Passenger will automatically detect it.
+
+To specify a Ruby installation, prepend your Ruby installation's `bin`
+directory to the `PATH` environment variable. For example, if you have the
+following Ruby installations:
+
+- /usr/bin/ruby
+- /opt/myruby/bin/ruby
+
+and you want to use the latter, then type:
+
+----------------------------------
+export PATH=/opt/myruby/bin:$PATH
+----------------------------------
+
+=== Installing Phusion Passenger for Nginx through the installer ===
+
+==== Obtaining the Phusion Passenger files and running the installer ====
+
+You must obtain the Phusion Passenger files in order to run the installer.
+This can be done either by installing the Phusion Passenger gem, or by
+downloading the source tarball.
+
+===== Gem =====
+
+First, install the Phusion Passenger gem by running:
+
+---------------------------------
+gem install passenger
+---------------------------------
+
+Next, run the Phusion Passenger installer for Nginx:
+
+---------------------------------
+passenger-install-nginx-module
+---------------------------------
+
+Please follow the instructions given by the installer.
+
+===== Source tarball =====
+
+The source tarball can be download from the
+link:http://www.modrails.com/[Phusion Passenger website]. Extract the tarball to
+whatever location you prefer. *The Phusion Passenger files are to reside in that
+location permanently.* For example, if you would like Phusion Passenger to
+reside in `/opt/passenger-x.x.x`, then type:
+
+--------------------------------------------------------------
+cd /opt
+tar xzvf ~/YourDownloadsFolder/passenger-x.x.x.tar.gz
+--------------------------------------------------------------
+
+Next, run the Phusion Passenger installer for Nginx:
+
+--------------------------------------------------------------
+/opt/passenger-x.x.x/bin/passenger-install-nginx-module
+--------------------------------------------------------------
+
+Please follow the instructions given by the installer.
+
+IMPORTANT: Please do not remove the passenger-x.x.x folder after installation.
+Furthermore, the passenger-x.x.x folder must be accessible by Nginx.
+
+==== Non-interactive/automatic installation ====
+
+By default, the installer is interactive. If you want to automate installation,
+then you can do so by passing various answers to the installer through command
+line options.
+
+Please run the installer with `--help` for a list of available command line
+options.
+
+=== Installing Phusion Passenger for Nginx manually ===
+
+You can also install Phusion Passenger the way you install any other Nginx module.
+To do this, run Nginx's configure script with `--add-module=/path-to-passenger-root/ext/nginx`.
+
+If you installed Phusion Passenger via the gem, then 'path-to-passenger-root'
+can be obtained with the command:
+
+--------------------------
+passenger-config --root
+--------------------------
+
+This will probably output something along the lines of '/usr/lib/ruby/gems/1.8/gems/passenger-x.x.x',
+so you'll probably have to specify something like `--add-module=/usr/lib/ruby/gems/1.8/gems/passenger-x.x.x/ext/nginx`.
+
+If you installed Phusion Passenger via a source tarball, then 'path-to-passenger-root'
+is the directory which contains the Phusion Passenger source code. So if you
+extracted the Phusion Passenger source code to '/opt/passenger-x.x.x', then you'll
+have to specify `--add-module=/opt/passenger-x.x.x/ext/nginx`.
+
+After having installed Nginx with Phusion Passenger support, you must paste the following
+line into your Nginx configuration file:
+
+------------------------------------------
+passenger_root /path-to-passenger-root;
+------------------------------------------
+
+After having done so, restart Nginx.
+
+=== Upgrading or downgrading Phusion Passenger or Nginx itself ===
+
+Whether you're upgrading/downgrading Phusion Passenger or Nginx itself (or perhaps both),
+Nginx will have to be recompiled and reinstalled. The procedure is exactly the same as
+a normal installation so just follow the instructions in section 2.3 or 2.4.
+
+When following the installation instructions, eventually `passenger-install-nginx-module`
+or this document will instruct you to copy & paste some settings into the Nginx
+configuration file; something that looks along the lines of:
+
+------------------------------------------
+passenger_root ...;
+passenger_ruby ...;
+------------------------------------------
+
+Because you already had Phusion Passenger installed, you already had similar settings
+in your Nginx configuration file, just with different values. *Replace* the old settings with
+the new ones that you are instructed to paste. It is important that the old settings are
+removed, otherwise Phusion Passenger may malfunction.
+
+When you're done, restart Nginx.
+
+=== Unloading (disabling) Phusion Passenger from Nginx without uninstalling it ===
+
+You can temporarily unload (disable) Phusion Passenger from Nginx, without
+uninstalling the Phusion Passenger files, so that Nginx behaves as if Phusion
+Passenger was never installed in the first place. This might be useful to you if,
+for example, you seem to be experiencing a problem caused by Phusion Passenger,
+but you want to make sure whether that's actually the case, without having
+to go through the hassle of uninstalling Phusion Passenger completely. When disabled,
+Phusion Passenger will not occupy any memory or CPU or otherwise interfere with
+Nginx.
+
+To unload Phusion Passenger, edit your Nginx configuration file(s)
+and comment out all Phusion Passenger configuration directives.
+
+For example, if your configuration file looks like this...
+
+-----------------------------------
+...
+
+http {
+    passenger_root /somewhere/passenger-x.x.x;
+    passenger_ruby /usr/bin/ruby;
+    passenger_max_pool_size 10;
+    
+    gzip on;
+    
+    server {
+        server_name www.foo.com;
+        listen 80;
+        root /webapps/foo/public;
+        passenger_enabled on;
+        passenger_use_global_queue on;
+    }
+}
+-----------------------------------
+
+...then comment out the relevant directives, so that it looks like this:
+
+-----------------------------------
+...
+
+http {
+    # passenger_root /somewhere/passenger-x.x.x;
+    # passenger_ruby /usr/bin/ruby;
+    # passenger_max_pool_size 10;
+    
+    gzip on;
+    
+    server {
+        server_name www.foo.com;
+        listen 80;
+        root /webapps/foo/public;
+        # passenger_enabled on;
+        # passenger_use_global_queue on;
+    }
+}
+-----------------------------------
+
+After you've done this, save the file and restart Nginx.
+
+=== Uninstalling Phusion Passenger ===
+
+To uninstall Phusion Passenger, please first remove all Phusion Passenger
+configuration directives from your Nginx configuration file(s). After you've
+done this, you need to remove the Phusion Passenger files.
+
+- If you installed Phusion Passenger via a gem, then type `gem uninstall passenger`.
+  You might have to run this as root.
+- If you installed Phusion Passenger via a source tarball, then remove the directory
+  in which you placed the extracted Phusion Passenger files. This directory is the
+  same as the one pointed to the by 'PassengerRoot' configuration directive.
+
+After having done so, recompile and reinstall Nginx itself, this time without
+Phusion Passenger support, in order to purge any Phusion Passenger code from the
+Nginx binary.
+
+
+[[deploying_a_ror_app]]
+== Deploying a Ruby on Rails 1.x or 2.x (but NOT Rails >= 3) application ==
+
+Suppose you have a Ruby on Rails application in '/webapps/mycook', and you own
+the domain 'www.mycook.com'. You can either deploy your application to the
+virtual host's root (i.e. the application will be accessible from the root URL,
+'http://www.mycook.com/'), or in a sub URI (i.e. the application will be
+accessible from a sub URL, such as 'http://www.mycook.com/railsapplication').
+
+NOTE: The default `RAILS_ENV` environment in which deployed Rails applications
+are run, is ``production''. You can change this by changing the
+<<RailsEnv,rails_env>> configuration option.
+
+=== Deploying to a virtual host's root ===
+
+Add a 'server' virtual host entry to your Nginx configuration file. The virtual
+host's root must point to your Ruby on Rails application's 'public' folder.
+
+Inside the 'server' block, set 'passenger_enabled on'.
+
+For example:
+-------------------------------------------
+http {
+    ...
+    
+    server {
+        listen 80;
+        server_name www.mycook.com;
+        root /webapps/mycook/public;
+        passenger_enabled on;
+    }
+    
+    ...
+}
+-------------------------------------------
+Then restart Nginx. The application has now been deployed.
+
+[[deploying_rails_to_sub_uri]]
+=== Deploying to a sub URI ===
+
+Suppose that you already have a 'server' virtual host entry:
+
+-------------------------------------------
+http {
+    ...
+    
+    server {
+        listen 80;
+        server_name www.phusion.nl;
+        root /websites/phusion;
+    }
+    
+    ...
+}
+-------------------------------------------
+
+And you want your Ruby on Rails application to be accessible from the URL
+'http://www.phusion.nl/rails'.
+
+To do this, make a symlink in the virtual host's document root, and have it
+point to your Ruby on Rails application's 'public' folder. For example:
+-------------------------------------------
+ln -s /webapps/mycook/public /websites/phusion/rails
+-------------------------------------------
+
+Next, set 'passenger_enabled on' and add a <<PassengerBaseURI,passenger_base_uri>>
+option to the 'server' block:
+-------------------------------------------
+http {
+    ...
+    
+    server {
+        listen 80;
+        server_name www.phusion.nl;
+        root /websites/phusion;
+        passenger_enabled on;        # <--- These lines have
+        passenger_base_uri /rails;   # <--- been added.
+    }
+    
+    ...
+}
+-------------------------------------------
+Then restart Nginx. The application has now been deployed.
+
+[TIP]
+======================================
+You can deploy multiple Rails applications under a virtual host, by specifying
+<<PassengerBaseURI,passenger_base_uri>> multiple times. For example:
+---------------------------------
+server {
+    ...
+    passenger_base_uri /app1;
+    passenger_base_uri /app2;
+    passenger_base_uri /app3;
+}
+---------------------------------
+======================================
+
+=== Redeploying (restarting the Ruby on Rails application) ===
+
+Deploying a new version of a Ruby on Rails application is as simple as
+re-uploading the application files, and restarting the application.
+
+There are two ways to restart the application:
+
+1. By restarting Nginx.
+2. By creating or modifying the file 'tmp/restart.txt' in the Rails
+   application's <<application_root,root folder>>. Phusion Passenger will
+   automatically restart the application during the next request.
+
+For example, to restart our example MyCook application, we type this in the
+command line:
+-------------------------------------------
+touch /webapps/mycook/tmp/restart.txt
+-------------------------------------------
+
+Please note that, unlike earlier versions of Phusion Passenger, 'restart.txt'
+is not automatically deleted. Phusion Passenger checks whether the timestamp
+of this file has changed in order to determine whether the application should
+be restarted.
+
+=== Migrations ===
+
+Phusion Passenger is not related to Ruby on Rails migrations in any way. To
+run migrations on your deployment server, please login to your deployment
+server (e.g. with 'ssh') and type `rake db:migrate RAILS_ENV=production` in
+a shell console, just like one would normally run migrations.
+
+=== Capistrano integration ===
+
+See <<capistrano,Capistrano recipe>>.
+
+
+[[deploying_a_rack_app]]
+== Deploying a Rack-based Ruby application (including Rails >= 3) ==
+
+Phusion Passenger supports arbitrary Ruby web applications that follow the
+link:http://rack.rubyforge.org/[Rack] interface.
+
+Phusion Passenger assumes that Rack application directories have a certain layout.
+Suppose that you have a Rack application in '/webapps/rackapp'. Then that
+folder must contain at least three entries:
+
+- 'config.ru', a Rackup file for starting the Rack application. This file must contain
+  the complete logic for initializing the application.
+- 'public/', a folder containing public static web assets, like images and stylesheets.
+- 'tmp/', used for 'restart.txt' (our application restart mechanism). This will
+  be explained in a following subsection.
+
+So '/webapps/rackapp' must, at minimum, look like this:
+----------------------
+/webapps/rackapp
+  |
+  +-- config.ru
+  |
+  +-- public/
+  |
+  +-- tmp/
+----------------------
+
+Suppose you own the domain 'www.rackapp.com'. You can either deploy your application
+to the virtual host's root (i.e. the application will be accessible from the root URL,
+'http://www.rackapp.com/'), or in a sub URI (i.e. the application will be
+accessible from a sub URL, such as 'http://www.rackapp.com/rackapp').
+
+NOTE: The default `RACK_ENV` environment in which deployed Rack applications
+are run, is ``production''. You can change this by changing the
+<<RackEnv,rack_env>> configuration option.
+
+=== Tutorial/example: writing and deploying a Hello World Rack application ===
+
+First we create a Phusion Passenger-compliant Rack directory structure:
+
+-------------------------------------------
+$ mkdir /webapps/rack_example
+$ mkdir /webapps/rack_example/public
+$ mkdir /webapps/rack_example/tmp
+-------------------------------------------
+
+Next, we write a minimal "hello world" Rack application:
+
+-------------------------------------------
+$ cd /webapps/rack_example
+$ some_awesome_editor config.ru
+...type in some source code...
+$ cat config.ru
+app = proc do |env|
+    [200, { "Content-Type" => "text/html" }, ["hello <b>world</b>"]]
+end
+run app
+-------------------------------------------
+
+Finally, we deploy it by adding the following configuration options to
+the Nginx configuration file:
+
+-------------------------------------------
+http {
+    ...
+    server {
+        listen 80;
+        server_name www.rackexample.com;
+        root /webapps/rack_example/public;
+        passenger_enabled on;
+    }
+    ...
+}
+-------------------------------------------
+
+And we're done! After an Nginx restart, the above Rack application will be available
+under the URL 'http://www.rackexample.com/'.
+
+=== Deploying to a virtual host's root ===
+
+Add a 'server' virtual host entry to your Nginx configuration file. The virtual host's
+root must point to your Rack application's 'public' folder. You must also set
+'passenger_enabled on' in the 'server' block.
+
+For example:
+-------------------------------------------
+http {
+    ...
+    server {
+        listen 80;
+        server_name www.rackapp.com;
+        root /webapps/rackapp/public;
+        passenger_enabled on;
+    }
+    ...
+}
+-------------------------------------------
+Then restart Nginx. The application has now been deployed.
+
+[[deploying_rack_to_sub_uri]]
+=== Deploying to a sub URI ===
+
+Suppose that you already have a virtual host:
+
+-------------------------------------------
+http {
+    ...
+    
+    server {
+        listen 80;
+        server_name www.phusion.nl;
+        root /websites/phusion;
+        passenger_enabled on;
+    }
+    
+    ...
+}
+-------------------------------------------
+
+And you want your Rack application to be accessible from the URL
+'http://www.phusion.nl/rack'.
+
+To do this, make a symlink in the virtual host's document root, and have it
+point to your Rack application's 'public' folder. For example:
+-------------------------------------------
+ln -s /webapps/rackapp/public /websites/phusion/rack
+-------------------------------------------
+
+Next, set 'passenger_enabled on' and add a <<PassengerBaseURI,passenger_base_uri>>
+option to the 'server' block:
+-------------------------------------------
+http {
+    ...
+    
+    server {
+        listen 80;
+        server_name www.phusion.nl;
+        root /websites/phusion;
+        passenger_enabled on;        # <--- These lines have
+        passenger_base_uri /rack;    # <--- been added.
+    }
+    
+    ...
+}
+-------------------------------------------
+Then restart Nginx. The application has now been deployed.
+
+[TIP]
+======================================
+You can deploy multiple Rack applications under a virtual host, by specifying
+<<PassengerBaseURI,passenger_base_uri>> multiple times. For example:
+---------------------------------
+server {
+    ...
+    passenger_base_uri /app1;
+    passenger_base_uri /app2;
+    passenger_base_uri /app3;
+}
+---------------------------------
+======================================
+
+=== Redeploying (restarting the Rack application) ===
+
+Deploying a new version of a Rack application is as simple as
+re-uploading the application files, and restarting the application.
+
+There are two ways to restart the application:
+
+1. By restarting Nginx.
+2. By creating or modifying the file 'tmp/restart.txt' in the Rack
+   application's <<application_root,root folder>>. Phusion Passenger will
+   automatically restart the application.
+
+For example, to restart our example application, we type this in the
+command line:
+-------------------------------------------
+touch /webapps/rackapp/tmp/restart.txt
+-------------------------------------------
+
+=== Rackup specifications for various web frameworks ===
+include::users_guide_snippets/rackup_specifications.txt[]
+
+
+== Configuring Phusion Passenger ==
+
+After installation, Phusion Passenger does not need any further configurations.
+Nevertheless, the system administrator may be interested in changing
+Phusion Passenger's behavior. Phusion Passenger supports the following configuration
+options in the Nginx configuration file:
+
+=== passenger_root <directory> ===
+The location to the Phusion Passenger root directory. This configuration option
+is essential to Phusion Passenger, and allows Phusion Passenger to locate its own
+data files. The correct value is given by the installer.
+
+If you've moved Phusion Passenger to a different directory then you need to update
+this option as well. Please read
+<<moving_phusion_passenger,Moving Phusion Passenger to a different directory>> for more information.
+
+This required option may only occur once, in the 'http' configuration block.
+
+=== passenger_ruby <filename> ===
+This option allows one to specify the Ruby interpreter to use.
+
+This option may only occur once, in the 'http' configuration block.
+The default is 'ruby'.
+
+[[PassengerSpawnMethod]]
+=== passenger_spawn_method <string> ===
+[TIP]
+."What spawn method should I use?"
+=========================================================
+This subsection attempts to describe spawn methods, but it's okay if you don't (want to)
+understand it, as it's mostly a technical detail. You can basically follow this rule of thumb:
+
+************************************************
+If your application works on Mongrel, but not on Phusion Passenger, then set
+`passenger_spawn_method` to 'conservative'. Otherwise, leave it at 'smart-lv2' (the default).
+************************************************
+
+However, we do recommend you to try to understand it. The 'smart' and 'smart-lv2' spawn
+methods bring many benefits.
+=========================================================
+
+include::users_guide_snippets/passenger_spawn_method.txt[]
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'smart-lv2'.
+
+[[PassengerRollingRestarts]]
+=== passenger_rolling_restarts <on|off> ===
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+Enables or disables support for rolling restarts. Normally when you
+restart an application (by touching restart.txt), Phusion Passenger would
+shut down all application processes and spawn a new one. The spawning
+of a new application process could take a while, and any requests that
+come in during this time will be blocked until this first application
+process has spawned.
+
+But when rolling restarts are enabled, Phusion Passenger Enterprise will:
+
+1. Spawn a new process in the background.
+2. When it's done spawning, Phusion Passenger Enterprise will replace one of the old processes with this newly spawned one.
+3. Step 1 and 2 are repeated until all processes have been replaced.
+
+This way, visitors will not experience any delays when you are restarting your application. This allows you to, for example, upgrade your application often without degrading user experience.
+
+Rolling restarts have a few caveat however that you should be aware of:
+
+- Upgrading an application sometimes involves upgrading the database schema.
+  With rolling restarts, there may be a point in time during which processes
+  belonging to the previous version and processes belonging to the new version
+  both exist at the same time. Any database schema upgrades you perform must
+  therefore be backwards-compatible with the old application version.
+- Because there's no telling which process will serve a request, users may
+  not see changes brought about by the new version until all processes have
+  been restarted. It is for this reason that you should not use rolling
+  restarts in development, only in production.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'off'.
+
+=== passenger_resist_deployment_errors <on|off> ===
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+Enables or disables resistance against deployment errors.
+
+Suppose you've upgraded your application and you've issues a command to restart it (by touching restart.txt), but the application code contains an error that prevents Phusion Passenger from successfully spawning a process (e.g. a syntax error). Phusion Passenger would normally display an error message in response to this.
+
+By enabling deployment error resistance, Phusion Passenger Enterprise would instead do this:
+
+- It passes the request to one of the existing application processes (that belong to the previous version of the application). The visitor will not see a Phusion Passenger process spawning error message.
+- It logs the error to the global web server error log file.
+- It sets an internal flag so that no processes for this application will be spawned (even when the current traffic would normally result in more processes being spawned) and no processes will be idle cleaned. Processes *could* still be shutdown because of other events, e.g. because their <<PassengerMemoryLimit,memory limit>> have been reached.
+
+This way, visitors will suffer minimally from deployment errors. Phusion Passenger will attempt to restart the application again next time restart.txt is touched.
+
+Enabling deployment error resistance only works if <<PassengerRollingRestarts,rolling restart>> is also enabled.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'off'.
+
+=== Important deployment options ===
+==== passenger_enabled <on|off> ====
+This option may be specified in the 'http' configuration block, a
+'server' configuration block, a 'location' configuration block or
+an 'if' configuration scope, to enable or disable Phusion Passenger
+for that server or that location.
+
+Phusion Passenger is disabled by default, so you must explicitly enable
+it for server blocks that you wish to serve through Phusion Passenger.
+Please see <<deploying_a_ror_app,Deploying a Ruby on Rails application>>
+and <<deploying_a_rack_app,Deploying a Rack-based Ruby application>>
+for examples.
+
+[[PassengerBaseURI]]
+==== passenger_base_uri <uri> ====
+Used to specify that the given URI is an distinct application that should
+be served by Phusion Passenger. This option can be used for both Rails and
+Rack applications. See <<deploying_rails_to_sub_uri,Deploying Rails to a sub URI>>
+for an example.
+
+It is allowed to specify this option multiple times. Do this to deploy multiple
+applications in different sub-URIs under the same virtual host.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+=== Connection handling options ===
+
+[[PassengerUseGlobalQueue]]
+==== passenger_use_global_queue <on|off> ====
+Turns the use of global queuing on or off.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'on'.
+
+'This feature is sponsored by http://www.37signals.com/[37signals].'
+
+include::users_guide_snippets/global_queueing_explained.txt[]
+
+==== passenger_ignore_client_abort <on|off> ====
+Normally, when the HTTP client aborts the connection (e.g. when the user clicked on "Stop"
+in the browser), the connection with the application process will be closed too. If the
+application process continues to send its response, then that will result in EPIPE errors
+in the application, which will be printed in the error log if the application doesn't
+handle them gracefully.
+
+If this option is turned on then upon client abort Phusion Passenger will continue to
+read the application process's response while discarding all the read data. This prevents
+EPIPE errors but it'll also mean the backend process will be unavailable for new requests
+until it is done sending its response.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'off'.
+
+==== passenger_set_cgi_param <CGI environment name> <value> ====
+Allows one to define additional CGI environment variables to pass to the backend
+application. This is equivalent to ngx_http_fastcgi_module's 'fastcgi_param'
+directive, and is comparable to ngx_http_proxy_module's 'proxy_set_header' option.
+Nginx variables in the value are interpolated.
+
+For example:
+------------------------------
+# Application will see a CGI environment "APP_NAME" with value "my super blog".
+passenger_set_cgi_param APP_NAME "my super blog";
+
+# Nginx variables are interpolated.
+passenger_set_cgi_param EXTRA_REQUEST_METHOD method=$request_method;
+------------------------------
+
+If you want to set an HTTP header, then you must set it in the CGI environment name
+format, i.e. 'HTTP_*':
+
+------------------------------
+# !!!THIS IS WRONG!!! Don't do this!
+passenger_set_cgi_param X-Forwarded-For 127.0.0.2;
+
+# Instead, write it like this:
+passenger_set_cgi_param HTTP_X_FORWARDED_FOR 127.0.0.2;
+------------------------------
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+==== passenger_pass_header <header name> ====
+Some headers generated by backend applications are not forwarded to the HTTP client,
+e.g. 'X-Accel-Redirect' which is directly processed by Nginx and then discarded from
+the final response. This directive allows one to force Nginx to pass those headers
+anyway, similar to how 'proxy_pass_header' works.
+
+For example:
+
+------------------------------
+location / {
+   passenger_pass_header X-Accel-Redirect;
+}
+------------------------------
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+==== passenger_buffer_response <on|off> ====
+When turned on, application-generated responses are buffered in memory and also on
+disk if the response is larger than a certain threshold. By buffering responses,
+protection is provided against slow HTTP clients that can not read your response
+immediately.
+
+For example, consider an HTTP client that's on a dial-up modem link, and your
+application process generates a 2 MB response. If response buffering is turned
+off then your application process will be blocked until the entire 2 MB has been
+sent out to the HTTP client. This disallows your application process to do any useful
+work in the mean time. By enabling response buffering, Phusion Passenger will read
+the application response as quickly as possible and will take care of slow clients.
+
+However, keep in mind that enabling this option will make streaming responses
+impossible. Consider for example this piece of Rails code:
+
+--------------------------------
+render :text => lambda { |response, output|
+    10.times do |i|
+        output.write("entry #{i}\n")
+        output.flush
+        sleep 1
+    end
+}
+--------------------------------
+
+...or this piece of Rack code:
+
+--------------------------------
+class Response
+    def each
+        10.times do |i|
+            yield("entry #{i}\n")
+            sleep 1
+        end
+    end
+end
+
+app = lambda do |env|
+    [200, { "Content-Type" => "text/plain" }, Response.new]
+end
+--------------------------------
+
+When response buffering is turned on, Phusion Passenger will wait until
+the application is done sending the entire response before forwarding it
+to the client. The client will not receive anything for 10 seconds,
+after which it receives the entire response at once.
+When response buffering is turned off, it works as expected: the client
+receives an "entry X" message every second for 10 seconds.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'on'.
+
+==== passenger_buffer_size ====
+==== passenger_buffers ====
+==== passenger_busy_buffer_size ====
+These options have the same effect as proxy_module's similarly named options.
+They can be used to modify the maximum allowed HTTP header size.
+
+=== Security options ===
+[[PassengerUserSwitching]]
+==== passenger_user_switching <on|off> ====
+Whether to enable <<user_switching,user switching support>>.
+
+This option may only occur once, in the 'http' configuration block.
+The default value is 'on'.
+
+==== passenger_user <username> ====
+If <<user_switching,user switching support>> is enabled, then Phusion Passenger will
+by default run the web application as the owner of the file 'config/environment.rb'
+(for Rails apps) or 'config.ru' (for Rack apps). This option allows you to override
+that behavior and explicitly set a user to run the web application as, regardless
+of the ownership of 'environment.rb'/'config.ru'.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once.
+
+==== passenger_group <group name> ====
+If <<user_switching,user switching support>> is enabled, then Phusion Passenger will
+by default run the web application as the primary group of the owner of the file
+'config/environment.rb' (for Rails apps) or 'config.ru' (for Rack apps). This option
+allows you to override that behavior and explicitly set a group to run the web application
+as, regardless of the ownership of 'environment.rb'/'config.ru'.
+
+'<group name>' may also be set to the special value '!STARTUP_FILE!', in which case
+the web application's group will be set to 'environment.rb'/'config.ru''s group.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once.
+
+[[PassengerDefaultUser]]
+==== passenger_default_user <username> ====
+Phusion Passenger enables <<user_switching,user switching support>> by default.
+This configuration option allows one to specify the user that applications must
+run as, if user switching fails or is disabled.
+
+This option may only occur once, in the 'http' configuration block.
+The default value is 'nobody'.
+
+[[PassengerDefaultGroup]]
+==== Passenger_default_group <group name> ====
+Phusion Passenger enables <<user_switching,user switching support>> by default.
+This configuration option allows one to specify the group that applications must
+run as, if user switching fails or is disabled.
+
+This option may only occur once, in the 'http' configuration block.
+The default value is the primary group of the user specifified by
+<<PassengerDefaultUser,passenger_default_user>>.
+
+==== passenger_friendly_error_pages <on|off> ====
+Phusion Passenger can display friendly error pages whenever an application fails
+to start. This friendly error page presents the startup error message, some
+suggestions for solving the problem, and a backtrace. This feature is very useful
+during application development and useful for less experienced system administrators,
+but the page might reveal potentially sensitive information, depending on the
+application. Experienced system administrators who are using Phusion Passenger
+on serious production servers should consider turning this feature off.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'on'.
+
+=== Resource control and optimization options ===
+[[PassengerMaxPoolSize]]
+==== passenger_max_pool_size <integer> ====
+The maximum number of <<application_process,application processes>> that may
+simultanously exist. A larger number results in higher memory usage,
+but improved ability to handle concurrent HTTP clients.
+
+The optimal value depends on your system's hardware and the server's average
+load. You should experiment with different values. But generally speaking,
+the value should be at least equal to the number of CPUs (or CPU cores) that
+you have. If your system has 2 GB of RAM, then we recommend a value of '15'.
+If your system is a Virtual Private Server (VPS) and has about 256 MB RAM, and
+is also running other services such as MySQL, then we recommend a value of '2'.
+
+If you find that your server is unable to handle the load on your Rails/Rack websites
+(i.e. running out of memory) then you should lower this value. (Though if your
+sites are really that popular, then you should strongly consider upgrading your
+hardware or getting more servers.)
+
+This option may only occur once, in the 'http' configuration bock.
+The default value is '6'.
+
+TIP: We strongly recommend you to <<reducing_memory_usage,use Ruby Enterprise
+Edition>>. This allows you to reduce the memory usage of your Ruby on Rails applications
+by about 33%, and it's not hard to install.
+
+[[PassengerMinInstances]]
+==== passenger_min_instances <integer> ====
+This specifies the minimum number of application processes that should exist for a
+given application. You should set this option to a
+non-zero value if you want to avoid potentially long startup times after a website
+has been <<idle_process,idle>> for an extended period.
+
+Please note that this option does *not* pre-start application processes during Nginx
+startup. It just makes sure that when the application is first accessed:
+
+1. at least the given number of processes will be spawned.
+2. the given number of processes will be kept around even when processes are being
+   idle cleaned (see <<PassengerPoolIdleTime,passenger_pool_idle_time>>).
+
+If you want to pre-start application processes during Nginx startup, then you should use the <<PassengerPreStart,passenger_pre_start>> directive, possibly in combination with
+'passenger_min_instances'. This behavior might seem counter-intuitive at first sight,
+but <<PassengerPreStart,passenger_pre_start>> explains the rationale behind it.
+
+For example, suppose that you have the following configuration:
+
+---------------------------------
+http {
+    ...
+    passenger_max_pool_size 15;
+    passenger_pool_idle_time 10;
+    
+    server {
+        listen 80;
+        server_name foobar.com;
+        root /webapps/foobar/public;
+        passenger_min_instances 3;
+    }
+}
+---------------------------------
+
+When you start Nginx, there are 0 application processes for 'foobar.com'. Things will
+stay that way until someone visits 'foobar.com'. Suppose that there is only 1 visitor.
+1 application process will be started immediately to serve the visitor, while 2 will
+be spawned in the background. After 10 seconds, when the idle timeout has
+been reached, these 3 application processes will not be cleaned up.
+
+Now suppose that there's a sudden spike of traffic, and 100 users visit 'foobar.com'
+simultanously. Phusion Passenger will start 12 more application processes. After the idle
+timeout of 10 seconds have passed, Phusion Passenger will clean up 12 application
+processes, keeping 3 processes around.
+
+The passenger_min_instances option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '1'.
+
+==== passenger_max_instances <integer> ====
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+The maximum number of application processes that may simultaneously exist
+for an application. This helps to make sure that a single application
+will not occupy all available slots in the application pool.
+
+This value must be less than <<PassengerMaxPoolSize,passenger_max_pool_size>>. A value of 0
+means that there is no limit placed on the number of processes a single application
+may spawn, i.e. only the global limit of <<PassengerMaxPoolSize,passenger_max_pool_size>>
+will be enforced.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '0'.
+
+.Practical usage example
+[TIP]
+===========================================================================
+Suppose that you're hosting two web applications on your server, a personal
+blog and an e-commerce website. You've set <<PassengerMaxPoolSize,passenger_max_pool_size>>
+to 10. The e-commerce website is more important to you. You can then set
+'passenger_max_instances' to 3 for your blog, so that it will never spawn more
+than 3 processes, even if it suddenly gets a lot of traffic. Your e-commerce website
+on the other hand will be free to spawn up to 10 processes if it gets a lot of traffic.
+===========================================================================
+
+==== passenger_max_instances_per_app <integer> ====
+The maximum number of application processes that may simultaneously exist
+for a single application. This helps to make sure that a single application
+will not occupy all available slots in the application pool.
+
+This value must be less than <<PassengerMaxPoolSize,passenger_max_pool_size>>. A value of 0
+means that there is no limit placed on the number of processes a single application
+may use, i.e. only the global limit of <<PassengerMaxPoolSize,passenger_max_pool_size>>
+will be enforced.
+
+This option may only occur once, in the 'http' configuration block.
+The default value is '0'.
+
+[[PassengerPoolIdleTime]]
+==== passenger_pool_idle_time <integer> ====
+The maximum number of seconds that an application process may be idle. That is,
+if an application process hasn't received any traffic after the given number of
+seconds, then it will be shutdown in order to conserve memory.
+
+Decreasing this value means that applications will have to be spawned
+more often. Since spawning is a relatively slow operation, some visitors may
+notice a small delay when they visit your Rails/Rack website. However, it will also
+free up resources used by applications more quickly.
+
+The optimal value depends on the average time that a visitor spends on a single
+Rails/Rack web page. We recommend a value of `2 * x`, where `x` is the average
+number of seconds that a visitor spends on a single Rails/Rack web page. But your
+mileage may vary.
+
+When this value is set to '0', application processes will not be shutdown unless 
+it's really necessary, i.e. when Phusion Passenger is out of worker processes
+for a given application and one of the <<inactive_process,inactive application processes>> needs to
+make place for another application process. Setting the value to 0 is
+recommended if you're on a non-shared host that's only running a few
+applications, each which must be available at all times.
+
+This option may only occur once, in the 'http' configuration block.
+The default value is '300'.
+
+[[PassengerMaxRequests]]
+==== passenger_max_requests <integer> ====
+The maximum number of requests an application process will process. After
+serving that many requests, the application process will be shut down and
+Phusion Passenger will restart it. A value of 0 means that there is no maximum:
+an application process will thus be shut down when its idle timeout has been
+reached.
+
+This option is useful if your application is leaking memory. By shutting
+it down after a certain number of requests, all of its memory is guaranteed
+to be freed by the operating system.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '0'.
+
+[CAUTION]
+=====================================================
+The <<PassengerMaxRequests,passenger_max_requests>> directive should be considered
+as a workaround for misbehaving applications. It is advised that you fix the
+problem in your application rather than relying on these directives as a
+measure to avoid memory leaks.
+=====================================================
+
+[[PassengerMaxRequestTime]]
+==== passenger_max_request_time <seconds> ====
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+The maximum amount of time, in seconds, that an application process may take
+to process a request. If the request takes longer than this amount of time,
+then the application process will be forcefully shut down, and possibly
+restarted upon the next request. A value of 0 means that there is no time limit.
+
+This option is useful for preventing your application from freezing for an
+indefinite period of time.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '0'.
+
+.Example
+Suppose that most of your requests are known to finish within 2 seconds.
+However, there is one URI, '/expensive_computation', which is known to take up
+to 10 seconds. You can then configure Phusion Passenger as follows:
+
+----------------------------------------------
+server {
+    listen 80;
+    server_name www.example.com;
+    root /webapps/my_app/public;
+    passenger_enabled on;
+    passenger_max_request_time 2;
+    location /expensive_compuation {
+        passenger_enabled on;
+        passenger_max_request_time 10;
+    }
+}
+----------------------------------------------
+
+If a request to '/expensive_computation' takes more than 10 seconds,
+or if a request to any other URI takes more than 2 seconds,
+then the corresponding application process will be forced to shutdown.
+
+[CAUTION]
+=====================================================
+The <<PassengerMaxRequestTime,passenger_max_request_time>> directive should be
+considered as a workaround for misbehaving applications. It is advised that you
+fix the problem in your application rather than relying on these directives as a
+measure to avoid freezing applications.
+=====================================================
+
+[[PassengerMemoryLimit]]
+==== passenger_memory_limit <integer> ====
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+The maximum amount of memory that an application process may use, in megabytes.
+Once an application process has surpassed its memory limit, it will process
+all the requests currently present in its queue and then shut down.
+A value of 0 means that there is no maximum: the application's memory usage
+will not be checked.
+
+This option is useful if your application is leaking memory. By shutting
+it down, all of its memory is guaranteed to be freed by the operating system.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '200'.
+
+[NOTE]
+.A word about permissions
+=====================================================
+The <<PassengerMemoryLimit,passenger_memory_limit>> directive requires that the
+user that the application is running as (see <<PassengerUserSwitching,passenger_user_switching>>)
+to have access to the `/proc` file system, or to be able to inspect its status
+with `ps` (which on Linux and FreeBSD systems basically means the same thing, since `ps`
+reads process information from `/proc`). Therefore, on servers running with
+tight permissions on `/proc`, this directive may not work. If you wish to use
+this directive and your `/proc` permissions are too tight, then please consider
+untightening the permissions.
+=====================================================
+
+[TIP]
+.FreeBSD and `/proc`
+=====================================================
+On many FreeBSD systems, `/proc` is not mounted by default. `/proc` *must* be
+mounted in order for <<PassengerMemoryLimit,passenger_memory_limit>> to work.
+
+It is also advised that you mount `/proc` with the `linprocfs` filesystem type
+instead of the regular FreeBSD `proc` filesystem type. The `linprocfs` filesystem
+type allows Phusion Passenger to read memory information from `/proc` directly,
+which is very fast. If you mount `/proc` with a different filesystem type, then
+Phusion Passenger must resort to querying memory information from the `ps` command,
+which is a lot slower.
+=====================================================
+
+[CAUTION]
+=====================================================
+The <<PassengerMaxRequests,passenger_max_requests>> and
+<<PassengerMemoryLimit,passenger_memory_limit>> directives should be considered
+as workarounds for misbehaving applications. It is advised that you fix the
+problem in your application rather than relying on these directives as a
+measure to avoid memory leaks.
+=====================================================
+
+[[PassengerPreStart]]
+==== passenger_pre_start <url> ====
+By default, Phusion Passenger does not start any application processes until said
+web application is first accessed. The result is that the first visitor of said
+web application might experience a small delay as Phusion Passenger is starting
+the web application on demand. If that is undesirable, then this directive can be
+used to pre-started application processes during Nginx startup.
+
+A few things to be careful of:
+
+- This directive accepts the *URL* of the web application you want to pre-start,
+  not a on/off value! This might seem a bit weird, but read on for rationale. As
+  for the specifics of the URL:
+  * The domain part of the URL must be equal to the value of the 'server_name'
+    directive of the server block that defines the web application.
+  * Unless the web application is deployed on port 80, the URL should contain
+    the web application's port number too.
+  * The path part of the URL must point to some URI that the web application
+    handles.
+- You will probably want to combine this option with
+  <<PassengerMinInstances,passenger_min_instances>> because application processes
+  started with 'passenger_pre_start' are subject to the usual idle timeout rules.
+  See the example below for an explanation.
+
+This option may only occur in the 'http' configuration block. It may be specified
+any number of times.
+
+===== Example 1: basic usage =====
+
+Suppose that you have the following web applications.
+
+---------------------------
+server {
+    listen 80;
+    server_name foo.com;
+    root /webapps/foo/public;
+    passenger_enabled on;
+}
+
+server {
+    listen 3500;
+    server_name bar.com;
+    root /webapps/bar/public;
+    passenger_enabled on;
+}
+---------------------------
+
+You want both of them to be pre-started during Nginx startup. The URL for
+foo.com is 'http://foo.com/' (or, equivalently, 'http://foo.com:80/') and
+the URL for bar.com is 'http://bar.com:3500/'. So we add two passenger_pre_start
+directives, like this:
+
+---------------------------
+server {
+    listen 80;
+    server_name foo.com;
+    root /webapps/foo/public;
+    passenger_enabled on;
+}
+
+server {
+    listen 3500;
+    server_name bar.com;
+    root /webapps/bar/public;
+    passenger_enabled on;
+}
+
+passenger_pre_start http://foo.com/;           # <--- added
+passenger_pre_start http://bar.com:3500/;      # <--- added
+---------------------------
+
+===== Example 2: pre-starting apps that are deployed in sub-URIs =====
+
+Suppose that you have a web application deployed in a sub-URI '/store', like this:
+
+---------------------------
+server {
+    listen 80;
+    server_name myblog.com;
+    root /webapps/wordpress;
+    rails_base_uri /store;
+}
+---------------------------
+
+Then specify the 'server_name' value followed by the sub-URI, like this:
+
+---------------------------
+server {
+    listen 80;
+    server_name myblog.com;
+    root /webapps/wordpress;
+    rails_base_uri /store;
+}
+
+passenger_pre_start http://myblog.com/store;    # <----- added
+---------------------------
+
+The sub-URI *must* be included; if you don't then the directive will have no effect.
+The following example is wrong and won't pre-start the store web application:
+
+---------------------------
+passenger_pre_start http://myblog.com/;    # <----- WRONG! Missing "/store" part.
+---------------------------
+
+===== Example 3: combining with passenger_min_instances =====
+
+Application processes started with passenger_pre_start are
+also subject to the idle timeout rules as specified by
+<<PassengerPoolIdleTime,passenger_pool_idle_time>>! That means that by default,
+the pre-started application processes for foo.com are bar.com are shut down
+after a few minutes of inactivity. If you don't want that to happen, then
+you should combine passenger_pre_start with
+<<PassengerMinInstances,passenger_min_instances>>, like this:
+
+---------------------------
+server {
+    listen 80;
+    server_name foo.com;
+    root /webapps/foo/public;
+    passenger_enabled on;
+    passenger_min_instances 1;      # <--- added
+}
+
+server {
+    listen 3500;
+    server_name bar.com;
+    root /webapps/bar/public;
+    passenger_enabled on;
+    passenger_min_instances 1;      # <--- added
+}
+
+passenger_pre_start http://foo.com/;
+passenger_pre_start http://bar.com:3500/;
+---------------------------
+
+===== So why a URL? Why not just an on/off flag? =====
+
+A directive that accepts a simple on/off flag is definitely more intuitive,
+but due technical difficulties w.r.t. the way Nginx works, it's very hard
+to implement it like that:
+
+It is very hard to obtain a full list of web applications defined in the
+Nginx configuration file(s). In other words, it's hard for Phusion Passenger
+to know which web applications are deployed on Nginx until a web application
+is first accessed, and without such a list Phusion Passenger wouldn't know
+which web applications to pre-start. So as a compromise, we made it accept a
+URL.
+
+===== What does Phusion Passenger do with the URL? =====
+
+During Nginx startup, Phusion Passenger will send a dummy HEAD request to the
+given URL and discard the result. In other words, Phusion Passenger simulates a
+web access at the given URL. However this simulated request is always sent to
+localhost, *not* to the IP that the domain resolves to. Suppose that bar.com
+in example 1 resolves to 209.85.227.99; Phusion Passenger will
+send the following HTTP request to 127.0.0.1 port 3500 (and not to 209.85.227.99
+port 3500):
+
+----------------------
+HEAD / HTTP/1.1
+Host: bar.com
+Connection: close
+----------------------
+
+Similarly, for example 2, Phusion Passenger will send the following HTTP request
+to 127.0.0.1 port 80:
+
+----------------------
+HEAD /store HTTP/1.1
+Host: myblog.com
+Connection: close
+----------------------
+
+===== Do I need to edit /etc/hosts and point the domain in the URL to 127.0.0.1? =====
+
+No. See previous subsection.
+
+===== My web application consists of multiple web servers. What URL do I need to specify, and in which web server's Nginx config file? =====
+
+Put the web application's 'server_name' value and the server block's
+port in the URL, and put
+passenger_pre_start on all machines that you want to pre-start the web application
+on. The simulated web request is always sent to 127.0.0.1, with the domain name
+in the URL as value for the 'Host' HTTP header, so you don't need to worry about
+the request ending up at a different web server in the cluster.
+
+===== Does passenger_pre_start support https:// URLs? =====
+
+Yes. And it does not perform any certificate validation.
+
+
+=== Logging and debugging options ===
+
+==== passenger_log_level <integer> ====
+This option allows one to specify how much information Phusion Passenger should
+write to the Nginx error log file. A higher log level value means that more
+information will be logged.
+
+Possible values are:
+
+- '0': Show only errors and warnings.
+- '1': Show the most important debugging information. This might be useful for
+       system administrators who are trying to figure out the cause of a
+       problem.
+- '2': Show more debugging information. This is typically only useful for developers.
+- '3': Show even more debugging information.
+
+This option may only occur once, in the 'http' configuration block.
+The default is '0'.
+
+==== passenger_debug_log_file <filename> ====
+By default Phusion Passenger debugging and error messages are written to the global
+web server error log. This option allows one to specify the file that debugging and
+error messages should be written to instead.
+
+This option may only occur once, in the 'http' configuration block.
+
+==== passenger_debugger <on|off> ====
+:version: 3.0.0
+include::users_guide_snippets/enterprise_only.txt[]
+
+Turns support for application debugging on or off. In case of Ruby applications,
+turning this option on will cause them to load the `ruby-debug` gem (when on Ruby 1.8)
+or the `debugger` gem (when on Ruby 1.9). If you're using Bundler, you should add
+this to your Gemfile:
+
+-------------------------------------------
+gem 'ruby-debug', :platforms => :ruby_18
+gem 'debugger', :platforms => :ruby_19
+-------------------------------------------
+
+Once debugging is turned on, you can use the command `passenger-irb --debug <PID>` to attach an rdebug console to the application process with the given PID. Attaching will succeed once the application process executes a `debugger` command.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'off'.
+
+
+=== Ruby on Rails-specific options ===
+[[RailsEnv]]
+==== rails_env <string> ====
+This option allows one to specify the default `RAILS_ENV` value.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'production'.
+
+==== rails_framework_spawner_idle_time <integer> ====
+The FrameworkSpawner server (explained in <<spawning_methods_explained,Spawning
+methods explained>>) has an idle timeout, just like the backend processes spawned by
+Phusion Passenger do. That is, it will automatically shutdown if it hasn't done
+anything for a given period.
+
+This option allows you to set the FrameworkSpawner server's idle timeout, in
+seconds. A value of '0' means that it should never idle timeout.
+
+Setting a higher value will mean that the FrameworkSpawner server is kept around
+longer, which may slightly increase memory usage. But as long as the
+FrameworkSpawner server is running, the time to spawn a Ruby on Rails backend
+process only takes about 40% of the time that is normally needed, assuming that
+you're using the 'smart' <<RailsSpawnMethod,spawning method>>. So if your
+system has enough memory, is it recommended that you set this option to a high
+value or to '0'.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '1800' (30 minutes).
+
+==== rails_app_spawner_idle_time <integer> ====
+The ApplicationSpawner server (explained in <<spawning_methods_explained,Spawning
+methods explained>>) has an idle timeout, just like the backend processes spawned by
+Phusion Passenger do. That is, it will automatically shutdown if it hasn't done
+anything for a given period.
+
+This option allows you to set the ApplicationSpawner server's idle timeout, in
+seconds. A value of '0' means that it should never idle timeout.
+
+Setting a higher value will mean that the ApplicationSpawner server is kept around
+longer, which may slightly increase memory usage. But as long as the
+ApplicationSpawner server is running, the time to spawn a Ruby on Rails backend
+process only takes about 10% of the time that is normally needed, assuming that
+you're using the 'smart' or 'smart-lv2' <<RailsSpawnMethod,spawning method>>. So if your
+system has enough memory, is it recommended that you set this option to a high
+value or to '0'.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is '600' (10 minutes).
+
+=== Rack and Rails >= 3 specific options ===
+[[RackEnv]]
+==== rack_env <string> ====
+This option allows one to specify the default `RACK_ENV` value.
+
+This option may occur in the following places:
+
+ * In the 'http' configuration block.
+ * In a 'server' configuration block.
+ * In a 'location' configuration block.
+ * In an 'if' configuration scope.
+
+In each place, it may be specified at most once. The default value is 'production'.
+
+
+=== Deprecated options ===
+
+The following options have been deprecated, but are still supported for backwards
+compatibility reasons.
+
+==== rails_spawn_method ====
+Deprecated in favor of <<PassengerSpawnMethod,passenger_spawn_method>>.
+
+
+== Analysis and system maintenance ==
+
+include::users_guide_snippets/analysis_and_system_maintenance.txt[]
+
+
+== Tips ==
+
+include::users_guide_snippets/tips.txt[]
+
+
+== Under the hood ==
+Phusion Passenger hides a lot of complexity for the end user (i.e. the web server
+system administrator), but sometimes it is desirable to know what is going on.
+This section describes a few things that Phusion Passenger does under the hood.
+
+=== Page caching support ===
+include::users_guide_snippets/under_the_hood/page_caching_support.txt[]
+
+[[application_detection]]
+=== How Phusion Passenger detects whether a virtual host is a web application ===
+After you've read the deployment instructions you might wonder how Phusion Passenger
+knows that the server root points to a web application that Phusion Passenger is
+able to serve, and how it knows what kind of web application it is (e.g. Rails or Rack).
+
+Phusion Passenger checks whether the virtual host is a Rails application by checking
+whether the following file exists:
+
+------------------------------------------------
+dirname(DocumentRoot) + "/config/environment.rb"
+------------------------------------------------
+
+If you're not a programmer and don't understand the above pseudo-code snippet, it means
+that Phusion Passenger will:
+
+1. Extract the parent directory filename from the value of the ``root'' directive.
+2. Append the text "/config/environment.rb" to the result, and check whether the resulting
+   filename exists.
+
+So suppose that your server root is '/webapps/foo/public'. Phusion Passenger will check
+whether the file '/webapps/foo/config/environment.rb' exists.
+
+Note that Phusion Passenger for Nginx does *not* resolve any symlinks in the root path.
+So for example, suppose that your root points to '/home/www/example.com', which in
+turn is a symlink to '/webapps/example.com/public'. Phusion Passenger for Nginx will check for
+'/home/www/config/environment.rb', *not* '/webapps/example.com/config/environment.rb'.
+This file of course doesn't exist, and as a result Phusion Passenger will not activate
+itself for this virtual host, and you'll most likely see some output generated by the
+Nginx default directory handler such as a Forbidden error message.
+
+Detection of Rack applications happens through the same mechanism, exception that
+Phusion Passenger will look for 'config.ru' instead of 'config/environment.rb'.
+
+
+include::users_guide_snippets/appendix_a_about.txt[]
+
+include::users_guide_snippets/appendix_b_terminology.txt[]
+
+include::users_guide_snippets/appendix_c_spawning_methods.txt[]
