@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  submission: 
+  metric: 
+  gender: MyString
+  age: 1
+  healthy_min: 9.99
+  healthy_max: 9.99
+  total_min: 9.99
+  total_max: 9.99
+  weight: 1
+
+two:
+  submission: 
+  metric: 
+  gender: MyString
+  age: 1
+  healthy_min: 9.99
+  healthy_max: 9.99
+  total_min: 9.99
+  total_max: 9.99
+  weight: 1
