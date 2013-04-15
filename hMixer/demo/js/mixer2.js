@@ -373,7 +373,8 @@ Metric.layerPrep = (function () {
         },
         
         /* fade out for the scrubber */
-        _fadeOutTimeout = null;
+        _fadeOutTimeout = null,
+        val = 0;
     
     
 /* _startDrag
@@ -613,12 +614,13 @@ _doDrag = function ( evt ) {
     }
         
     var metric       = _interactionState.metric,
-        activeE      = _interactionState.activeE,
+        activeE      = _interactionState.activeE, 
         mouseLeft    = d3.event.pageX,
         mouseTop     = d3.event.pageY,
+        value 		 = val,
         relativeLeft = mouseLeft - metric.dom.container.offsetLeft,
         relativeTop  = mouseTop - metric.dom.container.offsetTop;
-    
+    console.log(metric);
     switch ( activeE ) {
         case "lb" :
             _moveLeftBound.call( metric, relativeLeft ); 
@@ -637,6 +639,14 @@ _doDrag = function ( evt ) {
         default : 
             break;
     };
+    if (isNaN(value)){
+		value = 0;    
+    }
+    graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
+		score: graph.calculateScoreFromValue(metric.pub, value),
+		value: value + ' ' + metric.pub.unitlabel,
+		weight:  metric.pub.weight
+	});    
     
     /* we have offically moved (at least once) */
     _interactionState.hasMoved = true;
@@ -740,14 +750,14 @@ _dailySubmit = function ( ) {
     metric.pub.dayvalue = value;
     
     metric.refreshInput( );
+    console.log(input.node());
     
-    console.log(metric);
-
     graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
 		score: graph.calculateScoreFromValue(metric.pub, value),
     	value: value + ' ' + metric.pub.unitlabel,
     	weight:  metric.pub.weight
     });    
+    val = value;
     return input.node().blur && input.node().blur();
 };
         
@@ -1510,8 +1520,6 @@ _genderToggle = function ( ) {
    	    	if (j != 'name')
    	    		hSavedData[hGenderIndex].metrics[i].features[j] = hMetrics[i + hGenderIndex * hSavedData[hGenderIndex].metrics.length][j]		
     }
-    console.log(hSavedData[hGenderIndex]);
-    console.log(hMetrics);
     hGenderIndex = (gen === "male") ? 0 : 1;
     _renderGenderData( );
     
@@ -1643,8 +1651,6 @@ _setOptions = function ( options ) {
  */
 _renderGenderData = function ( ){
     var i, j, metric, gender, mlist, metrics;
-    console.log(hSavedData[hGenderIndex]);
-	console.log(!hSavedData[hGenderIndex]);		
 	gender  = hSavedData[hGenderIndex].gender;  // which gender is this list
 	mlist   = hSavedData[hGenderIndex].metrics; // get the metric list
     metrics = [ ];                                 // reset metric array
