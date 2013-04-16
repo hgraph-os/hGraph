@@ -1,0 +1,171 @@
+#!/usr/bin/env ruby
+#  Phusion Passenger - http://www.modrails.com/
+#  Copyright (c) 2010 Phusion
+#
+#  "Phusion Passenger" is a trademark of Hongli Lai & Ninh Bui.
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in
+#  all copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#  THE SOFTWARE.
+
+source_root = File.expand_path(File.dirname(__FILE__) + "/..")
+$LOAD_PATH.unshift("#{source_root}/lib")
+require 'phusion_passenger'
+require 'phusion_passenger/platform_info'
+require 'phusion_passenger/admin_tools/memory_stats'
+
+include PhusionPassenger
+
+# ANSI color codes
+RESET   = "\e[0m"
+BOLD    = "\e[1m"
+WHITE   = "\e[37m"
+YELLOW  = "\e[33m"
+BLUE_BG = "\e[44m"
+
+# Container for tabular data.
+class Table
+	def initialize(column_names)
+		@column_names = column_names
+		@rows = []
+	end
+	
+	def add_row(values)
+		@rows << values.to_a
+	end
+	
+	def add_rows(list_of_rows)
+		list_of_rows.each do |row|
+			add_row(row)
+		end
+	end
+	
+	def remove_column(name)
+		i = @column_names.index(name)
+		@column_names.delete_at(i)
+		@rows.each do |row|
+			row.delete_at(i)
+		end
+	end
+	
+	def to_s(title = nil)
+		max_column_widths = [1] * @column_names.size
+		(@rows + [@column_names]).each do |row|
+			row.each_with_index do |value, i|
+				max_column_widths[i] = [value.to_s.size, max_column_widths[i]].max
+			end
+		end
+		
+		format_string = max_column_widths.map{ |i| "%#{-i}s" }.join("  ")
+		header = sprintf(format_string, *@column_names).rstrip << "\n"
+		if title
+			free_space = header.size - title.size - 2
+			if free_space <= 0
+				left_bar_size = 3
+				right_bar_size = 3
+			else
+				left_bar_size = free_space / 2
+				right_bar_size = free_space - left_bar_size
+			end
+			result = "#{BLUE_BG}#{BOLD}#{YELLOW}\n"
+			result << "#{"-" * left_bar_size} #{title} #{"-" * right_bar_size}\n"
+			if !@rows.empty?
+				result << WHITE
+				result << header
+			end
+		else
+			result = header.dup
+		end
+		if @rows.empty?
+			result << RESET
+		else
+			result << ("-" * header.size) << "#{RESET}\n"
+			@rows.each do |row|
+				result << sprintf(format_string, *row).rstrip << "\n"
+			end
+		end
+		result
+	end
+end
+
+class App
+	def initialize
+		@stats = AdminTools::MemoryStats.new
+	end
+	
+	def start
+		if @stats.apache_processes
+			print_process_list("Apache processes", @stats.apache_processes)
+		else
+			puts "#{BLUE_BG}#{BOLD}#{YELLOW}------------- Apache processes -------------#{RESET}\n"
+			STDERR.puts "*** WARNING: The Apache executable cannot be found."
+			STDERR.puts "Please set the APXS2 environment variable to your 'apxs2' " <<
+				"executable's filename, or set the HTTPD environment variable " <<
+				"to your 'httpd' or 'apache2' executable's filename."
+		end
+		
+		puts
+		print_process_list("Nginx processes", @stats.nginx_processes)
+		
+		puts
+		print_process_list("Passenger processes", @stats.passenger_processes, :show_ppid => false)
+		
+		if @stats.platform_provides_private_dirty_rss_information? &&
+		   Process.euid != 0 &&
+		   @stats.root_privileges_required_for_private_dirty_rss?
+			puts
+			puts "*** WARNING: Please run this tool as root. Otherwise the " <<
+				"private dirty RSS of processes cannot be determined."
+		end
+	end
+	
+private
+	def print_process_list(title, processes, options = {})
+		table = Table.new(%w{PID PPID VMSize Private Resident Name})
+		table.add_rows(processes)
+		if options.has_key?(:show_ppid) && !options[:show_ppid]
+			table.remove_column('PPID')
+		end
+		if @stats.platform_provides_private_dirty_rss_information?
+			table.remove_column('Resident')
+		else
+			table.remove_column('Private')
+		end
+		puts table.to_s(title)
+		
+		if @stats.platform_provides_private_dirty_rss_information?
+			total_private_dirty_rss = 0
+			some_private_dirty_rss_cannot_be_determined = false
+			processes.each do |p|
+				if p.private_dirty_rss.is_a?(Numeric)
+					total_private_dirty_rss += p.private_dirty_rss
+				else
+					some_private_dirty_rss_cannot_be_determined = true
+				end
+			end
+			puts   "### Processes: #{processes.size}"
+			printf "### Total private dirty RSS: %.2f MB", total_private_dirty_rss / 1024.0
+			if some_private_dirty_rss_cannot_be_determined
+				puts " (?)"
+			else
+				puts
+			end
+		end
+	end
+end
+
+App.new.start
