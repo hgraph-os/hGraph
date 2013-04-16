@@ -373,9 +373,7 @@ Metric.layerPrep = (function () {
         },
         
         /* fade out for the scrubber */
-        _fadeOutTimeout = null,
-        val = 0;
-    
+        _fadeOutTimeout = null;
     
 /* _startDrag
  *
@@ -617,7 +615,7 @@ _doDrag = function ( evt ) {
         activeE      = _interactionState.activeE, 
         mouseLeft    = d3.event.pageX,
         mouseTop     = d3.event.pageY,
-        value 		 = val,
+        value 		 = metric.pub.dayvalue,
         relativeLeft = mouseLeft - metric.dom.container.offsetLeft,
         relativeTop  = mouseTop - metric.dom.container.offsetTop;
     console.log(metric);
@@ -639,6 +637,7 @@ _doDrag = function ( evt ) {
         default : 
             break;
     };
+    console.log(value);
     if (isNaN(value)){
 		value = 0;    
     }
@@ -706,7 +705,7 @@ _drawInitialPoints = function ( ) {
     this.dom.middleCurveAnchor       = _addScalePoint( 0, 0 );
     this.dom.healthyRightCurveAnchor = _addScalePoint( 0, 0 );
     this.dom.rightCurveAnchor        = _addScalePoint( 0, 0 ); 
-    
+
     return _whipeInteractionState( false );  
 };
 
@@ -720,7 +719,7 @@ _dailyKeymanager = function ( ) {
     var evt    = d3.event,
         code   = evt.keyCode,
         isChar = isNaN( parseInt( String.fromCharCode(code), 10) );
-        
+    
     /* only allow numbers, enter, and backspace */
     if( code !== 190 && code !== 8 && code !== 13 && isChar ){ 
         return evt.preventDefault && evt.preventDefault(); 
@@ -757,7 +756,7 @@ _dailySubmit = function ( ) {
     	value: value + ' ' + metric.pub.unitlabel,
     	weight:  metric.pub.weight
     });    
-    val = value;
+
     return input.node().blur && input.node().blur();
 };
         
@@ -999,10 +998,10 @@ data = function ( layer ) {
     inputScoreGroup 
         .append("text")
         .attr(D.curve_text);
-    
     /* attatch the keypress to the input box */
     dom.dayInput
         .on("focus", function () {  
+        	
             if( !_interactionState.hasMoved ) {             
                 var input = d3.select(this),
                     value = input.attr("value");
@@ -1010,7 +1009,6 @@ data = function ( layer ) {
                 pastValue = value;
                 _interactionState.metric    = metric; 
                 _interactionState.isFocused = true;
-                
                 input.attr("value",""); 
             }
         })
@@ -1026,8 +1024,7 @@ data = function ( layer ) {
             
             _whipeInteractionState( );
         });
-    
-    
+
     dom.inputGroup  = inputGroup;
     dom.curveBubble = curveBubble; // the scrubber bubble group
     dom.curvePath   = curvePath;   // ref to the bezier curve (<path>)
@@ -1037,7 +1034,10 @@ data = function ( layer ) {
     dom.leftNode    = leftBound;   // save the left bound
     dom.rightNode   = rightBound;  // save the right bound 
     
-    
+
+    metric.pub.dayvalue = (metric.pub.healthyrange[1] - metric.pub.healthyrange[0])/2 + metric.pub.healthyrange[0];
+
+
     return _drawInitialPoints.call(metric);
 };
 
