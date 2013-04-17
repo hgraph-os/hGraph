@@ -1,0 +1,211 @@
+#!/usr/bin/env ruby
+#  Phusion Passenger - http://www.modrails.com/
+#  Copyright (c) 2010 Phusion
+#
+#  "Phusion Passenger" is a trademark of Hongli Lai & Ninh Bui.
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in
+#  all copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+#  THE SOFTWARE.
+
+source_root = File.expand_path(File.dirname(__FILE__) + "/..")
+$LOAD_PATH.unshift("#{source_root}/lib")
+require 'phusion_passenger'
+require 'phusion_passenger/platform_info'
+require 'phusion_passenger/admin_tools/server_instance'
+require 'optparse'
+
+include PhusionPassenger::AdminTools
+
+# ANSI color codes
+RESET    = "\e[0m"
+BOLD     = "\e[1m"
+YELLOW   = "\e[33m"
+BLACK_BG = "\e[40m"
+BLUE_BG  = "\e[44m"
+
+def show_status(server_instance, options = {})
+	server_instance.connect(:passenger_status) do
+		case options[:show]
+		when 'pool'
+			begin
+				general_info = server_instance.status
+			rescue SystemCallError => e
+				STDERR.puts "*** ERROR: Cannot query status for Phusion Passenger instance #{server_instance.pid}:"
+				STDERR.puts e.to_s
+				exit 2
+			end
+			
+			# Extract only the 'General information' section and colorize it.
+			general_info.sub!(/^(----)(.*)$/, YELLOW + BLUE_BG + BOLD + '\1\2' + RESET)
+			general_info.sub!(/^----.*/m, '')
+			general_info.strip!
+			puts general_info
+			puts
+			
+			puts "#{YELLOW}#{BLUE_BG}#{BOLD}----------- Application groups -----------#{RESET}"
+			server_instance.groups.each do |group|
+				puts "#{group.name}:"
+				if group.name !~ %r{^/} || true
+					puts "  App root: #{group.app_root}"
+				end
+				group.processes.each do |process|
+					printf "  * PID: %-5d   Sessions: %-2d   Processed: %-5d   Uptime: %s\n",
+						process.pid, process.sessions, process.processed,
+						process.uptime
+					if options[:verbose] && process.server_sockets[:http]
+						puts "      URL     : http://#{process.server_sockets[:http].address}"
+						puts "      Password: #{process.connect_password}"
+					end
+				end
+				puts
+			end
+		
+		when 'backtraces'
+			begin
+				text = server_instance.backtraces
+			rescue SystemCallError => e
+				STDERR.puts "*** ERROR: Cannot query status for Passenger instance #{control_process.pid}:"
+				STDERR.puts e.to_s
+				exit 2
+			end
+		
+			# Colorize output
+			text.gsub!(/^(Thread .*:)$/, BLACK_BG + YELLOW + '\1' + RESET)
+			text.gsub!(/^( +in '.*? )(.*?)\(/, '\1' + BOLD + '\2' + RESET + '(')
+		
+			puts text
+		
+		when 'xml'
+			begin
+				xml = server_instance.xml
+			rescue SystemCallError => e
+				STDERR.puts "*** ERROR: Cannot query status for Passenger instance #{control_process.pid}:"
+				STDERR.puts e.to_s
+				exit 2
+			end
+			
+			indented = format_with_xmllint(xml)
+			if indented
+				puts indented
+			else
+				puts xml
+				STDERR.puts "*** Tip: if you install the 'xmllint' command then the XML output will be indented."
+			end
+		end
+	end
+rescue ServerInstance::RoleDeniedError
+	require 'phusion_passenger/platform_info/ruby'
+	STDERR.puts "*** ERROR: You are not authorized to query the status for this Phusion " <<
+		"Passenger instance. Please try again with '#{PhusionPassenger::PlatformInfo.ruby_sudo_command}'."
+	exit 2
+end
+
+def format_with_xmllint(xml)
+	return nil if !PhusionPassenger::PlatformInfo.find_command('xmllint')
+	require 'open3'
+	require 'thread'
+	ENV['XMLLINT_INDENT'] = '   '
+	Open3.popen3("xmllint", "--format", "-") do |stdin, stdout, stderr|
+		stdout_text = nil
+		stderr_text = nil
+		thread1 = Thread.new do
+			stdin.write(xml)
+			stdin.close
+		end
+		thread2 = Thread.new do
+			stdout_text = stdout.read
+			stdout.close
+		end
+		thread3 = Thread.new do
+			stderr_text = stderr.read
+			stderr.close
+		end
+		thread1.join
+		thread2.join
+		thread3.join
+		
+		if stdout_text.nil? || stdout_text.empty?
+			if stderr_text !~ /No such file or directory/ && stderr_text !~ /command not found/
+				STDERR.puts stderr_text
+			end
+			return nil
+		else
+			return stdout_text
+		end
+	end
+end
+
+def start
+	options = { :show => 'pool' }
+	parser = OptionParser.new do |opts|
+		opts.banner = "Usage: passenger-status [options] [Phusion Passenger's PID]"
+		opts.separator ""
+		opts.separator "Tool for inspecting Phusion Passenger's internal status."
+		opts.separator ""
+
+		opts.separator "Options:"
+		opts.on("--show=pool|backtraces|xml", String,
+		        "Whether to show the pool's contents, \n" <<
+		        "#{' ' * 37}the backtraces of all threads or an XML\n" <<
+		        "#{' ' * 37}description of the pool.") do |what|
+			if what !~ /\A(pool|backtraces|xml)\Z/
+				STDERR.puts "Invalid argument for --show."
+				exit 1
+			else
+				options[:show] = what
+			end
+		end
+		opts.on("--verbose", "-v", "Show verbose information.") do
+			options[:verbose] = true
+		end
+	end
+	begin
+		parser.parse!
+	rescue OptionParser::ParseError => e
+		puts e
+		puts
+		puts "Please see '--help' for valid options."
+		exit 1
+	end
+	
+	if ARGV.empty?
+		server_instances = ServerInstance.list
+		if server_instances.empty?
+			STDERR.puts("ERROR: Phusion Passenger doesn't seem to be running.")
+			exit 2
+		elsif server_instances.size == 1
+			show_status(server_instances.first, options)
+		else
+			puts "It appears that multiple Passenger instances are running. Please select a"
+			puts "specific one by running:"
+			puts
+			puts "  passenger-status <PID>"
+			puts
+			puts "The following Passenger instances are running:"
+			server_instances.each do |instance|
+				puts "  PID: #{instance.pid}"
+			end
+			exit 1
+		end
+	else
+		server_instance = ServerInstance.for_pid(ARGV[0].to_i)
+		show_status(server_instance, options)
+	end
+end
+
+start

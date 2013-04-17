@@ -33,6 +33,7 @@ class TestsController < ApplicationController
       # @users = User.where(:email => params[:email])
       @submissions = Submission.all(:include => [:user, :contributions => [:metric, :demographic]])
       @submissions_json = @submissions.to_json()
+      average_default()
     rescue RuntimeError
     end
   end
@@ -108,6 +109,7 @@ class TestsController < ApplicationController
 	@submissions.update_attribute('message', params[:message])
       hmixer_to_submission(@submissions, params)
     end  
+    average_default()
     render :status => 200
   end
 
@@ -170,5 +172,44 @@ class TestsController < ApplicationController
     puts @usr.inspect
     @data = {:name => @usr.full_name, :email => @usr.email, :message => submission.message} 
   end
-
+  
+  def average_default()
+    @contributions = Contribution.all()
+    arr = Array.new
+    arr[1] = Array.new
+    arr[2] = Array.new
+    count = Array.new
+    count[1] = Array.new
+    count[2] = Array.new
+    for met in Metric.all()
+      arr[1][met.id] = Array.new
+      arr[1][met.id][0] = 0
+      arr[1][met.id][1] = 0
+      arr[1][met.id][2] = 0
+      count[1][met.id] = 0
+      arr[2][met.id] = Array.new
+      arr[2][met.id][0] = 0
+      arr[2][met.id][1] = 0
+      arr[2][met.id][2] = 0
+      count[2][met.id] = 0
+    end
+    for cont in @contributions
+      if cont.submission_id != 1
+           puts cont.inspect
+           arr[cont.demographic_id][cont.metric_id][0] += cont.healthy_min**2
+           arr[cont.demographic_id][cont.metric_id][1] += cont.healthy_max**2
+           arr[cont.demographic_id][cont.metric_id][2] += cont.score_weight**2
+           count[cont.demographic_id][cont.metric_id] += 1
+       end
+    end
+    puts "Average"
+    puts arr.inspect
+    for cont in @contributions
+      if cont.submission_id == 1
+        cont.update_attributes({:healthy_min => Math.sqrt(arr[cont.demographic_id][cont.metric_id][0]/count[cont.demographic_id][cont.metric_id]), :healthy_max => Math.sqrt(arr[cont.demographic_id][cont.metric_id][1]/count[cont.demographic_id][cont.metric_id]), :score_weight => Math.sqrt(arr[cont.demographic_id][cont.metric_id][2]/count[cont.demographic_id][cont.metric_id])})
+      else
+        break
+      end
+    end
+  end
 end
