@@ -19,6 +19,7 @@
 onloaded = function ( ) {
 
 };
+
 $.extend({
   getUrlVars: function(){
     var vars = [], hash;
@@ -62,6 +63,19 @@ function setCookie(c_name,value,exdays)
 var cookieEmail = getCookie('email');
 var cookieName = getCookie('name');
 var cookieMessage = getCookie('message');
+
+if($.getUrlVar('email') == null && cookieEmail == null){
+	alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a></div>" );
+	$('#alertify').css('top', '50%');
+	$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
+	$('#alertify-cover').css('background-color', 'grey');
+	$('#alertify-cover').css('opacity', '0.5');
+	$('.alertify-buttons').hide();
+	
+	$('.doxButton').on('click', function(){
+		$('#alertify-ok').click();
+	});
+}
 
 if (cookieName != null)
 	alertify.success("Welcome Back " + cookieName);
