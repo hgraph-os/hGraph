@@ -230,7 +230,6 @@ HGraph.prototype.initialize = function() {
 		touch = e.touches[0];
 		touchstart.x = touch.pageX;
 		touchstart.y = touch.pageY;
-		console.log(touch);
 	});
 	this.container.addEventListener('touchmove', function(e){
 		var key, layer, delta, touch;
@@ -796,8 +795,6 @@ HGraph.prototype.calculateHealthScore = function(){
 			numPoints += this.userdata.factors[factor].weight;
 			var score = Math.abs(this.userdata.factors[factor].score)-100;
 			sumSquares = sumSquares + (Math.pow(idealValue - score,2) * this.userdata.factors[factor].weight);
-			console.log(this.userdata.factors[factor]);
-			console.log(this.userdata.factors[factor].weight + ' ' + sumSquares);
 		}
 		/*console.log('idealValue='+idealValue);
 		console.log('numPoints='+numPoints);
