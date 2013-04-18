@@ -63,9 +63,20 @@ function setCookie(c_name,value,exdays)
 var cookieEmail = getCookie('email');
 var cookieName = getCookie('name');
 var cookieMessage = getCookie('message');
-
+var joy;
+$(window).ready(joy = $('#joyRideTipContent').joyride({
+	autoStart : false,
+	postExposeCallback : function (index, tip) {
+		if (index == 3) {
+			console.log($('.joyride-expose-wrapper'));
+			$('.joyride-expose-wrapper').hide();
+		}
+	},
+	modal:true,
+	expose: true
+}));
 if($.getUrlVar('email') == null && cookieEmail == null){
-	alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a></div>" );
+	alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><br/><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a><br/><br/><br/><a class='skipButton'>Skip this step</a></div>" );
 	$('#alertify').css('top', '50%');
 	$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
 	$('#alertify-cover').css('background-color', 'grey');
@@ -73,8 +84,14 @@ if($.getUrlVar('email') == null && cookieEmail == null){
 	$('.alertify-buttons').hide();
 	
 	$('.doxButton').on('click', function(){
+		joy.joyride()
 		$('#alertify-ok').click();
 	});
+	$('.skipButton').on('click', function(){
+		
+		$('#alertify-ok').click();
+	});
+
 }
 
 if (cookieName != null)

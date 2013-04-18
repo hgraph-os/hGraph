@@ -840,6 +840,7 @@ ui = function ( layer ) {
     layer
         .append("text")
         .attr(D.title_text)
+        .attr('id', 'title-' + this.pub.name)
         .text(this.pub.name);
         
     layer
@@ -890,6 +891,7 @@ data = function ( layer ) {
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
+                    .attr('class', 'hr-' + metric.pub.name)
                     .attr("data-name", "range-rectangle")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
@@ -934,6 +936,7 @@ data = function ( layer ) {
     
     pointGroup = layer
                     .append("g")
+                    .attr('class', 'pg-' + this.pub.name)
                     .attr("data-name", "point-group");
 
     curveBubble
@@ -955,6 +958,7 @@ data = function ( layer ) {
     
     weightNode = layer.append("g")
                     .attr("data-name", "weight-node")
+                    .attr('class', 'wght-' + metric.pub.name)
                     .attr("cursor", "pointer")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "ww";   // we are using the weight circle
@@ -1190,9 +1194,8 @@ Metric.prototype = {
             block     = d3.select(container).append("div"),
             dom       = this.dom,
             inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 24;
-                        
         d3.select(container) // set the metric container's class
-            .attr("class", "metric cf middle"); 
+            .attr("class", "metric cf middle " + this.pub.name); 
             
         block
             .attr(D.block)
