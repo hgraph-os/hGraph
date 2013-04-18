@@ -68,7 +68,6 @@ $(window).ready(joy = $('#joyRideTipContent').joyride({
 	autoStart : false,
 	postExposeCallback : function (index, tip) {
 		if (index == 3) {
-			console.log($('.joyride-expose-wrapper'));
 			$('.joyride-expose-wrapper').hide();
 		}
 	},
@@ -88,7 +87,7 @@ if($.getUrlVar('email') == null && cookieEmail == null){
 		$('#alertify-ok').click();
 	});
 	$('.skipButton').on('click', function(){
-		
+		joy.joyride()		
 		$('#alertify-ok').click();
 	});
 
