@@ -74,6 +74,7 @@ $(window).ready(joy = $('#joyRideTipContent').joyride({
 	modal:true,
 	expose: true
 }));
+var joyride = $.getUrlVar('joyride')
 if($.getUrlVar('email') == null && cookieEmail == null){
 	alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><br/><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a><br/><br/><br/><a class='skipButton'>Skip this step</a></div>" );
 	$('#alertify').css('top', '50%');
@@ -83,11 +84,13 @@ if($.getUrlVar('email') == null && cookieEmail == null){
 	$('.alertify-buttons').hide();
 	
 	$('.doxButton').on('click', function(){
-		joy.joyride()
+		if(joyride)
+			joy.joyride()
 		$('#alertify-ok').click();
 	});
 	$('.skipButton').on('click', function(){
-		joy.joyride()		
+		if(joyride)
+			joy.joyride()		
 		$('#alertify-ok').click();
 	});
 
