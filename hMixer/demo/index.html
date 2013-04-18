@@ -17,8 +17,11 @@
     <link rel="stylesheet" type="text/css" href="css/alertify.core.css">
     <link rel="stylesheet" type="text/css" href="css/alertify.default.css">
     <link rel="stylesheet" type="text/css" href="css/backbone.tableview.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> 
-    
+    <link rel="stylesheet" type="text/css" href="css/joyride-2.0.3.css">
+    <script src="js/lib/jquery-1.9.1.js" type="text/javascript"></script> 
+    <script type="text/javascript" src="js/lib/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/lib/modernizr.mq.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.joyride-2.0.3.js"></script>
 </head>
 <body>
 
@@ -98,10 +101,12 @@
                             <dt>Email</dt>
                             <input type="text" class="email-input f" value="" id="email">
                         </dl>-->
+                   	</div>
+                   	<div class="block middle height submission">
                         <input class="submit middle" value="submissions" type="button" id="submissions">
                     </div>
                     
-                    <div class="block middle submit">
+                    <div class="block middle submit submit2">
                         <p class="middle">Submit your mixed hScore</p>
                         <input class="submit middle" value="submit" type="button" id="submit">
                         <a href="mailto:hgraph@goinvo.com" class="feedback">Feedback</a>
@@ -112,8 +117,57 @@
             
         </section>
     </section>
-
-    <script type="text/javascript" src="js/lib/jquery.rest.js"></script>
+    <ol id="joyRideTipContent">
+      <li data-text="Next" class="custom">
+        <h2>Welcome To hMixer!</h2>
+        <p>*Content*</p>
+      </li>
+      <li data-id="metrics" data-button="Next" data-options="tipLocation:right;tipAnimation:fade">
+        <h2>Metrics</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="LDL" data-button="Next" data-options="tipLocation:right;tipAnimation:fade">
+        <h2>Metric</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-id="title-LDL" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Title</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="pg-LDL" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Graph</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="hr-LDL" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Healthy Range</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="wght-LDL" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Weight</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="daily-input" data-button="Next" data-options="tipLocation:bottom;tipAnimation:fade">
+        <h2>Daily Input Value</h2>
+        <p>*Metrics*</p>
+      </li>
+       <li data-class="healthscore" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>hGraph</h2>
+        <p>*Metrics*</p>
+      </li>
+       <li data-class="gender" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Gender</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="submit2" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Submit</h2>
+        <p>*Metrics*</p>
+      </li>
+      <li data-class="submissions" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+        <h2>Submissions</h2>
+        <p>*Metrics*</p>
+      </li>
+    </ol>
+	<script type="text/javascript" src="js/lib/jquery.rest.js"></script>
     <script type="text/javascript" src="js/alertify.js"></script>
     <script type="text/javascript" src="js/d3.min.js"></script>
     <script type="text/javascript" src="js/mixer2.js"></script>
