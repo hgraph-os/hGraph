@@ -47,9 +47,9 @@ During a `window.onload` or similar entry point, the health graph is constructed
 	}
 
 
-###Example site###
+###More Info###
 
-To see a live demo, please visit: [hgraph.org](http://hgraph.org/)
+Please visit: [hgraph.org](http://hgraph.org/)
 
 ###License###
 
