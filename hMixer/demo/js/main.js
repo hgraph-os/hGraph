@@ -74,30 +74,13 @@ $(window).ready(joy = $('#joyRideTipContent').joyride({
 	modal:true,
 	expose: true
 }));
-var joyride = $.getUrlVar('joyride')
-if($.getUrlVar('email') == null && cookieEmail == null){
-	alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><br/><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a><br/><br/><br/><a class='skipButton'>Skip this step</a></div>" );
-	$('#alertify').css('top', '50%');
-	$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
-	$('#alertify-cover').css('background-color', 'grey');
-	$('#alertify-cover').css('opacity', '0.5');
-	$('.alertify-buttons').hide();
-	
-	$('.doxButton').on('click', function(){
-		if(joyride)
-			joy.joyride()
-		$('#alertify-ok').click();
-	});
-	$('.skipButton').on('click', function(){
-		if(joyride)
-			joy.joyride()		
-		$('#alertify-ok').click();
-	});
-
-}
-
-if (cookieName != null)
-	alertify.success("Welcome Back " + cookieName);
+var joyride = $.getUrlVar('joyride');
+if(joyride)
+	joy.joyride();
+if ($.getUrlVar('name') != null)
+	alertify.success("<h1>You Are Looking At " +$.getUrlVar('name') + "'s mixer.</h1>");
+else if (cookieName != null)
+	alertify.success("<h1>Welcome Back " + cookieName + "</h1>");
 
 /* example array for metric structures */
 /*
@@ -408,9 +391,9 @@ $('#submissions').on('click', (function(event) {
 			this.collection.length = userarray.length;
   			var innerhtml = $("<table class=\"table table-bordered user-table\"><tbody>");
   			console.log(this.collection);
-  			div_onclick = function(pemail) {
+  			div_onclick = function(pemail, pname) {
 					console.log('onclick mixer init ' + pemail);
-            		window.location = ("?email=" + pemail+"&readonly=true");
+            		window.location = ("?email=" + pemail+"&name=" + pname  + "&readonly=true");
   			};
   			
 			$('#' + this.id).html(innerhtml);
@@ -421,7 +404,7 @@ $('#submissions').on('click', (function(event) {
 				// hRenderZone.insertAdjacentHTML('beforeend', '<tr data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
 				if(usr.get('email') != undefined) {					
 					innerhtml.append('<tr data-email="' + usr.get('email') + '" id="hasemail" class="hasemail' + usr.get('user_id') + '" ><td>' + usr.get('full_name') + '</td><td>' + usr.get('user_id') + '</td><td>' + usr.get('message') + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
-					innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email')); });
+					innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email'), usr.get('full_name')); });
 				} else {
 					var row = $('<tr><td class="loading" colspan = "5">Loading<td></tr>')
 					innerhtml.append(row);
@@ -463,7 +446,7 @@ $('#submissions').on('click', (function(event) {
 }));
 
 console.log($.getUrlVar('readonly'))
-
+var email = $.getUrlVar('email');
 if ($.getUrlVar('readonly')==='true') {
 	$('#submit').attr('value', 'Create New');
 	$('#submit').on ('click', function(event){
@@ -476,9 +459,27 @@ else {
 	
 		console.log('submit on click');
 		if (cookieEmail == null) {
-	
+			if(email == null && cookieEmail == null){
+				alertify.prompt("<div id='domMessage' class='darkClass'><h1>Please login with your Doximity Account</h1><br/><a class='doxButton'><img src='img/doximity-button-verify-dark.png'></img></a><br/><br/><br/><a class='skipButton'>Skip this step</a></div>", function(){
+					setTimeout(function() {showSubmit();}, 500);
+				});
+				
+				$('#alertify').css('top', '50%');
+				$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
+				$('#alertify-cover').css('background-color', 'grey');
+				$('#alertify-cover').css('opacity', '0.5');
+				$('.alertify-buttons').hide();
+				
+				$('.doxButton').on('click', function(){
+					$('#alertify-ok').click();
+				});
+				$('.skipButton').on('click', function(){
+					$('#alertify-ok').click();
+				});
+			
+			}
 			console.log('cookie email is null');
-	
+			var showSubmit = function() {
 			alertify.set({
 				labels : {
 					ok : "submit",
@@ -611,6 +612,7 @@ else {
 			});
 			$('#alertify').css('top', '50%');
 			$('#alertify').css('margin-top', '-' + $('#alertify').height()/1.1 + 'px');
+			}
 		} else {
 	
 			$.ajax({
@@ -659,3 +661,18 @@ else {
 	});
 }
 })();
+//google analytics
+(function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function () {
+        (i[r].q = i[r].q || []).push(arguments)
+    },
+    i[r].l = 1 * new Date();
+    a = s.createElement(o),
+    m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m)
+})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+ga('create', 'UA-10273473-9', 'hscoremixer.org');
+ga('send', 'pageview');
