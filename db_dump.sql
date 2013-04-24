@@ -128,7 +128,7 @@ CREATE TABLE `metrics` (
 
 LOCK TABLES `metrics` WRITE;
 /*!40000 ALTER TABLE `metrics` DISABLE KEYS */;
-INSERT INTO `metrics` VALUES (1,'LDL','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(2,'HDL','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(3,'Triglycerides','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(4,'Sleep','hours/night','2013-02-12 01:30:13','2013-02-12 01:30:13'),(5,'Exercise','min','2013-02-12 01:32:54','2013-02-12 01:32:54'),(6,'Happiness','happiness scale','2013-02-12 01:32:54','2013-02-12 01:32:54'),(7,'Glucose','mg/dl','2013-02-12 01:32:54','2013-02-12 01:32:54'),(8,'Blood Pressure Systolic','mm Hg','2013-02-12 01:32:54','2013-02-12 01:32:54'),(9,'Blood Pressure Diastolic','mm Hg','2013-02-12 01:35:57','2013-02-12 01:35:57'),(10,'Alcohol','drinks/day','2013-02-12 01:35:57','2013-02-12 01:35:57'),(11,'Smoking','cigarettes/day','2013-02-12 01:35:57','2013-02-12 01:35:57'),(12,'Waistline','cm','2013-02-12 01:35:57','2013-02-12 01:35:57'),(13,'Pain','pain scale','2013-04-04 15:12:57','2013-04-04 15:12:59');
+INSERT INTO `metrics` VALUES (1,'LDL','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(2,'HDL','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(3,'Triglycerides','mg/dl','2013-02-12 01:30:13','2013-02-12 01:30:13'),(4,'Sleep','hours/night','2013-02-12 01:30:13','2013-02-12 01:30:13'),(5,'Exercise','hours/week','2013-02-12 01:32:54','2013-02-12 01:32:54'),(6,'Happiness','happiness scale','2013-02-12 01:32:54','2013-02-12 01:32:54'),(7,'Glucose','mg/dl','2013-02-12 01:32:54','2013-02-12 01:32:54'),(8,'Blood Pressure Systolic','mm/Hg','2013-02-12 01:32:54','2013-02-12 01:32:54'),(9,'Blood Pressure Diastolic','mm/Hg','2013-02-12 01:35:57','2013-02-12 01:35:57'),(10,'Alcohol','drinks/week','2013-02-12 01:35:57','2013-02-12 01:35:57'),(11,'Smoking','cigarettes/day','2013-02-12 01:35:57','2013-02-12 01:35:57'),(12,'Waist Circumference','inches','2013-02-12 01:35:57','2013-02-12 01:35:57'),(13,'Pain','pain scale','2013-04-04 15:12:57','2013-04-04 15:12:59');
 /*!40000 ALTER TABLE `metrics` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -229,4 +229,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2013-04-17 17:35:34
+-- Dump completed on 2013-04-23 15:18:43
