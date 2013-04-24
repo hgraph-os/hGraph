@@ -66,7 +66,7 @@ var HGraph = function(opts) {
 	};
 
 	this.colors      = {
-		ring       : '#bdcc9e',
+		ring       : '#97be8c',
 		text       : '#444648',
 		outOfRange : '#e1604f',
 		inRange    : '#616363',
@@ -326,8 +326,12 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 		}
 	} else if (myValue > maxHealthyValue){
 		score = 70 * ((myValue-maxHealthyValue)/(maxAcceptableValue-maxHealthyValue)) + 30
+		if(score > 100)
+			score = 100;
 	} else {
 		score = -(70 * ((minHealthyValue-myValue)/(minHealthyValue-minAcceptableValue)) + 30)
+		if (score < -100)
+			score = -100;
 	}
 
 	return score;
