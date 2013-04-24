@@ -78,10 +78,10 @@ $(document).ready(function (){
 							}
 							
 							
-						} else if ((factor_json[i].name === 'Diastotic' || factor_json[i].name === 'Systotic') && bp != null)
+						} else if ((factor_json[i].name === 'Blood Pressure Diastolic' || factor_json[i].name === 'Blood Pressure Systolic') && bp != null)
 						{
 							bp.details.push({
-								label: factor_json[i].name,
+								label: factor_json[i].name.replace('Blood Pressure ', ''),
 								score: HGraph.prototype.calculateScoreFromValue(factor_json[i].features, random), 
 								value: parseFloat(random).toFixed(2) +  ' ' +  factor_json[i].features.unitlabel,
 								weight: factor_json[i].features.weight,

@@ -42,18 +42,18 @@ Defaults = D = {
     weight           : 1,
     fade_delay       : 100,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 900, height : 175 },
+    svg_element      : { width : 1100, height : 175 },
     svg_layers       : ["ui", "data"],
     block            : {"class" : "interaction-lock"},
     chart_dimensions : {
-        left   : 225,
+        left   : 425,
         top    : 40,
         width  : 550,
         height : 95
     },
     svg_cover : {
         "fill"   : "rgba(0,0,0,0.0)",
-        "x"      : 0,
+        "x"      : 200,
         "y"      : 0,
         "width"  : 900,
         "height" : 175
@@ -68,7 +68,7 @@ Defaults = D = {
         "stroke" : "#9d9f9f"
     },
     range_rect : {
-        "fill"   : "#bdcb9e",
+        "fill"   : "#97be8c",
         "y"      : 40,
         "height" : 94,
         "cursor" : "move"
@@ -95,7 +95,7 @@ Defaults = D = {
         "cx"   : 0
     },
     title_text : {
-        "x"              : 200,
+        "x"              : 400,
         "y"              : 134,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
@@ -104,8 +104,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     unit_text : {
-        "x"              : 200,
-        "y"              : 150,
+        "x"              : 400,
+        "y"              : 153,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
         "font-size"      : "12px",
@@ -113,8 +113,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     weight_bar : {
-        "x1"     : 837.5,
-        "x2"     : 837.5,
+        "x1"     : 1037.5,
+        "x2"     : 1037.5,
         "y1"     : 40,
         "y2"     : 135,
         "stroke" : "#c0c3c2"
@@ -122,7 +122,7 @@ Defaults = D = {
     weight_bounds : {
         "r"    : 2,
         "fill" : "#c0c3c2",
-        "cx"   : 837.5  
+        "cx"   : 1037.5  
     },
     curve_path : {
         "stroke-width" : 3,
@@ -145,7 +145,7 @@ Defaults = D = {
         "y"              : 5
     },
     daily_inputbox : {
-        "class" : "daily-input t",
+        "class" : "daily-input",
         "type"  : "text"
     },
     input_line : {
@@ -352,6 +352,7 @@ Metric.layerPrep = (function () {
         _moveLeftBound,  // moves the left bound circle
         _moveRightBound, // moves the right bound
         _moveWeight,     // moves the weight
+        _moveDaily,		 // moves the daily value
         _movePoint,      // moves individual points 
         _scrubPath,      // updates the scubbber bubble
         
@@ -364,11 +365,13 @@ Metric.layerPrep = (function () {
         
         /* interaction properties */
         _interactionState = { 
+        	over			: false,
             metric          : null, 
             activeE         : null, 
             hasMoved        : false, 
             initialDistance : null,
             pointIndex      : null,
+            touch			: false,
             isFocused       : false
         },
         
@@ -396,8 +399,11 @@ _startDrag = function ( evt ) {
         _interactionState.initialDistance = initialDistance;
         /* reset the hasMoved - nothing has happened yet... */
         _interactionState.hasMoved = false;
-
-        d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
+		
+        if(_interactionState.touch)
+        	d3.select(document).on("touchmove", _doDrag).on("touchend", _endDrag);
+        else
+        	d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
     }
 };
 
@@ -570,11 +576,24 @@ _moveWeight = function ( top ) {
     var ws  = this.ref.weightscale,
         wp  = ws.invert(top);
     
-    if( wp < 0 ) { wp = 0; }
+    if( wp < 1 ) { wp = 1; }
     if( wp > 10 ) { wp = 10; }
     
     this.pub.weight = Math.ceil( wp );
 };
+
+_moveDaily = function ( left ) {
+    var xs  = this.ref.xscale,
+        rp  = xs.invert(left),
+        lb  = this.pub.totalrange[0],
+        max = this.pub.totalrange[1];
+    
+    if( rp > max ) { rp = max; }
+    if( rp < lb ) { rp = lb; }
+    
+    this.pub.dayvalue =  Math.ceil( rp );
+};
+
 
 /* _movePoint
  *
@@ -632,6 +651,10 @@ _doDrag = function ( evt ) {
         case "ww" :
             _moveWeight.call( metric, relativeTop ); 
             break;
+        case "day" :
+        	_moveDaily.call(metric, relativeLeft);
+        	value = metric.pub.dayvalue;
+        	break;
         case "point" :
             _movePoint.call( metric, relativeLeft, relativeTop );
         default : 
@@ -658,7 +681,17 @@ _doDrag = function ( evt ) {
  * Releases previously bound listeners
 */  
 _endDrag = function ( evt ) {
-    d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
+    var metric = _interactionState.metric,
+        dom    = metric.dom;
+    if(_interactionState.touch)
+    	d3.select(document).on("touchmove", null).on("touchend", null); // remove event listeners
+    else
+    	d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
+    console.log(dom);
+    if (_interactionState.activeE === "day")
+    	if(_interactionState.over === false)
+    		$(dom.dayInputButton.node()).hide();
+    	
     
     /* clear out states */
     setTimeout(function () {
@@ -719,9 +752,12 @@ _dailyKeymanager = function ( ) {
     var evt    = d3.event,
         code   = evt.keyCode,
         isChar = isNaN( parseInt( String.fromCharCode(code), 10) );
-    
+    if(code >= 96 && code <= 105) {
+    	isChar = isNaN( parseInt( String.fromCharCode(code-48), 10));
+    }
+    console.log(code);
     /* only allow numbers, enter, and backspace */
-    if( code !== 190 && code !== 8 && code !== 13 && isChar ){ 
+    if( (code < 37 && code <= 40) && code !== 190 && code !== 8 && code !== 9 && code !== 13 && isChar ){ 
         return evt.preventDefault && evt.preventDefault(); 
     }
 };
@@ -814,6 +850,7 @@ ui = function ( layer ) {
     layer
         .append("text")
         .attr(D.title_text)
+        .attr('id', 'title-' + this.pub.name)
         .text(this.pub.name);
         
     layer
@@ -864,6 +901,7 @@ data = function ( layer ) {
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
+                    .attr('class', 'hr-' + metric.pub.name)
                     .attr("data-name", "range-rectangle")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
@@ -872,6 +910,12 @@ data = function ( layer ) {
                     }).on("click", function ( ) {
                         // _interactionState.metric  = metric;
                         // return _addScalePoint( d3.event );
+                    })
+                    .on('touchstart', function( ) {
+                        _interactionState.activeE = "rr";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        _interactionState.touch	  = false;
+                        return _startDrag( );               // begin registering events                      	
                     });
     if(readOnly){
         rangeRect.attr('cursor', 'auto');
@@ -908,6 +952,7 @@ data = function ( layer ) {
     
     pointGroup = layer
                     .append("g")
+                    .attr('class', 'pg-' + this.pub.name)
                     .attr("data-name", "point-group");
 
     curveBubble
@@ -929,6 +974,7 @@ data = function ( layer ) {
     
     weightNode = layer.append("g")
                     .attr("data-name", "weight-node")
+                    .attr('class', 'wght-' + metric.pub.name)
                     .attr("cursor", "pointer")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "ww";   // we are using the weight circle
@@ -948,7 +994,8 @@ data = function ( layer ) {
     weightNode
         .append("circle")
         .attr(D.bound_outer_circle)
-        .attr("r", 16.5);
+        .attr("r", 16.5)
+        .attr("cx", 200);
     
     
     
@@ -957,7 +1004,7 @@ data = function ( layer ) {
         .attr(D.bound_inner_circle)
         .attr("fill", "#585a5a")
         .attr("r", 12.5)
-        .attr("cx", 0);
+        .attr("cx", 200);
     
     leftBound.append("text").attr(D.bound_text);
     rightBound.append("text").attr(D.bound_text);
@@ -967,7 +1014,8 @@ data = function ( layer ) {
         .attr(D.bound_text)
         .attr("fill","#fff")
         .attr("y", 5)
-        .text( 4 );
+        .text( 4 )
+        .attr('x', 200);
     
     layer.on("mousemove", function () {
         
@@ -1012,6 +1060,9 @@ data = function ( layer ) {
                 input.attr("value",""); 
             }
         })
+        .on("mouseup", function() {
+        	d3.select(this)[0][0].select();
+        })
         .on("keydown", _dailyKeymanager )
         .on("keyup", _dailySubmit )
         .on("blur", function () {
@@ -1022,7 +1073,25 @@ data = function ( layer ) {
                 input.attr("value", pastValue );
             }
             
-            _whipeInteractionState( );
+            //_whipeInteractionState( );
+        });
+    dom.dayInputDiv
+    	.on("mouseover", function(){
+    		$(dom.dayInputButton.node()).show();
+    		_interactionState.over = true;
+    	})
+   	dom.dayInputDiv
+    	.on("mouseout", function(){
+    		_interactionState.over = false;
+    		if (_interactionState.activeE !== "day")
+    			$(dom.dayInputButton.node()).hide();
+    	})
+    dom.dayInputButton
+        .on("mousedown", function(){
+        	$(this).focus();
+            _interactionState.activeE = "day";   // we are using the weight circle
+            _interactionState.metric  = metric; // save the metric being acted upon
+            return _startDrag( );
         });
 
     dom.inputGroup  = inputGroup;
@@ -1139,13 +1208,14 @@ Metric.prototype = {
         var i = 0, layer, name,
             container = document.createElement("article"),
             context   = d3.select(container).append("svg"),
-            dayInput  = d3.select(container).append("input"),
+            dayInputDiv = d3.select(container).append('div'),
+            dayInput  = d3.select(dayInputDiv.node()).append("input"),
+            dayInputButton = d3.select(dayInputDiv.node()).append("img"),
             block     = d3.select(container).append("div"),
             dom       = this.dom,
-            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 4;
-                        
+            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 24;
         d3.select(container) // set the metric container's class
-            .attr("class", "metric cf middle"); 
+            .attr("class", "metric cf middle " + this.pub.name); 
             
         block
             .attr(D.block)
@@ -1154,10 +1224,16 @@ Metric.prototype = {
         context // set the default properties of the svg element
             .attr(D.svg_element); 
         
-        dayInput // set the default properties of the input box
-            .attr(D.daily_inputbox)
+        dayInputDiv
+        	.attr(D.daily_inputbox)
             .style({"top"  : inputY + "px"});
-                    
+        dayInput // set the default properties of the input box
+        	.attr(D.daily_inputbox);
+        dayInputButton
+        	.attr({'class': 'handle', src: '../img/handle.png', draggable: 'false'});
+        $(dayInputButton.node()).hide();
+        dom.dayInputDiv		 = dayInputDiv;
+        dom.dayInputButton 	 = dayInputButton;
         dom.dayInput         = dayInput;
         dom.loader           = block;
         dom.container        = container; // save the html container
@@ -1348,7 +1424,7 @@ Metric.prototype = {
         var value   = (U.type(this.pub.dayvalue) === "number") ? this.pub.dayvalue : 0,
             xscale  = this.ref.xscale,
             yscale  = this.ref.yscale,
-            inpute  = this.dom.dayInput,
+            inpute  = this.dom.dayInputDiv,
             inputg  = this.dom.inputGroup,
             or      = this.ref.boundaryflags[1],
             ol      = this.ref.boundaryflags[0],
@@ -1372,7 +1448,9 @@ Metric.prototype = {
         }
         
         inpute
-            .style({"left" : inputX+'px'})
+            .style({"left" : inputX+'px'});
+            
+        this.dom.dayInput
             .node().value = value;
             
         inputg
