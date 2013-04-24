@@ -1,4 +1,4 @@
-hGraph
+hGraph with hMixer
 ========
 
 An open source javascript-based web application for visualizing health data.
@@ -50,6 +50,8 @@ During a `window.onload` or similar entry point, the health graph is constructed
 ###More Info###
 
 Please visit: [hgraph.org](http://hgraph.org/)
+
+hMixer Demo: http://www.hscoremixer.org/
 
 ###License###
 
