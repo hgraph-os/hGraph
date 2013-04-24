@@ -51,6 +51,8 @@ During a `window.onload` or similar entry point, the health graph is constructed
 
 Please visit: [hgraph.org](http://hgraph.org/)
 
+hGraph Demo: http://www.hscoremixer.org/hGraph/
+
 hMixer Demo: http://www.hscoremixer.org/
 
 ###License###
