@@ -270,6 +270,18 @@ section.config article.demographics div.block.submit a{
     display: block;
 }
 
+section.config article.demographics div.block.submission a{
+    color: #494a49;
+    text-decoration: none;
+    font-family: 'Droid Serif', serif;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 12px;
+    text-transform: capitalize;
+    cursor: pointer;
+    display: block;
+}
+
 section.metrics{ 
     width: 1100px;
     overflow: hidden;
@@ -311,7 +323,8 @@ article.metric input.daily-input{
 
 article.metric img.handle{
     width: 34px;
-    height: 14px;
+    height: 34px;
+    margin-top: -10px;
 }
 
 table {
@@ -599,4 +612,7 @@ table th[class*="span"],
 .darkClass {
 	position: relative;
 	top: 30px;
+}
+.alertify-log-success {
+	background: #609C4F;
 }

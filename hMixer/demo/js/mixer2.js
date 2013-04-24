@@ -68,7 +68,7 @@ Defaults = D = {
         "stroke" : "#9d9f9f"
     },
     range_rect : {
-        "fill"   : "#bdcb9e",
+        "fill"   : "#97be8c",
         "y"      : 40,
         "height" : 94,
         "cursor" : "move"
@@ -105,7 +105,7 @@ Defaults = D = {
     },
     unit_text : {
         "x"              : 400,
-        "y"              : 150,
+        "y"              : 153,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
         "font-size"      : "12px",
@@ -371,6 +371,7 @@ Metric.layerPrep = (function () {
             hasMoved        : false, 
             initialDistance : null,
             pointIndex      : null,
+            touch			: false,
             isFocused       : false
         },
         
@@ -398,8 +399,11 @@ _startDrag = function ( evt ) {
         _interactionState.initialDistance = initialDistance;
         /* reset the hasMoved - nothing has happened yet... */
         _interactionState.hasMoved = false;
-
-        d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
+		
+        if(_interactionState.touch)
+        	d3.select(document).on("touchmove", _doDrag).on("touchend", _endDrag);
+        else
+        	d3.select(document).on("mousemove", _doDrag).on("mouseup", _endDrag);
     }
 };
 
@@ -679,7 +683,10 @@ _doDrag = function ( evt ) {
 _endDrag = function ( evt ) {
     var metric = _interactionState.metric,
         dom    = metric.dom;
-    d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
+    if(_interactionState.touch)
+    	d3.select(document).on("touchmove", null).on("touchend", null); // remove event listeners
+    else
+    	d3.select(document).on("mousemove", null).on("mouseup", null); // remove event listeners
     console.log(dom);
     if (_interactionState.activeE === "day")
     	if(_interactionState.over === false)
@@ -745,9 +752,12 @@ _dailyKeymanager = function ( ) {
     var evt    = d3.event,
         code   = evt.keyCode,
         isChar = isNaN( parseInt( String.fromCharCode(code), 10) );
-    
+    if(code >= 96 && code <= 105) {
+    	isChar = isNaN( parseInt( String.fromCharCode(code-48), 10));
+    }
+    console.log(code);
     /* only allow numbers, enter, and backspace */
-    if( code !== 190 && code !== 8 && code !== 13 && isChar ){ 
+    if( (code < 37 && code <= 40) && code !== 190 && code !== 8 && code !== 9 && code !== 13 && isChar ){ 
         return evt.preventDefault && evt.preventDefault(); 
     }
 };
@@ -840,6 +850,7 @@ ui = function ( layer ) {
     layer
         .append("text")
         .attr(D.title_text)
+        .attr('id', 'title-' + this.pub.name)
         .text(this.pub.name);
         
     layer
@@ -890,6 +901,7 @@ data = function ( layer ) {
     
     rangeRect = layer.append("rect")
                     .attr(D.range_rect)
+                    .attr('class', 'hr-' + metric.pub.name)
                     .attr("data-name", "range-rectangle")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "rr";   // we are using the range rect
@@ -898,6 +910,12 @@ data = function ( layer ) {
                     }).on("click", function ( ) {
                         // _interactionState.metric  = metric;
                         // return _addScalePoint( d3.event );
+                    })
+                    .on('touchstart', function( ) {
+                        _interactionState.activeE = "rr";   // we are using the range rect
+                        _interactionState.metric  = metric; // save the metric being acted upon
+                        _interactionState.touch	  = false;
+                        return _startDrag( );               // begin registering events                      	
                     });
     if(readOnly){
         rangeRect.attr('cursor', 'auto');
@@ -934,6 +952,7 @@ data = function ( layer ) {
     
     pointGroup = layer
                     .append("g")
+                    .attr('class', 'pg-' + this.pub.name)
                     .attr("data-name", "point-group");
 
     curveBubble
@@ -955,6 +974,7 @@ data = function ( layer ) {
     
     weightNode = layer.append("g")
                     .attr("data-name", "weight-node")
+                    .attr('class', 'wght-' + metric.pub.name)
                     .attr("cursor", "pointer")
                     .on("mousedown", function ( ) {
                         _interactionState.activeE = "ww";   // we are using the weight circle
@@ -1040,6 +1060,9 @@ data = function ( layer ) {
                 input.attr("value",""); 
             }
         })
+        .on("mouseup", function() {
+        	d3.select(this)[0][0].select();
+        })
         .on("keydown", _dailyKeymanager )
         .on("keyup", _dailySubmit )
         .on("blur", function () {
@@ -1050,7 +1073,7 @@ data = function ( layer ) {
                 input.attr("value", pastValue );
             }
             
-            _whipeInteractionState( );
+            //_whipeInteractionState( );
         });
     dom.dayInputDiv
     	.on("mouseover", function(){
@@ -1065,6 +1088,7 @@ data = function ( layer ) {
     	})
     dom.dayInputButton
         .on("mousedown", function(){
+        	$(this).focus();
             _interactionState.activeE = "day";   // we are using the weight circle
             _interactionState.metric  = metric; // save the metric being acted upon
             return _startDrag( );
@@ -1190,9 +1214,8 @@ Metric.prototype = {
             block     = d3.select(container).append("div"),
             dom       = this.dom,
             inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 24;
-                        
         d3.select(container) // set the metric container's class
-            .attr("class", "metric cf middle"); 
+            .attr("class", "metric cf middle " + this.pub.name); 
             
         block
             .attr(D.block)
