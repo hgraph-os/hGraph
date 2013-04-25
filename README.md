@@ -57,6 +57,7 @@ hMixer Demo: http://www.hscoremixer.org/
 
 ###Core Contributors###
 Founders/Designers: [Involution Studios](http://www.goinvo.com/)
+
 Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 
 ###License###
