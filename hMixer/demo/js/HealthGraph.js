@@ -11,6 +11,7 @@ Requires:
 Authors:
 	Michael Bester <michael@kimili.com>
 	Danny Hadley <danny@goinvo.com>
+	Matt Madonna <matthew@myimedia.com>
 
 License:
 	Copyright 2012, Involution Studios <http://goinvo.com>
