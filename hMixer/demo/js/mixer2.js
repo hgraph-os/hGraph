@@ -3,6 +3,7 @@
  * http://hgraph.org/hMixer                                *
  * Author(s):                                              *
  *  - Danny Hadley <danny@goinvo.com>                      *
+ *  - Matthew Madonna <matthew@myimedia.com>               *
  * License:                                                *
  *  Copyright 2013, Involution Studios <http://goinvo.com> *
  *  under the Apache License, Version 2.0                  *
