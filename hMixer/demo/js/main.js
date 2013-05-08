@@ -11,7 +11,9 @@
         metrics,  // the metrics to populate with      (optional)
         options,  // options for how the hMixer works  (optional)
         ajaxconf, // ajax configuration                (optional)
-        onloaded; // onloaded callback for ajax method (optional)
+        onloaded, // onloaded callback for ajax method (optional)
+        inUser = false,
+        thisUser;
 
 	var MetricSpace = MetricSpace || {};
 
@@ -163,7 +165,6 @@ metrics = [{"gender":"male",
 
 
 if($.getUrlVar('email') != null){
-	console.log($.getUrlVar('readonly'))
 	ajaxconf = {
 	    url      : "/tests/metrics.json?email=" + $.getUrlVar('email'),
 	    callback : onloaded
@@ -199,7 +200,7 @@ if($.getUrlVar('email') != null){
 }
 
 ready = function () {
-    	Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
+    Mixer.init(ajaxconf, options); // initialize the Mixer (ajax version)
 };
 
 Entry( ready ); // Use the Entry funciton defined in Utils
@@ -257,6 +258,9 @@ $.ajax({
 				$('.label').remove;
 				$('#viz').css('margin-left', '-35px');
 				$('.overall').css('font-size', '2rem');
+			    thisUser = Mixer.saveMetrics();
+			    inUser = false;
+			    console.log(thisUser);
    			}
 		}
 	}
@@ -326,11 +330,10 @@ fillData = function(){
 
 /* submissions on metrics page */
 $('#submissions').on('click', (function(event) {
-	$('#submit').attr('value', 'Create New');
-	$('#submit').on ('click', function(event){
-		window.location = '?';
-	});
 	userarray = [];
+	if(!inUser)
+		thisUser = Mixer.saveMetrics();
+	console.log(thisUser);
 	var User = Backbone.Model.extend({
 		initialize: function(){
 			this.isParseing = true;
@@ -371,12 +374,10 @@ $('#submissions').on('click', (function(event) {
 		newListeners: function() {
 			var parent = this;
 			this.collection.each(function(usr) {
-				console.log(usr)
 				parent.listenTo(usr, "change", parent.render);
 			});
 		},
 		render: function() {
-			console.log('in here')
 			Array.prototype.insert = function (index, item) {
 			  this.splice(index, 0, item);
 			};
@@ -390,10 +391,34 @@ $('#submissions').on('click', (function(event) {
 			}
 			this.collection.length = userarray.length;
   			var innerhtml = $("<table class=\"table table-bordered user-table\"><tbody>");
-  			console.log(this.collection);
   			div_onclick = function(pemail, pname) {
-					console.log('onclick mixer init ' + pemail);
-            		window.location = ("?email=" + pemail+"&name=" + pname  + "&readonly=true");
+				var ajaxconf = {
+					url      : "/tests/metrics.json?email=" + pemail,
+				  	callback : onloaded
+				};
+				var options = {
+			    	allowTextSelection : false,
+				    read_only: true
+				}
+				var links = $('.main-nav .cf.middle');
+				var user = $('<li class="f submitter"><a class="t feedback" id="submitter">' + pname +'</a></li>')
+				if(links.find('.submitter').length == 0) {
+					links.append(user);
+				} else  {
+					user.replaceAll(links.find('.submitter'));
+				}
+				var list = $('a.t')
+				list.removeClass('active');
+				user.find('a').addClass('active');
+				user.on('click', function() {
+					Mixer.init(ajaxconf, options);
+					var list = $('a.t')
+					list.removeClass('active');
+					user.find('a').addClass('active');
+					inUser = true;
+				});
+				inUser = true;
+				Mixer.init(ajaxconf, options);
   			};
   			
 			$('#' + this.id).html(innerhtml);
@@ -404,7 +429,10 @@ $('#submissions').on('click', (function(event) {
 				// hRenderZone.insertAdjacentHTML('beforeend', '<tr data-email="' + params[0].email + '" id="hasemail" onmouseover="this.style.background=&#x27gray&#x27" onmouseout="this.style.background=&#x27#f6f7f6&#x27" class="hasemail' + value.user_id + '" ><td>' + full_name + '</td><td>' + value.user_id + '</td><td>' + value.message + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
 				if(usr.get('email') != undefined) {					
 					innerhtml.append('<tr data-email="' + usr.get('email') + '" id="hasemail" class="hasemail' + usr.get('user_id') + '" ><td>' + usr.get('full_name') + '</td><td>' + usr.get('user_id') + '</td><td>' + usr.get('message') + '</td><td>' + c[0] + '</td><td>' + u[0] + '</td></tr>');
-					innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() { console.log('in here'); div_onclick($(this).attr('data-email'), usr.get('full_name')); });
+					innerhtml.find('.hasemail' + usr.get('user_id')).on ("click", function() {
+							console.log('in here'); 
+							div_onclick($(this).attr('data-email'), usr.get('full_name')); 
+						});
 				} else {
 					var row = $('<tr><td class="loading" colspan = "5">Loading<td></tr>')
 					innerhtml.append(row);
@@ -659,20 +687,41 @@ else {
 		}
 	
 	});
+	$('a.t').on('click', function() {
+		list = $('a.t')
+		list.removeClass('active');
+		$(this).addClass('active');
+		console.log($(this));
+		if($(this).attr('id') === 'home'){			
+			if(!inUser)
+				thisUser = Mixer.saveMetrics();
+			inUser = true;
+			console.log(Mixer.getMetric());
+			options = {
+			    allowTextSelection : false
+			};
+			Mixer.init(thisUser,options);
+		}
+	})
+	$('.submit2').css('left', $('.config').position().left-10);
+	if($('.submit2').position().left + $('.submit2').width() > $(window).width())
+		{
+			$('.submit2').css('right', '0px');
+			$('.submit2').css('left', '');
+		}
+		else {
+			$('.submit2').css('right', '');
+		}
+	$(window).resize(function(){
+		$('.submit2').css('left', $('.config').position().left);
+		if($('.submit2').position().left + $('.submit2').width() > $(window).width())
+		{
+			$('.submit2').css('right', '0px');
+			$('.submit2').css('left', '');
+		}else {
+			$('.submit2').css('right', '');
+		}
+			
+	});
 }
 })();
-//google analytics
-(function (i, s, o, g, r, a, m) {
-    i['GoogleAnalyticsObject'] = r;
-    i[r] = i[r] || function () {
-        (i[r].q = i[r].q || []).push(arguments)
-    },
-    i[r].l = 1 * new Date();
-    a = s.createElement(o),
-    m = s.getElementsByTagName(o)[0];
-    a.async = 1;
-    a.src = g;
-    m.parentNode.insertBefore(a, m)
-})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-ga('create', 'UA-10273473-9', 'hscoremixer.org');
-ga('send', 'pageview');
