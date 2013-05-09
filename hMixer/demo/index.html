@@ -22,30 +22,41 @@
     <script type="text/javascript" src="js/lib/jquery.cookie.js"></script>
     <script type="text/javascript" src="js/lib/modernizr.mq.js"></script>
 	<script type="text/javascript" src="js/lib/jquery.joyride-2.0.3.js"></script>
+	<script type="text/javascript">
+		//google analytics
+		(function (i, s, o, g, r, a, m) {
+		    i['GoogleAnalyticsObject'] = r;
+		    i[r] = i[r] || function () {
+		        (i[r].q = i[r].q || []).push(arguments)
+		    },
+		    i[r].l = 1 * new Date();
+		    a = s.createElement(o),
+		    m = s.getElementsByTagName(o)[0];
+		    a.async = 1;
+		    a.src = g;
+		    m.parentNode.insertBefore(a, m)
+		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+		ga('create', 'UA-10273473-9', 'hscoremixer.org');
+		ga('send', 'pageview');
+	</script>
 </head>
 <body>
 
     <section class="middle content pw cf">
-        <section class="f cf">
+    	<section class="header">
+            <img src="img/page-logo.png" class="logo" alt="" width="130">
+            <span class="header-info">
+                <a href="mailto:hgraph@goinvo.com?subject=hScore Mixer Feedback" class="feedback">Feedback</a>
+            </span>
+    	</section>
+        <section class="main f cf">
             <nav class="main-nav middle">
                 <ul class="cf middle">
                     <li class="f">
-                        <a class="active t" href="#" title="">Core</a>
+                        <a class="active t" id='home'>Your hScore</a>
                     </li>
-                    <li class="f">
-                        <a class="t" href="#" title="">Labs</a>
-                    </li>
-                    <li class="f">
-                        <a class="t" href="#" title="">Conditions</a>
-                    </li>
-                    <li class="f">
-                        <a class="t" href="#" title="">Environment</a>
-                    </li>
-                    <li class="f">
-                        <a class="t" href="#" title="">Vaccinations</a>
-                    </li>
-                    <li class="f">
-                        <a class="t" href="#" title="">Medications</a>
+                    <li class="f submission">	           
+	                    <a class="t feedback" id="submissions">Community Submissions</a>
                     </li>
                 </ul>
             </nav>
@@ -56,22 +67,12 @@
         </section>
         
         <section class="f config">
-            <img src="img/page-logo.png" class="logo" alt="" width="130">
             <article class="preview middle">
 	            <figure id="viz" class="content_inset healthgraph detailed">
 				</figure>
             </article>
             <article class="demographics middle">
                  <form class="submit-form">
-                    <h4>Demographics</h4>
-                    
-                    <div class="block middle">
-                        <dl>
-                            <dt>Age</dt>
-                            <dd>40yo</dd>
-                        </dl>
-                    </div>
-                    
                     <div class="block middle gender">
                         <dl>
                             <dt>Gender</dt>
@@ -87,29 +88,11 @@
                     </div>
                     
                     <div class="block middle height">
-                        <dl>
-                            <dt>Height</dt>
-                            <dd class="cf middle">
-                                <span>'</span>
-                                <input type="text" class="height-input f" data-name="feet" value="">
-                                <input type="text" class="height-input f" data-name="inches" value="">
-                                <span>"</span>
-                            </dd>
-                        </dl>
-                        <!--<dl>
-                        	<br />
-                            <dt>Email</dt>
-                            <input type="text" class="email-input f" value="" id="email">
-                        </dl>-->
+
                    	</div>
                     
                     <div class="block middle submit submit2">
-                        <p class="middle">Submit your mixed hScore</p>
-                        <input class="submit middle" value="submit" type="button" id="submit">
-                        <a href="mailto:hgraph@goinvo.com?subject=hScore Mixer Feedback" class="feedback">Feedback</a>
-                    </div>
-                    <div class="block middle height submission">
-                        <a class="feedback" id="submissions">submissions</a>
+                        <input class="submit middle" value="Submit hScore" type="button" id="submit">
                     </div>
                 </form>
                 

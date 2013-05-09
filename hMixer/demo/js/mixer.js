@@ -1821,11 +1821,11 @@ __mixer = {
      * @param {object} [opts] Options for the hMixer page
     */
     init : function ( metricList, opts ) {
-	console.log('got here, Mixer init');
+		console.log('got here, Mixer init');
         if( opts && U.type(opts) === "object" ){ _setOptions( opts ); }
         var returnresult = hPrepped ? true : false;
-	hPrepped = false;
-	console.log('return result is ' + returnresult);
+		hPrepped = false;
+		console.log('return result is ' + returnresult);
         return (hPrepped) ? U.e("Mixer was already prepped.") : _prepMixer( metricList || false );
     },
     

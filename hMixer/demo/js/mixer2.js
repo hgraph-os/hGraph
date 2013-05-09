@@ -43,18 +43,18 @@ Defaults = D = {
     weight           : 1,
     fade_delay       : 100,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 1100, height : 175 },
+    svg_element      : { width : 1030, height : 175 },
     svg_layers       : ["ui", "data"],
     block            : {"class" : "interaction-lock"},
     chart_dimensions : {
-        left   : 425,
+        left   : 355,
         top    : 40,
         width  : 550,
         height : 95
     },
     svg_cover : {
         "fill"   : "rgba(0,0,0,0.0)",
-        "x"      : 200,
+        "x"      : 130,
         "y"      : 0,
         "width"  : 900,
         "height" : 175
@@ -96,7 +96,7 @@ Defaults = D = {
         "cx"   : 0
     },
     title_text : {
-        "x"              : 400,
+        "x"              : 330,
         "y"              : 134,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
@@ -105,7 +105,7 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     unit_text : {
-        "x"              : 400,
+        "x"              : 330,
         "y"              : 153,
         "fill"           : "#9d9f9f",
         "font-family"    : "'Droid Serif',serif",
@@ -114,8 +114,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     weight_bar : {
-        "x1"     : 1037.5,
-        "x2"     : 1037.5,
+        "x1"     : 967.5,
+        "x2"     : 967.5,
         "y1"     : 40,
         "y2"     : 135,
         "stroke" : "#c0c3c2"
@@ -123,7 +123,7 @@ Defaults = D = {
     weight_bounds : {
         "r"    : 2,
         "fill" : "#c0c3c2",
-        "cx"   : 1037.5  
+        "cx"   : 967.5  
     },
     curve_path : {
         "stroke-width" : 3,
@@ -150,8 +150,9 @@ Defaults = D = {
         "type"  : "text"
     },
     input_line : {
-        "stroke"           : "#9d9f9f",
-        "stroke-dasharray" : "3,3"
+        "stroke"           : "#6c6e6d",
+        "stroke-dasharray" : "3,3",
+        "stroke-width"	   : "3"
     },
     input_score_circle : {
         "fill" : "#e16851",
@@ -665,6 +666,7 @@ _doDrag = function ( evt ) {
     if (isNaN(value)){
 		value = 0;    
     }
+    console.log(graph.getIdByLabel(metric.pub.name));
     graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
 		score: graph.calculateScoreFromValue(metric.pub, value),
 		value: value + ' ' + metric.pub.unitlabel,
@@ -996,7 +998,7 @@ data = function ( layer ) {
         .append("circle")
         .attr(D.bound_outer_circle)
         .attr("r", 16.5)
-        .attr("cx", 200);
+        .attr("cx", 130);
     
     
     
@@ -1005,7 +1007,7 @@ data = function ( layer ) {
         .attr(D.bound_inner_circle)
         .attr("fill", "#585a5a")
         .attr("r", 12.5)
-        .attr("cx", 200);
+        .attr("cx", 130);
     
     leftBound.append("text").attr(D.bound_text);
     rightBound.append("text").attr(D.bound_text);
@@ -1016,7 +1018,7 @@ data = function ( layer ) {
         .attr("fill","#fff")
         .attr("y", 5)
         .text( 4 )
-        .attr('x', 200);
+        .attr('x', 130);
     
     layer.on("mousemove", function () {
         
@@ -1214,7 +1216,7 @@ Metric.prototype = {
             dayInputButton = d3.select(dayInputDiv.node()).append("img"),
             block     = d3.select(container).append("div"),
             dom       = this.dom,
-            inputY    = D.chart_dimensions.top + D.chart_dimensions.height + 24;
+            inputY    = D.chart_dimensions.top + D.chart_dimensions.height-20;
         d3.select(container) // set the metric container's class
             .attr("class", "metric cf middle " + this.pub.name); 
             
@@ -1529,6 +1531,7 @@ Mixer = (function () {
     
         /* private functions */
         _prepMixer,         // Initialization function
+        _reprepMixer,		// Reinitialize function
         _populateMetrics,   // Metric creation function 
         _setOptions,        // Optional option setting
         _svgDefs,           // creation of handy SVG styles
@@ -1730,6 +1733,7 @@ _setOptions = function ( options ) {
  */
 _renderGenderData = function ( ){
     var i, j, metric, gender, mlist, metrics;
+    console.log(hSavedData);
 	gender  = hSavedData[hGenderIndex].gender;  // which gender is this list
 	mlist   = hSavedData[hGenderIndex].metrics; // get the metric list
     metrics = [ ];                                 // reset metric array
@@ -1739,7 +1743,10 @@ _renderGenderData = function ( ){
     /* reset old gender index */
     hMetricIndex = 0;
     
-    
+    var list = $('.block.middle.height');
+    console.log(list);
+    list.html('');
+    list.append('<span class="daily_title">Patient Synthesizer</span><br />')
     /* loop through the metrics */        
     for(j = 0; j < mlist.length; j++){
                 
@@ -1753,9 +1760,10 @@ _renderGenderData = function ( ){
         
         /* push the stripped metric into the hMetrics array */
         metrics.push( metric );
-        
+        console.log(metric);
+        list.append('<span class="daily_name">' + metric.pub.name + '</span><br /><span><input  class="daily_input_span" id="metric' + metric.index + '"/><span class="daily_label">' + metric.pub.unitlabel + '</span></span><br />');
     }
-
+	$('section.config').css('height', $('section.main').height());
     return _finalize( metrics );
 }
 
@@ -1832,6 +1840,20 @@ _prepMixer = function ( metricList ) {
     return (metricList === false) ? U.e("Mixer.init must be called with an array or an object") : true;
 };
 
+_reprepMixer = function() {
+    /* find the context to render metrics inside */
+    hRenderZone = document.getElementById("metrics")
+                    || document.getElementById("context")
+                    || document.getElementById("hMixer")
+                    || document.body.appendChild(document.createElement("section"));
+    
+    
+    d3.select(hRenderZone)
+        .attr("class","f metrics cf")
+        .attr("id", "metrics");
+    _populateMetrics(hSavedData);
+}
+
 __mixer = {  
     version : "1.3", 
     
@@ -1844,9 +1866,33 @@ __mixer = {
     init : function ( metricList, opts ) {
         if( opts && U.type(opts) === "object" ){ _setOptions( opts ); }
         
-        return (hPrepped) ? U.e("Mixer was already prepped.") : _prepMixer( metricList || false );
+        return _prepMixer( metricList || false );
     },
-    
+    reinit : function() {
+    	if(hPrepped)
+    		return _reprepMixer();
+    	return U.e("Mixer.init must be called first");
+    },
+    saveMetrics: function() {
+	    for(var i = 0; i < hSavedData[0].metrics.length; i++)
+	    {
+	   	    hSavedData[0].metrics[i].name = hMetrics[i + 0 * hSavedData[0].metrics.length].name
+	   	    for(var j in hMetrics[i + 0 * hSavedData[0].metrics.length])
+	   	    	if (j != 'name')
+	   	    		hSavedData[0].metrics[i].features[j] = hMetrics[i + 0 * hSavedData[0].metrics.length][j]		
+	    }
+	    try{ 
+		    for(var i = 0; i < hSavedData[1].metrics.length; i++)
+		    {
+		   	    hSavedData[1].metrics[i].name = hMetrics[i + 1 * hSavedData[1].metrics.length].name
+		   	    for(var j in hMetrics[i + 1 * hSavedData[1].metrics.length])
+		   	    	if (j != 'name')
+		   	    		hSavedData[1].metrics[i].features[j] = hMetrics[i + 1 * hSavedData[1].metrics.length][j]		
+		    }
+	    } catch (err) {
+	    }
+	    return hSavedData;
+    },
     /* Mixer.getMetric
      * 
      * Returns either the whole list of metrics,
@@ -1868,6 +1914,14 @@ __mixer = {
         }
         
         return false;
+    },
+    getMetricByGender : function () {
+    	var arr = [];
+    	for(var i = 0; i < hSavedData[hGenderIndex].metrics.length; i++)
+	    {
+	    	arr.push(hSavedData[hGenderIndex].metrics);	
+	    }
+	    return arr;
     },
      /*Mixer.getGender
      * 
