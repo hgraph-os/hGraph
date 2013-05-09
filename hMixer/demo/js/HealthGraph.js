@@ -797,9 +797,11 @@ HGraph.prototype.calculateHealthScore = function(){
 		var widthGood = this.healthRange.upper - this.healthRange.lower;
 		var factor, sumSquares=0;
 		for(factor in this.userdata.factors){
-			numPoints += this.userdata.factors[factor].weight;
-			var score = Math.abs(this.userdata.factors[factor].score)-100;
-			sumSquares = sumSquares + (Math.pow(idealValue - score,2) * this.userdata.factors[factor].weight);
+			if(!isNaN(factor)) {
+				numPoints += this.userdata.factors[factor].weight;
+				var score = Math.abs(this.userdata.factors[factor].score)-100;
+				sumSquares = sumSquares + (Math.pow(idealValue - score,2) * this.userdata.factors[factor].weight);
+			}
 		}
 		/*console.log('idealValue='+idealValue);
 		console.log('numPoints='+numPoints);
