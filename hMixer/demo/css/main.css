@@ -1,4 +1,4 @@
-body{ background: #f6f7f6; font-family: 'Droid Serif', serif; color: #9d9f9f; }
+body{ background: #F5F6F6; font-family: 'Droid Serif', serif; color: #9d9f9f; }
 
 section.content{ padding-top: 5px; }
 div.no-vis{ 
@@ -31,7 +31,7 @@ nav.main-nav ul{
     list-style: none;
     display: inline-block;
     padding: 0px 10px 0px 10px;
-    margin-left: 350px;
+    margin-top: 10px;
     position: relative;
 }
 nav.main-nav ul:after{
@@ -69,11 +69,13 @@ nav.main-nav ul li a{
 nav.main-nav ul li a:hover,
 nav.main-nav ul li a.active{ background: rgba(0,0,0,0.075); }
 section.config{ 
-    width: 180px; 
+    width: 250px; 
     min-height: 300px; 
-    background-color: #ececed;
-    border-radius: 6px;
+    /*background-color: #ececed;
+    border-radius: 6px;*/
     padding: 25px 0px 25px 0px;
+    border: solid 1px;
+    border-top: none;
 }
 section.config img.logo{ 
     display: block; 
@@ -205,7 +207,11 @@ section.config article.demographics div.block.height dl dd span:first-child{ lef
 section.config article.demographics div.block.height dl dd span:last-child{ left: 98%; }
 
 section.config article.demographics div.block.submit{
-    margin-top: 200px;
+   	position: fixed;
+	bottom: 0px;
+	background: #D4D4D5;
+	width: 250px;
+	height: 70px;
 }
 section.config article.demographics div.block.submit p{
     font-size: 12px;
@@ -240,18 +246,19 @@ section.config article.demographics div.block.height input[type="button"]{
 }
 
 section.config article.demographics div.block.submit input[type="button"]{
-    background: #6d89b4;
+    background: #97be8c;
     
     color: white;
     text-shadow: 0px 0px 1px rgba(0,0,0,0.9);
     font-family: 'Droid Serif', serif;
-    font-size: 16px;              
+    font-weight: bold;
+    font-size: 20px;              
     line-height: 30px;
     
+    width: 95%;
+	height: 80%;
     
-    height: 30px;
     border-radius: 4px;
-    width: 140px;
     margin-top: 5px;
     cursor: pointer;
     display: block;
@@ -283,12 +290,12 @@ section.config article.demographics div.block.submission a{
 }
 
 section.metrics{ 
-    width: 1100px;
+    width: 1030px;
     overflow: hidden;
 }
 
 article.metric{
-    width: 1100px;
+    width: 1030px;
     height: 175px;
     margin: 0px auto 30px;
     position: relative;
@@ -324,7 +331,7 @@ article.metric input.daily-input{
 article.metric img.handle{
     width: 34px;
     height: 34px;
-    margin-top: -10px;
+   /* margin-top: -10px; */
 }
 
 table {
@@ -615,4 +622,53 @@ table th[class*="span"],
 }
 .alertify-log-success {
 	background: #609C4F;
+}
+.daily_input_span{
+	width: 95%;
+	height: 25px;
+	border: solid 1px #9d9f9f;
+	border-radius: 5px;
+}
+.daily_name{
+	color: #3c3f3d;
+	float: left;
+	margin-left: 20px;
+	margin-top: 15px;
+}
+.daily_title{
+	color: #3c3f3d;
+	float: left;
+	margin-left: 20px;
+}
+.daily_label{
+	position: relative;
+	top: -20px;
+	text-align: right;
+	float: right;
+	right: 30px;
+}
+.header{
+	background: #EBECED;
+}
+
+.header .header-info {
+	float: right;
+	margin-top: 8px;
+	margin-right: 8px;
+	color: black;
+}
+
+.header .header-info > a {
+	text-decoration: none;
+	color: black;
+}
+
+.header .header-info > a:hover {
+	text-decoration: none;
+	color: black;
+	font-weight: bold;
+}
+
+.main{
+	border-left: 1px solid;
 }
