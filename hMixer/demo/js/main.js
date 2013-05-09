@@ -13,6 +13,7 @@
         ajaxconf, // ajax configuration                (optional)
         onloaded, // onloaded callback for ajax method (optional)
         inUser = false,
+        otherUser,
         thisUser;
 
 	var MetricSpace = MetricSpace || {};
@@ -72,13 +73,21 @@ $(window).ready(joy = $('#joyRideTipContent').joyride({
 		if (index == 3) {
 			$('.joyride-expose-wrapper').hide();
 		}
+		if (index == 10) {
+			console.log(index);
+			console.log(tip);
+			$(window).scrollTop(0);
+		}
 	},
+	scroll: false,
 	modal:true,
 	expose: true
 }));
 var joyride = $.getUrlVar('joyride');
-if(joyride)
+if(joyride){
 	joy.joyride();
+}
+$('.help').on('click', function(){joy.joyride()});
 if ($.getUrlVar('name') != null)
 	alertify.success("<h1>You Are Looking At " +$.getUrlVar('name') + "'s mixer.</h1>");
 else if (cookieName != null)
@@ -331,8 +340,12 @@ fillData = function(){
 /* submissions on metrics page */
 $('#submissions').on('click', (function(event) {
 	userarray = [];
+	console.log(inUser);
 	if(!inUser)
 		thisUser = Mixer.saveMetrics();
+	else
+		otherUser = Mixer.saveMetrics();
+
 	console.log(thisUser);
 	var User = Backbone.Model.extend({
 		initialize: function(){
@@ -411,7 +424,7 @@ $('#submissions').on('click', (function(event) {
 				list.removeClass('active');
 				user.find('a').addClass('active');
 				user.on('click', function() {
-					Mixer.init(ajaxconf, options);
+					Mixer.init(otherUser, options);
 					var list = $('a.t')
 					list.removeClass('active');
 					user.find('a').addClass('active');
@@ -695,7 +708,9 @@ else {
 		if($(this).attr('id') === 'home'){			
 			if(!inUser)
 				thisUser = Mixer.saveMetrics();
-			inUser = true;
+			else
+				otherUser = Mixer.saveMetrics();
+			inUser = false;
 			console.log(Mixer.getMetric());
 			options = {
 			    allowTextSelection : false

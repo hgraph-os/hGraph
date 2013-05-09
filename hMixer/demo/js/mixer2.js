@@ -1539,7 +1539,8 @@ Mixer = (function () {
         _renderGenderData,  //
         _prepGenderToggles, //
         _genderToggle,      //
-        _finalize;          //
+        _finalize,          //
+        _finished = 0;
         
 
 /* _finalize
@@ -1587,11 +1588,35 @@ _keyManager = function ( ) {
 */
 _genderToggle = function ( ) {
     var evt = d3.event,
-        gen = d3.select( this ).attr("data-gender"),
-        par = d3.select( this.parentNode ).select("button.active").classed("active", false);
-    
+        gen = d3.select( this ).attr("data-gender");
+        //par = d3.select( this.parentNode ).select("button.active").classed("active", false);
+    //console.log($('.gender').find('button.active svg').get());
+    _finished += 50;
+    if (_finished > 100)
+    	_finished = 100;
+    d3.select( '.gender').selectAll('button.active').selectAll('svg').append('rect').attr({
+    		'x' : '-5',
+    		'y' : '9',
+    		'width' : '5',
+    		'height' : '9',
+    		'fill' : 'green',
+    		'stroke' : 'none',
+    		'stroke-width': '1',
+    		'transform' : 'rotate(-45)'
+    	});
+    d3.select( '.gender').selectAll('button.active').selectAll('svg').append('rect').attr({
+    		'x' : '13',
+    		'y' : '-11',
+    		'width' : '5',
+    		'height' : '13',
+    		'fill' : 'green',
+    		'stroke' : 'none',
+    		'stroke-width': '1',
+    		'transform' : 'rotate(45)'
+    	});
+    $('.gender').find('button.active').removeClass('active');
     d3.select(this).classed("active", true);
-  
+  	$('.g-title dt').text(_finished + '% Complete')
     //hSavedData[hGenderIndex].gender = (gen === "male") ? "female" : "male";
     //hSavedData[hGenderIndex].metrics = hMetrics;
     for(var i = 0; i < hSavedData[hGenderIndex].metrics.length; i++)
@@ -1745,7 +1770,7 @@ _renderGenderData = function ( ){
     var list = $('.block.middle.height');
     console.log(list);
     list.html('');
-    list.append('<span class="daily_title">Patient Synthesizer</span><br />')
+    list.append('<span class="daily_title">Patient Synthesizer</span><br /><br />')
     /* loop through the metrics */        
     for(j = 0; j < mlist.length; j++){
                 

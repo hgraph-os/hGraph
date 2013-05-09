@@ -46,7 +46,13 @@
     	<section class="header">
             <img src="img/page-logo.png" class="logo" alt="" width="130">
             <span class="header-info">
+                <a class="login">Sign In</a>
+                 &nbsp;
+                 &nbsp;
                 <a href="mailto:hgraph@goinvo.com?subject=hScore Mixer Feedback" class="feedback">Feedback</a>
+                 &nbsp;
+                 &nbsp;
+                <a class="help">Help</a>
             </span>
     	</section>
         <section class="main f cf">
@@ -74,14 +80,31 @@
             <article class="demographics middle">
                  <form class="submit-form">
                     <div class="block middle gender">
-                        <dl>
-                            <dt>Gender</dt>
+						<dl class="g-title">
+                        	<dt>
+                        		0% Complete
+                        	</dt>
+                        </dl>
+                        <dl class="g-data">
+                            <dt>Male</dt>
                             <dd class="cf middle">
-                                <button class="f icon active g-toggle male t" data-gender="male">
-                                        <span></span>
+                                <button class="f active g-toggle t" data-gender="male">
+								<svg>
+								  <circle cx="10" cy="10" r="6"
+								        fill="white" stroke="black" stroke-width="1"  />
+								</svg>
+                                   Adult
                                 </button>
-                                <button class="f icon g-toggle female t" data-gender="female">
-                                        <span></span>
+                            </dd>
+                            <dt>Female</dt>
+                            <dd class="cf middle">
+             	                <button class="f g-toggle t" data-gender="female">
+									<svg>
+									  <circle cx="10" cy="10" r="6"
+									        fill="white" stroke="black" stroke-width="1"  />
+										</svg>
+
+        	                       Adult
                                 </button>
                             </dd>
                         </dl>
@@ -141,7 +164,7 @@
         <h2>Gender</h2>
         <p>*Metrics*</p>
       </li>
-      <li data-class="submit2" data-button="Next" data-options="tipLocation:left;tipAnimation:fade">
+      <li data-class="submit2" data-button="Next" data-options="tipLocation:top;tipAnimation:fade;scroll:false;">
         <h2>Submit</h2>
         <p>*Metrics*</p>
       </li>
