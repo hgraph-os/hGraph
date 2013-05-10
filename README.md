@@ -7,7 +7,7 @@ Website: [hgraph.org](http://hgraph.org/)
 
 hGraph Demo: http://www.hscoremixer.org/hGraph/
 
-hMixer Demo: http://www.hscoremixer.org/
+hMixer Alpha Demo: http://www.hscoremixer.org/
 
 
 ###About the REPO###
