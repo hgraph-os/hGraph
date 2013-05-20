@@ -82,7 +82,7 @@ body{
 
 .half{ width: 50%; }
 .whole{ width: 100%; }
-.pw{ width: 1283px; }
+.pw{ width: 900px; }
 .cf:before,
 .cf:after {
     content: " ";

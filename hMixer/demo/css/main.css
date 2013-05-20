@@ -69,7 +69,7 @@ nav.main-nav ul li a{
 nav.main-nav ul li a:hover,
 nav.main-nav ul li a.active{ background: rgba(0,0,0,0.075); }
 section.config{ 
-    width: 250px; 
+    width: 248px; 
     min-height: 300px; 
     /*background-color: #ececed;
     border-radius: 6px;*/
@@ -100,18 +100,31 @@ section.config article.demographics h4{ font-size: 12px; color: #939695; font-we
 section.config article.demographics div.block{
     margin-top: 20px;
 }
+section.config article.demographics div.block.gender{
+    width: 90%;
+    border: 1px solid;
+    border-radius: 6px;
+}
 
-section.config article.demographics div.block dl{ color: #3c3f3d; }
+section.config article.demographics div.block dl.g-title{ color: #3c3f3d; background-color: lightgrey;}
+section.config article.demographics div.block dl.g-title dt{font-size: 1.8em;}
+section.config article.demographics div.block dl.g-data{ color: #3c3f3d; background-color: white;}
+section.config article.demographics div.block dl.g-data dt{font-size: 1.3em; font-weight: bold;}
 section.config article.demographics div.block dl dt,
 section.config article.demographics div.block dl dd{ display: block; font-size: 16px; line-height: 1.5em; }
+
+section.config article.demographics div.block span{
+	font-size: 1.2em;
+}
 
 section.config article.demographics div.block dl dt,
 section.config article.demographics div.block dl dd{ }
 
 section.config article.demographics div.block dl dd button.g-toggle{        
     display: block;
-    width: 60px;
-    height: 100px;
+    width: 120px;
+    font-size: 1.2em;
+    height: 30px;
     background: rgba(0,0,0,0.0);
     border-radius: 6px;
     cursor: pointer;
@@ -119,6 +132,12 @@ section.config article.demographics div.block dl dd button.g-toggle{
     box-shadow: inset 0px 0px 1px 1px rgba(0, 0, 0, 0.0),
                 0px 0px 1px 1px rgba(255, 255, 255, 0.0);
 }
+
+section.config article.demographics div.block dl dd button.g-toggle svg{        
+	width: 20px;
+	height: 20px;
+}
+
 section.config article.demographics div.block dl dd button.g-toggle:first-child{ margin-right: 10px; }
 section.config article.demographics div.block.gender dl dd{ 
     width: 130px;
@@ -290,7 +309,7 @@ section.config article.demographics div.block.submission a{
 }
 
 section.metrics{ 
-    width: 1030px;
+    width: 648px;
     overflow: hidden;
 }
 
@@ -642,7 +661,7 @@ table th[class*="span"],
 }
 .daily_label{
 	position: relative;
-	top: -20px;
+	top: -26px;
 	text-align: right;
 	float: right;
 	right: 30px;
@@ -660,6 +679,7 @@ table th[class*="span"],
 
 .header .header-info > a {
 	text-decoration: none;
+	cursor: pointer;
 	color: black;
 }
 
@@ -672,3 +692,15 @@ table th[class*="span"],
 .main{
 	border-left: 1px solid;
 }
+
+@media only screen and (min-width: 1280px){
+	.content {
+		margin-left: 20px;
+	}
+	.preview {
+		position: absolute;
+		top: 10%;
+		left: 955px;
+	}
+}
+
