@@ -42,11 +42,11 @@ Defaults = D = {
     weight           : 1,
     fade_delay       : 100,
     unitlabel        : "mg/dL",
-    svg_element      : { width : 1030, height : 175 },
+    svg_element      : { width : 650, height : 175 },
     svg_layers       : ["ui", "data"],
     block            : {"class" : "interaction-lock"},
     chart_dimensions : {
-        left   : 355,
+        left   : 20,
         top    : 40,
         width  : 550,
         height : 95
@@ -95,13 +95,13 @@ Defaults = D = {
         "cx"   : 0
     },
     title_text : {
-        "x"              : 330,
-        "y"              : 134,
+        "x"              : 15,
+        "y"              : 23,
         "fill"           : "#404141",
         "font-family"    : "'Droid Serif',serif",
         "font-size"      : "32px",
         "pointer-events" : "none",
-        "text-anchor"    : "end"
+        "text-anchor"    : "front"
     },
     unit_text : {
         "x"              : 330,
@@ -113,8 +113,8 @@ Defaults = D = {
         "text-anchor"    : "end"
     },
     weight_bar : {
-        "x1"     : 967.5,
-        "x2"     : 967.5,
+        "x1"     : 617.5,
+        "x2"     : 617.5,
         "y1"     : 40,
         "y2"     : 135,
         "stroke" : "#c0c3c2"
@@ -122,7 +122,7 @@ Defaults = D = {
     weight_bounds : {
         "r"    : 2,
         "fill" : "#c0c3c2",
-        "cx"   : 967.5  
+        "cx"   : 617.5  
     },
     curve_path : {
         "stroke-width" : 3,
@@ -340,6 +340,10 @@ Metric.layerPrep = (function () {
     
     var ui,   // ui layer function   (returned)
         data, // data layer function (returned)
+        
+        lastNode,
+        lastState,
+        lastState2,
         
         /* "generic" interaction definitions */
         _startDrag,       // mouse downs 
@@ -762,6 +766,19 @@ _dailyKeymanager = function ( ) {
     if( (code < 37 && code <= 40) && code !== 190 && code !== 8 && code !== 9 && code !== 13 && isChar ){ 
         return evt.preventDefault && evt.preventDefault(); 
     }
+    if(code === 9)
+    {
+    	lastNode = d3.select(this);
+    	console.log(lastState);
+    	console.log(_interactionState.metric.pub)
+    }
+    
+ /*   if (code === 9) {
+    	console.log('in here');
+	    var e = jQuery.Event("keypress");
+		e.which = 13; // # Some key code value
+		$(d3.select(this)).trigger(e);
+    } */
 };
         
 /* _dailySubmit
@@ -777,7 +794,14 @@ _dailySubmit = function ( ) {
         metric = _interactionState.metric,
         value  = parseFloat( input.node().value );
     
-    if( code !== 13 ){ return; }
+    if( code !== 13 && code !== 9){ return; } 
+    
+    if (code === 9) {
+    	input = lastNode;
+    	value = parseFloat( input.node().value );
+        metric = lastState.metric;
+        console.log(metric.pub);
+    }
     
     value = ( isNaN(value) ) ? 0 : value;
     
@@ -787,7 +811,6 @@ _dailySubmit = function ( ) {
     metric.pub.dayvalue = value;
     
     metric.refreshInput( );
-    console.log(input.node());
     
     graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
 		score: graph.calculateScoreFromValue(metric.pub, value),
@@ -1049,10 +1072,62 @@ data = function ( layer ) {
         .append("text")
         .attr(D.curve_text);
     /* attatch the keypress to the input box */
+    $(document).on(('created'+this.pub.name).replace(/\s/g, ""), function(){
+        dom.sideDayInput
+               .on("focus", function () {  
+        	//console.log(_interactionState.metric.pub);
+            if( !_interactionState.hasMoved ) {         
+            lastState = $.extend(true, {}, _interactionState);    
+                var input = d3.select(this),
+                    value = input.attr("value");
+                
+                pastValue = value;
+                _interactionState.metric    = metric; 
+                _interactionState.isFocused = true;
+                input.attr("value",""); 
+            }
+        })
+        .on("mouseup", function() {
+        	d3.select(this)[0][0].select();
+        })
+        .on("keydown", _dailyKeymanager )
+        .on("keyup", _dailySubmit )
+        .on("blur", function () {
+            var input = d3.select(this),
+                value = input.attr("value");
+                
+            if( value === "" ){
+                input.attr("value", pastValue );
+            }
+            var evt    = d3.event,
+		        input  = d3.select(this),
+		        metric = _interactionState.metric,
+		        value  = parseFloat( input.node().value );
+		    
+		    
+		    value = ( isNaN(value) ) ? 0 : value;
+		    
+		    // if( value > metric.pub.totalrange[1] ){ value = metric.pub.totalrange[1]; }
+		    // if( value < metric.pub.totalrange[0] ){ value = metric.pub.totalrange[0]; }
+		        
+		    metric.pub.dayvalue = value;
+		    
+		    metric.refreshInput( );
+		    
+		    graph.updatePoint(graph.getIdByLabel(metric.pub.name), {
+				score: graph.calculateScoreFromValue(metric.pub, value),
+		    	value: value + ' ' + metric.pub.unitlabel,
+		    	weight:  metric.pub.weight
+		    });    
+            
+            //_whipeInteractionState( );
+        });
+    });
     dom.dayInput
         .on("focus", function () {  
-        	
-            if( !_interactionState.hasMoved ) {             
+        	//console.log(_interactionState.metric.pub);
+            if( !_interactionState.hasMoved ) {         
+            lastState = $.extend(true, {}, _interactionState);    
                 var input = d3.select(this),
                     value = input.attr("value");
                 
@@ -1091,6 +1166,7 @@ data = function ( layer ) {
     dom.dayInputButton
         .on("mousedown", function(){
         	$(this).focus();
+        	
             _interactionState.activeE = "day";   // we are using the weight circle
             _interactionState.metric  = metric; // save the metric being acted upon
             return _startDrag( );
@@ -1299,7 +1375,7 @@ Metric.prototype = {
             .selectAll("text").text( rtext );
             
         weightNode
-            .attr("transform", U.mts(837.5, ws(weight) ) )
+            .attr("transform", U.mts(487.5, ws(weight) ) )
             .selectAll("text").text( weight.toFixed(0) );
 
             
@@ -1784,8 +1860,9 @@ _renderGenderData = function ( ){
         
         /* push the stripped metric into the hMetrics array */
         metrics.push( metric );
-        console.log(metric);
-        list.append('<span class="daily_name">' + metric.pub.name + '</span><br /><span><input  class="daily_input_span" id="metric' + metric.index + '"/><span class="daily_label">' + metric.pub.unitlabel + '</span></span><br />');
+        list.append('<span class="daily_name">' + metric.pub.name + '</span><br /><span><input  class="daily_input_span" id="metric' + metric.pub.name.replace(/\s/g, "") + '" value="' + metric.pub.dayvalue + '"/><span class="daily_label">' + metric.pub.unitlabel + '</span></span><br />');
+       	metric.dom.sideDayInput = d3.select('#metric' + metric.pub.name.replace(/\s/g, ""));
+       	$(document).trigger(('created'+metric.pub.name).replace(/\s/g, ""));
     }
 	$('section.config').css('height', $('section.main').height());
     return _finalize( metrics );

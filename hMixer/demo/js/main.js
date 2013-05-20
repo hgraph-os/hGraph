@@ -258,8 +258,25 @@ $.ajax({
 				};
 
 				graph = new HGraph(opts);
-				graph.height = 200;
-				graph.width = 200;
+				$(window).resize(function(){
+					console.log("in here");
+					if ($(window).width() >= 1280) {
+						graph.width = ($(window).width() - 939 <= 936) ? ($(window).width() - 939) : (936);
+						graph.height = ($(window).width() - 1097 <= 779) ? ($(window).width() - 1097) : (779);
+					} else {
+						graph.height = 200;
+						graph.width = 200;
+					}
+					graph.redraw();
+				
+				});
+				if ($(window).width() >= 1280) {
+					graph.width = ($(window).width() - 939 <= 936) ? ($(window).width() - 939) : (936);
+					graph.height = ($(window).width() - 1097 <= 779) ? ($(window).width() - 1097) : (779);
+				} else {
+					graph.height = 200;
+					graph.width = 200;
+				}
 				graph.initialize();
 				$('.g-toggle').on ('click', function(){
 					graph.zeroGraph();
@@ -719,6 +736,9 @@ else {
 		}
 	})
 	$('.submit2').css('left', $('.config').position().left-10);
+	if ($(document).width() >= 1280) {
+		$('.submit2').css('left', $('.config').position().left);
+	}
 	if($('.submit2').position().left + $('.submit2').width() > $(window).width())
 		{
 			$('.submit2').css('right', '0px');
