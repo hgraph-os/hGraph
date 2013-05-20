@@ -69,7 +69,7 @@ nav.main-nav ul li a{
 nav.main-nav ul li a:hover,
 nav.main-nav ul li a.active{ background: rgba(0,0,0,0.075); }
 section.config{ 
-    width: 250px; 
+    width: 248px; 
     min-height: 300px; 
     /*background-color: #ececed;
     border-radius: 6px;*/
@@ -309,7 +309,7 @@ section.config article.demographics div.block.submission a{
 }
 
 section.metrics{ 
-    width: 1030px;
+    width: 648px;
     overflow: hidden;
 }
 
@@ -692,3 +692,15 @@ table th[class*="span"],
 .main{
 	border-left: 1px solid;
 }
+
+@media only screen and (min-width: 1280px){
+	.content {
+		margin-left: 20px;
+	}
+	.preview {
+		position: absolute;
+		top: 10%;
+		left: 955px;
+	}
+}
+
