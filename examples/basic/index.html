@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>hGraph - Health Score Graphing</title>
+	<meta charset='utf-8'>
+	
+	<meta name="keywords" content="health, healthcare, glucose, family, healthy, ldl, hdl, cholesterol, weight, medical, data,  html, css, javascript, d3.js">
+	<meta name="description" content="hGraph">
+	
+	<link href='css/droidsans.css' rel='stylesheet' type='text/css'>		
+	<link rel="shortcut icon" href="imgs/Icon-72.ico">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+	
+	<script type="text/javascript" src="lib/d3.js"></script>
+	<script src="/HealthGraph.js" type="text/javascript"></script>
+	<script src="js/hGraphMain.js" type="text/javascript"></script>
+</head>
+<body>
+	<section id="main">
+		<header class="cf content_inset">
+			<div class="fleft">
+				<h1>h<em>Graph</em></h1>
+				<h2>Health data visualization</h2>
+			</div>
+			<div class="fright" id="page_nav">
+				
+				<article class="nav_opt fleft" data-name="github"></article>
+				<article class="nav_opt fleft" data-name="involution"></article>
+				<article class="nav_opt fleft" data-name="imedia"></article>
+				
+			</div>
+		</header>
+		
+		<hr class="db">
+		
+		<section id="graph_container" class="content_inset">
+			<nav class="cf">
+				<button class="t grad1 fleft graph_nav_opt" id="info_btn"><span class="t"></span></button>
+				<button class="t grad1 fleft graph_nav_opt" id="zoom_btn"><span class="t"></span></button>
+				<button class="t grad1 fleft graph_nav_opt" id="connector_btn"><span class="t"></span></button>
+			</nav>
+			<figure id="viz" class="content_inset healthgraph detailed">
+			</figure>
+			
+			<section id="info_panel" class="cf">
+				<section id="info_slider" class="cf">
+					<article class="info_item fleft">
+						<h1>Welcome to the <b><em>h</em>Graph</b></h1>
+						<hr class="db">
+						<p>The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.</p>
+					</article>
+					<article class="info_item fleft" data-feature="ring" data-exclude="ring">
+						<h1>What is that <em>circle</em>?</h1>
+						<hr class="db">
+						<p>The green ring is the focal point of hGraph. It is what tells us if we are doing a good job of keeping ourselves healthy in many different aspects of our lives. Points that lie within the width of this band tell us that we are doing a good job; points outside mean we need to make changes.</p>
+					</article>
+					<article class="info_item fleft" data-feature="points" data-exclude="datapoints">
+						<h1>Why are some points <em class="red">red</em> &amp; some <em class="grey">grey</em>?</h1>
+						<hr class="db">
+						<p>Each point along the circle represents a different facet in our lives. For each one of these, we can calculate a specific range of healthy and non healthy values. hGraph lets you immediately see which category every aspect falls into based on these colors. The red points are unhealthy, and the grey points are healthy.</p>
+					</article>
+					<article class="info_item fleft" data-feature="overalltxt" data-exclude="text">
+						<h1>What is that <em>number</em> in the middle?</h1>
+						<hr class="db">
+						<p>With all of the various types of lifestyle factors plotted, we can calculate just how healthy you are. The number in the middle of the band represents exactly that.</p>
+						<p class="important">It is the <b>hScore</b></p>
+					</article>
+				</section>
+				<div id="info_controlls">
+					<button class="control_btn fleft grad1 t graph_nav_opt novis" data-inc="-1" id="prev_info"><span></span></button>
+					<button class="control_btn fleft grad1 t graph_nav_opt" data-inc="+1" id="next_info"><span></span></button>
+				</div>
+			</section>
+		</section>
+		
+		<footer class="grad1">
+			<section class="content_inset cf">
+				<article class="fleft cf">
+					<dl class="cf fleft">
+						<dt>Designed by</dt>
+						<dd><a href="http://www.goinvo.com" target="_blank" title="" class="t">Involution Studios</a></dd>
+					</dl>
+					<dl class="cf fleft">
+						<dt>Questions&quest;</dt>
+						<dd><a href="mailto:info@goinvo.com?hGraph%20Question" target="_blank" title="" class="t">info@goinvo.com</a></dd>
+					</dl>
+					<dl class="cf fleft">
+						<dt>Join the repo</dt>
+						<dd><a href="https://github.com/goinvo/hGraph" target="_blank" title="" class="t">github.com/goinvo/hGraph</a></dd>
+					</dl>
+				</article>
+				<article class="fright cf">
+					<dl class="cf fleft">
+						<dt>Copyright &copy; 2012</dt>
+						<dd>Involution Studios</dd>
+					</dl>
+					<dl class="cf fleft">
+						<dt>Licensed under the</dt>
+						<dd><a href="http://www.apache.org/licenses/LICENSE-2.0" title="" target="_blank" class="t">Apache License 2.0</a></dd>
+					</dl>
+				</article>
+			</section>
+		</footer>
+		
+	</section>
+	<script type="text/javascript" src="js/icons.js"></script>
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-10273473-8']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	
+</body>
+</html>
