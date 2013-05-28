@@ -1,14 +1,7 @@
-hGraph with hMixer
+hGraph
 ========
 
 An open source javascript-based web application for visualizing health data.
-
-Website: [hgraph.org](http://hgraph.org/)
-
-hGraph Demo: http://www.hscoremixer.org/hGraph/
-
-hMixer Alpha Demo: http://www.hscoremixer.org/
-
 
 ###About the REPO###
 
@@ -54,11 +47,10 @@ During a `window.onload` or similar entry point, the health graph is constructed
 	}
 
 
-###Core Contributors###
-Founders/Designers: [Involution Studios](http://www.goinvo.com/)
+###Example site###
 
-Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
+To see a live demo, please visit: [hgraph.org](http://hgraph.org/)
 
 ###License###
 
-hGraph and hMixer are licensed under the Apache-2.0 open source license. You can find more information on the Apache-2.0 license at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+The `HGraph` class is licensed under the Apache-2.0 open source license. You can find more information on the Apache-2.0 license at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
