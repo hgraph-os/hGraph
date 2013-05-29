@@ -117,7 +117,8 @@ $(document).ready(function (){
 						userdata: {
 							hoverevents : true,
 				            factors: factors_array
-						}
+						},
+						showLabels : true
 					};
 					console.log(opts);
 					graph = new HGraph(opts);
