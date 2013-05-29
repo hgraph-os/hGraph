@@ -1,0 +1,63 @@
+
+{
+  "name" : "Sonin Juhan",
+  "gender" : "male",
+  "score_data" : [
+  {
+      "Weight"       : 14,
+      "value"     : 204
+   },
+   {
+      "LDL"       : 1,
+      "value"     : 251
+   },
+   {
+      "HDL"       : 2,
+      "value"     : 35
+   },
+   {
+      "Triglycerides" : 3,
+      "value"         : 140
+   },
+   {
+      "Sleep"     : 4,
+      "value"     : 5
+   },
+   {
+      "Exercise"  : 5,
+      "value"     : 3
+   },
+   {
+      "Happiness" : 6,
+      "value"     : 9
+   },
+   {
+      "Glucose"   : 7,
+      "value"     : 101
+   },
+   {
+      "Blood Pressure Systolic" : 8,
+      "value"     : 117
+   },
+   {
+      "Blood Pressure Diastolic" : 9,
+      "value"     : 79
+   },
+   {
+      "Alcohol"   : 10,
+      "value"     : 0
+   },
+   {
+      "Smoking"   : 11,
+      "value"     : 0
+   },
+   {
+      "Waist Circumference" : 12,
+      "value"     : 34
+   },
+   {
+      "Pain"      : 13,
+      "value"     : 1
+   }
+  ]
+}
