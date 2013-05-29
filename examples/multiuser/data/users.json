@@ -1,0 +1,20 @@
+[{
+    "name" : "Juhan Sonin",
+    "id" : "sonin_juhan",
+    "intro" : "41yo Male"
+},
+{
+    "name" : "Kate Sonin",
+    "id" : "sonin_kate",
+    "intro" : "41yo Female"
+    },
+{
+    "name" : "Udo Sonin",
+    "id" : "sonin_udo",
+    "intro" : "5yo Male"
+    },
+{
+    "name" : "Viggo Sonin",
+    "id" : "sonin_viggo",
+    "intro" : "3yo Male"
+}]
