@@ -10,9 +10,7 @@ Requires:
 
 Authors:
 	Michael Bester <michael@kimili.com>
-	Ivan DiLernia <ivan@goinvo.com>
 	Danny Hadley <danny@goinvo.com>
-	Matt Madonna <matthew@myimedia.com>
 
 License:
 	Copyright 2012, Involution Studios <http://goinvo.com>
@@ -40,45 +38,20 @@ var HGraph = function(opts) {
 	this.width            = opts.width || 0;
 	this.height           = opts.height || 0;
 	this.rotation         = opts.rotation || 0;
-	this.zoomTime         = opts.zoomTime || 500;
+	this.zoomFactor       = opts.zoomFactor || 2.2;
+	this.zoomTime         = opts.zoomTime || 800;
 	this.healthRange      = {
 		lower : -30,
 		upper : 30
 	};
-
-	// enables/disables zooming
-	this.zoomable = opts.zoomable || false;
-
-	// determine zoom level when hGraph is zoomed in
-	this.zoomFactor       = opts.zoomFactor || 2.2;
-
-	// zoomin callback
-	this.zoominFunction	  = null || opts.zoominFunction;
-
-	// zoomout callback
-	this.zoomoutFunction  = null || opts.zoomoutFunction;
-
-	// size of the ring relative to the image
-	this.scaleFactors = opts.scaleFactors || {
-		labels : { lower : 4, higher : 1.25},
-		nolabels : { lower : 3, higher : 1}
-	};
-
-	// true when a transition is in progress
-	this.transitioning = false;
-
-
 	this.halfWidth        = 0;
 	this.halfHeight       = 0;
 
 	this.userdata         = opts.userdata || {};
 	this.primaryIncrement = 1;
 
-	this.showLabels   = opts.showLabels || false;
+	this.showLabels   = false;
 	this.isZoomed     = false;
-
-	this.x = 0;
-	this.y = 0;
 
 	this.center       = null;
 	this.originCoords = {
@@ -91,60 +64,24 @@ var HGraph = function(opts) {
 		text       : null,
 		datapoints : null
 	};
+
+	this.colors      = {
+		ring       : '#97be8c',
+		text       : '#444648',
+		outOfRange : '#e1604f',
+		inRange    : '#616363',
+		web        : 'rgba(0,0,0,0.1)'
+	};
 };
 
-
-/**
- *  Function: HGraph.updateScales
- *  Updates scales and variables based on given width and height
- */
-HGraph.prototype.updateDimensions = function() {
-
-	this.width      = this.width || this.container.offsetWidth;
-	this.height     = this.height || this.container.offsetHeight;
-	this.halfWidth  = this.width / 2;
-	this.halfHeight = this.height / 2;
-
-
-
-	this.scaleRange = this.showLabels ?
-						[this.halfHeight / this.scaleFactors.labels.lower, this.halfHeight / this.scaleFactors.labels.higher] :
-						[this.halfHeight / this.scaleFactors.nolabels.lower, this.halfHeight / this.scaleFactors.nolabels.higher];
-
-	this.center      = 'translate(' + this.halfWidth + ',' + this.halfHeight + ')';
-	this.topleft     = 'translate(0,0)';
-
-	this.scale       = d3.scale.linear().domain([-100,100]).range(this.scaleRange);
-	
-	this.originCoords.x = this.halfWidth;
-	this.originCoords.y = this.halfHeight;
-
-}
 
 /**
  *  Function: HGraph.redraw
  *     redraws the graph
  */
 HGraph.prototype.redraw = function() {
-	// simply resize the svg if zoomed
-	if (this.isZoomed) {
-		this.updateDimensions();
-		this.context.attr('width',this.width).attr('height',this.height);
-	} 
-	// do a complete initialization if unzoomed
-	else 
-	{
-		this.destroy();
-		this.initialize();
-	}
-}
-
-/**
- *  Function: HGraph.destroy
- *     destroys the graph
- */
-HGraph.prototype.destroy = function() {
-	this.context.remove();
+	$(this.container).html('');
+	this.initialize();
 }
 
 /**
@@ -192,61 +129,6 @@ HGraph.prototype.getIdByLabel = function(name) {
 }
 
 /**
- * Function: HGraph.findClosestPoint
- * 		return closes datapoint (circle) to given coordinates
- *		Note: the corodinate system is absolute (origin at top left)
- * 
- * x : (number) x coordinate
- * y : (number) y coordinate
- */
-HGraph.prototype.findClosestPoint = function(x, y){
-		halfWidth = $(this.context.node()).width()/2,
-		halfHeight = $(this.context.node()).height()/2,
-		distance = 9007199254740992,
-		closest = null;
-
-	$('circle').each(function(){
-		var circleX = halfWidth + parseInt(d3.select(this).attr("cx")),
-			circleY = halfHeight + parseInt(d3.select(this).attr("cy")),
-			currentDistance = Math.abs(circleX - x) + Math.abs(circleY - y);
-		if(currentDistance < distance) {
-			distance = currentDistance;
-			closestDatapoint = this;
-		}
-	});
-
-	return closestDatapoint;
-}
-
-
-/**
- * Function: HGraph.
- * 		returns x and y coordinates of the center of a subsection
- *		
- * datapoint : (circle svg object) a datapoint
- */
-HGraph.prototype.findSubsectionCenter = function(datapoint){
-
-
-	var currentIndex = parseInt($(datapoint).attr('data-sortindex'));
-		// get coordinates of current and next datapoint
-
-	// center between current and next point
-	// in case current point has a subsection
-	if (this.userdata.factors[currentIndex].details) currentIndex += 0.5;
-
-	// find radius for optimal value
-	var optimalRadius = this.scale(this.healthRange.upper) - this.scale(this.healthRange.lower);
-	angle = (this.primaryIncrement * currentIndex) * (Math.PI / 180);
-
-	return {
-		x : Math.cos(angle) * optimalRadius.toFixed(1)*this.zoomFactor,
-		y : Math.sin(angle) * optimalRadius.toFixed(1)*this.zoomFactor
-	};
-
-}
-
-/**
  *  Function: HGraph.initialize
  *     Sets up and draws the graph
  */
@@ -256,17 +138,25 @@ HGraph.prototype.initialize = function() {
 
 	that = this;
 
-	this.updateDimensions();
+	this.width      = this.width || this.container.offsetWidth;
+	this.height     = this.height || this.container.offsetHeight;
+	this.halfWidth  = this.width / 2;
+	this.halfHeight = this.height / 2;
 
+	this.showLabels = ((this.width / this.height) > 1.2);
 
+	this.scaleRange = this.showLabels ?
+						[this.halfHeight / 4, this.halfHeight / 1.25] :
+						[this.halfHeight / 3, this.halfHeight];
 
+	this.center      = 'translate(' + this.halfWidth + ',' + this.halfHeight + ')';
+	this.topleft     = 'translate(0,0)';
 
+	this.scale       = d3.scale.linear().domain([-100,100]).range(this.scaleRange);
 	this.context     = d3.select(this.container)
 	                      .append('svg')
 	                      .attr('class','healthscore')
 	                      .attr('width',this.width).attr('height',this.height);
-
-
 
 	// Set up the layers
 	for ( layer in this.layers ) {
@@ -278,6 +168,8 @@ HGraph.prototype.initialize = function() {
 		}
 	}
 
+	this.originCoords.x = this.halfWidth;
+	this.originCoords.y = this.halfHeight;
 
 	// Draw the ring around the user's health score
 	this.ringpath = d3.svg.arc()
@@ -286,25 +178,20 @@ HGraph.prototype.initialize = function() {
                  .innerRadius(this.scale(this.healthRange.lower))
                  .outerRadius(this.scale(this.healthRange.upper));
 
-	this.ring = this.layers.ring.append('path').attr('d', this.ringpath).classed('ring',true);
+	this.ring = this.layers.ring.append('path').attr('d', this.ringpath).attr('fill', this.colors.ring);
 
 
 
 	// and the score itself
-
-	// score height ratio
-	var scoreSize = this.layers.ring.node().getBBox().height/3.5;
-
 	this.overalltxt = this.layers.text.append('text')
 	                      .attr('class','overall')
-	                      .attr('font-size', scoreSize)
 	                      .text(this.calculateHealthScore());
-
 
 	// Center the score
 	this.overalltxt
-		.attr('x', - (this.overalltxt.node().getBBox().width / 2))
-		.attr('dy', '0.5ex');
+		.attr('x', 0 - (this.overalltxt[0][0].offsetWidth / 2))
+		.attr('y', this.overalltxt[0][0].offsetHeight / 3);
+
 
 	// Figure out how many points there should be
 	this.primaryIncrement = 360 / this.userdata.factors.length || 1;
@@ -321,8 +208,8 @@ HGraph.prototype.initialize = function() {
 	web = this.layers.web.append('path');
 	this.updateWeb(false);
 	web
-		.attr('data-originalPath', web.attr('d')).classed('web',true)
-		
+		.attr('data-originalPath', web.attr('d'))
+		.attr('fill', this.colors.web);
 
 	// Set up the dragability of the zoomed in graph
 	touchstart = {
@@ -333,42 +220,7 @@ HGraph.prototype.initialize = function() {
 		x : 0,
 		y : 0
 	};
-
-	/*
-	* 	Initialize hammer.js library to enable multitouch features
-	*/
-    var touches = Hammer(this.context.node());
-
-    // multitouch pinch zoom features
-    if(this.zoomable) {
-
-    	// zoom-in pinch
-	    touches.on('pinchout',
-	    	function() {
-	    		event.preventDefault();
-	    		if (that.isZoomedIn()) return;
-	    		// find closest datapoint to pinched area
-				var closestDatapoint = that.findClosestPoint(event.gesture.center.pageX, 
-															 event.gesture.center.pageY);
-				// determine coordinates that will represent the new center
-				var pathCenter = that.findSubsectionCenter(closestDatapoint);
-	    		that.zoomIn(that.zoomFactor, pathCenter.x, pathCenter.y);
-	    	}
-	    );
-
-	    // zoom-out pinch
-	    touches.on('pinchin',
-	    	function() {
-	    		event.preventDefault();
-	    		that.zoomOut();
-	    	}
-	    );
-	}
-
-	touches.on('touchstart', function(e){
-
-		if(that.transitioning) return;
-
+	this.container.addEventListener('touchstart', function(e){
 		var touch;
 
 		if ( e.touches.length > 1) {
@@ -376,22 +228,17 @@ HGraph.prototype.initialize = function() {
 		}
 
 		touch = e.touches[0];
-
 		touchstart.x = touch.pageX;
 		touchstart.y = touch.pageY;
 	});
-
-	touches.on('touchmove', function(e){
-
-		if(that.transitioning || !that.isZoomedIn()) return;
-
-		if ( e.touches.length > 1) {
-			return;
-		}
-
+	this.container.addEventListener('touchmove', function(e){
 		var key, layer, delta, touch;
 
 		e.preventDefault();
+
+		if ( ! that.isZoomedIn() ) {
+			return;
+		}
 
 		touch = e.touches[0];
 		delta = {
@@ -410,34 +257,21 @@ HGraph.prototype.initialize = function() {
 		}
 
 	});
-
-	touches.on('touchend', function(e){
-
-
-		if(that.transitioning) return;
-
-
+	this.container.addEventListener('touchend', function(e){
+		if ( e.touches.length > 1) {
+			return;
+		}
 		that.originCoords.x = moveDelta.x;
 		that.originCoords.y = moveDelta.y;
-		console.log('ted')
 	});
-
-	$(this.container).bind('mousedown',function(e){
-
+		this.container.addEventListener('mousedown',function(e){
 		that.dragging = true;
-		this.pan = false;
 		touch = e;
-		touchstart.x = e.offsetX;
-		touchstart.y = e.offsetY;
-
+		touchstart.x = touch.offsetX;
+		touchstart.y = touch.offsetY;
 	});
-	$(this.container).bind('mousemove',function(e){
-
+	this.container.addEventListener('mousemove',function(e){
 		if(!that.dragging){ return; }
-
-		// helps differenciate between drags and click
-		// is the presence of a mousemove.
-		this.pan = true;
 		
 		var key, layer, delta, touch;
 		if ( ! that.isZoomedIn() ) {
@@ -451,7 +285,6 @@ HGraph.prototype.initialize = function() {
 		};
 
 		// Get the new origin coordinates, clamping it to the containter size
-
 		moveDelta.x = Math.max(0, Math.min(that.width, delta.x + that.originCoords.x));
 		moveDelta.y = Math.max(0, Math.min(that.height, delta.y + that.originCoords.y));
 
@@ -461,18 +294,11 @@ HGraph.prototype.initialize = function() {
 			}
 		}
 	});
-	$(this.container).bind('mouseup',function(e){
-
+	this.container.addEventListener('mouseup',function(e){
 		that.dragging = false;
 		that.originCoords.x = moveDelta.x;
 		that.originCoords.y = moveDelta.y;
-
-		// click detected
-		if(!this.pan) {
-			that.zoomOut();
-		}
 	});
-
 
 };
 
@@ -512,70 +338,19 @@ HGraph.prototype.calculateScoreFromValue = function (features, myValue){
 }
 
 /**
- *  Function: HGraph.panTo
- *     Centers the graph at the specified coordinates
- *
- *  Arguments:
- *      x - *(Number)* The x coordinate of the new center
- *		y - *(Number)* The y coordinate of the new center
- */
-HGraph.prototype.panTo = function(x, y){
-
-	var self = this;
-
-	translateToPoint = function(x, y){
-		return 'translate(' + x + ',' + y + ')';
-	};
-
-	for ( key in this.layers ) {
-		if (this.layers.hasOwnProperty(key)) {
-			layer = this.layers[key];
-			layer.transition().ease('quad-out')
-			.duration(this.zoomTime * 0.8)
-			.each("end", function() { self.transitioning = false})
-			.attr('transform', translateToPoint(this.halfWidth - x, this.halfHeight - y));
-		}
-	}
-};
-
-/**
  *  Function: HGraph.zoomIn
  *     Zooms the graph.
  *
  *  Arguments:
  *      zoomFactor - *(Number)* The factor you want to zoom in by. If omitted, the instance's default zoom factor is used.
  */
-HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
-
-
-	// do not start zoom-in if transitioning
-	if (this.transitioning ) return;
-
-	// beginning the zoom-in transition
-	this.transitioning = true;
-
-	// zoom it at same coordinates if this is a redraw
-	this.x = x || this.halfWidth/2;
-	this.y = y || this.halfHeight/2;
-	zoomFactor = zoomFactor || this.zoomFactor; // Allow zooming factor override.
-
-	this.originCoords.x = this.halfWidth - this.x*zoomFactor;
-	this.originCoords.y = this.halfHeight - this.y*zoomFactor;
-
+HGraph.prototype.zoomIn = function(zoomFactor) {
+	
 	var key, i, j, factor, details, layer, labels, that, zoomedWebFillString, getZoomedRingPath, getZoomedX, getZoomedY, scoreRange;
 
 	that = this;
-
+	zoomFactor = zoomFactor || this.zoomFactor; // Allow zooming factor override.
 	zoomedWebFillString = '';
-
-	// simply pan to cliked location if we are already zoomed in
-	if(this.isZoomed) {
-		this.panTo(x*zoomFactor, y*zoomFactor);
-		return;
-	}
-
-	// zoom callbacks
-	if (this.zoominFunction) this.zoominFunction();
 
 	getZoomedRingPath = function() {
 		var zoomedRingPath, zoomedScale, zoomedScaleRange, i;
@@ -585,7 +360,6 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
 			zoomedScaleRange.push(that.scaleRange[i] * zoomFactor);
 		}
 		zoomedScale = d3.scale.linear().domain([-100,100]).range(zoomedScaleRange);
-		console.log(that.scaleRange);
 		zoomedRingPath = d3.svg.arc()
 		                     .startAngle(0)
 		                     .endAngle(360)
@@ -596,24 +370,17 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
 	};
 
 	getZoomedX = function() {
-		var coords = JSON.parse(this.getAttribute('data-origcoords'));
+		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.x * zoomFactor;
 	};
 
 	getZoomedY = function() {
-		var coords = JSON.parse(this.getAttribute('data-origcoords'));
+		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.y * zoomFactor;
 	};
 
 	setDetailText = function() {
-		var metricValue = this.getAttribute('data-metricValue');
-		return this.textContent + (metricValue === ''  ? '' : ' (' + this.getAttribute('data-metricValue') + ')');
-
-	};
-
-
-	translateToPoint = function(x, y){
-		return 'translate(' + x + ',' + y + ')';
+		return this.textContent + ' (' + this.getAttribute('data-metricValue') + ')';
 	};
 
 	// Do the zooming.
@@ -656,14 +423,10 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
 			// Move it to the new origin point.
 			layer
 				.transition().ease('quad-out')
-				.duration(this.zoomTime * 0.8)
-				.each("end", function() { that.transitioning = false})
-				.attr('transform', translateToPoint(this.halfWidth - (this.x*zoomFactor), this.halfHeight - (this.y*zoomFactor)));
-
+					.duration(this.zoomTime * 0.8)
+					.attr('transform', this.topleft);
 		}
 	}
-
-
 
 	window.setTimeout(function(){
 
@@ -697,7 +460,6 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
 		// Select all the secondary points.
 		secondaryPoints = that.layers.datapoints.selectAll('.secondary');
 
-
 		// Redraw the path to include the new elements and make a note of the path
 		web = that.updateWeb(false);
 		web.attr('data-secondaryStartingPath', web.attr('d'));
@@ -716,9 +478,10 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
 		that.updateWeb();
 
 	}, this.zoomTime);
-	
+
+	this.originCoords.x = 0;
+	this.originCoords.y = 0;
 	this.isZoomed = true;
-	
 };
 
 /**
@@ -726,30 +489,21 @@ HGraph.prototype.zoomIn = function(zoomFactor, x, y) {
  *     Zooms the graph back to its original dimensions
  */
 HGraph.prototype.zoomOut = function() {
-
-	// do not start zoom-out if already transitioning
-	if (this.transitioning || !this.isZoomed ) return;
-	// beginning the zoom-out transition
-	this.transitioning = true;
-
 	var getOriginalX, getOriginalY, setDetailText, web;
 
 	getOriginalX = function() {
-		var coords = JSON.parse(this.getAttribute('data-origcoords'));
+		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.x;
 	};
 
 	getOriginalY = function() {
-		var coords = JSON.parse(this.getAttribute('data-origcoords'));
+		var coords = JSON.parse(this.getAttribute('data-origCoords'));
 		return coords.y;
 	};
 
 	setDetailText = function(d) {
 		return this.textContent.replace(/\s+\([^\)]*\)$/, '');
 	};
-
-	// zoom callbacks
-	if (this.zoomoutFunction) this.zoomoutFunction();
 
 	// Remove secondary points.
 	this.layers.datapoints.selectAll('.secondary').remove();
@@ -803,13 +557,12 @@ HGraph.prototype.zoomOut = function() {
 				that.layers[key]
 					.transition().ease('quad-in')
 						.duration(that.zoomTime)
-						.each("end", function() {that.transitioning = false})
 						.attr('transform', that.center);
 			}
 		}
 		that.isZoomed = false;
-	}, 0, this);
-	
+	}, this.zoomTime * 0.9, this);
+
 };
 
 /**
@@ -844,14 +597,12 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 
 	var point, secondary, angle, coords, radius, getPointColor, getTextAnchor, gotoPage, interstitialScore, startingDataValue, startingCoords, scoreDiff, scaledDataValue, labelPointScale, metricValue;
 
-	var self = this;
-
 	index = typeof index === 'number' ? index : 1;
 	secondary = (startingScoreRange && startingScoreRange.constructor === Array);
 
 	// Private utility functions to get the point color
 	getPointColor = function(score) {
-		return (score > this.scale(this.healthRange.lower) && score < this.scale(this.healthRange.upper) ) ? 'healthy' : 'unhealthy';
+		return (score > this.scale(this.healthRange.lower) && score < this.scale(this.healthRange.upper) ) ? this.colors.inRange : this.colors.outOfRange;
 	};
 
 	getTextAnchor = function(x) {
@@ -870,12 +621,6 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 			return;
 		}
 		window.location.href = href;
-	};
-
-	clicked = function(){
-		d3.event.stopPropagation();
-		var pathCenter = self.findSubsectionCenter(this);
-		self.zoomIn(self.zoomFactor, pathCenter.x,  pathCenter.y);
 	};
 
 	scaledDataValue = this.scale(datapoint.score);
@@ -911,15 +656,9 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 			.attr('r', secondary ? radius / 1.5 : radius)
 			.attr('cx', (startingCoords ? startingCoords.x : coords.x) * (this.isZoomedIn() ? this.zoomFactor : 1))
 			.attr('cy', (startingCoords ? startingCoords.y : coords.y) * (this.isZoomedIn() ? this.zoomFactor : 1))
-			.attr('data-origcoords', JSON.stringify(coords))
-			.attr('data-sortindex', typeof sortIndex === 'number' ? sortIndex + '.' + index : index)
-			.classed(getPointColor.call(this, scaledDataValue), true);
-
-	// allow point and zoom if graph is zoomable
-	if(this.zoomable) {
-		point.on("click", clicked);
-		point.classed("clickable", true);
-	}
+			.attr('data-origCoords', JSON.stringify(coords))
+			.attr('data-sortIndex', typeof sortIndex === 'number' ? sortIndex + '.' + index : index)
+			.attr('fill', getPointColor.call(this, scaledDataValue));
 
 	if ( startingCoords ) {
 		point.attr('data-startingCoords', JSON.stringify(startingCoords));
@@ -932,7 +671,8 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 
 	if ( this.showLabels ) {
 		// Calculate the size of the datapoint radius (clamping it between 1 and 10)
-		labelPointScale = Math.max(scaledDataValue + (radius * 3), this.scale(50));
+		labelPointScale = Math.max(scaledDataValue + (radius * 3), this.scale(100));
+
 		// Do the labels.
 		labelCoords = {
 			x : (Math.cos(radian) * labelPointScale).toFixed(1),
@@ -953,17 +693,10 @@ HGraph.prototype.addPoint = function(datapoint, index, startingAngle, increment,
 				.attr('class', 'label')
 				.attr('x', labelCoords.x)
 				.attr('y', labelCoords.y)
-				.attr('data-origcoords', JSON.stringify(labelCoords))
-				.attr('data-metricValue', datapoint.details ? '' : metricValue)
-				.attr('text-anchor', getTextAnchor(coords.x))
-				.attr('data-sortindex', typeof sortIndex === 'number' ? sortIndex + '.' + index : index)
-				.classed(getPointColor.call(this, scaledDataValue), true);
-
-		// allow point and zoom if graph is zoomable
-		if(this.zoomable) {
-			label.on("click", clicked);
-			label.classed("clickable", true);
-		}
+				.attr('data-origCoords', JSON.stringify(labelCoords))
+				.attr('data-metricValue', metricValue)
+				.attr('fill', getPointColor.call(this, scaledDataValue))
+				.attr('text-anchor', getTextAnchor(coords.x));
 
 		if ( secondary ) {
 			label.classed('secondary', true);
@@ -1019,7 +752,7 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 
 	calculateWebPathCoordinate = function(d, i){
 		var pointCoords, zoomedCoords;
-		pointCoords = JSON.parse(this.getAttribute('data-startingCoords') || this.getAttribute('data-origcoords'));
+		pointCoords = JSON.parse(this.getAttribute('data-startingCoords') || this.getAttribute('data-origCoords'));
 		zoomedCoords = {
 			x : (parseFloat(pointCoords.x) * (forceZoomedState || that.isZoomedIn() ? that.zoomFactor : 1)).toFixed(1),
 			y : (parseFloat(pointCoords.y) * (forceZoomedState || that.isZoomedIn() ? that.zoomFactor : 1)).toFixed(1)
@@ -1035,7 +768,7 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 		points = this.layers.datapoints.selectAll('circle');
 		// sort the points to make sure the path goes around the ring in one direction.
 		points[0].sort(function(a, b) {
-			return parseFloat(a.getAttribute('data-sortindex'), 10) - parseFloat(b.getAttribute('data-sortindex'), 10);
+			return parseFloat(a.getAttribute('data-sortIndex'), 10) - parseFloat(b.getAttribute('data-sortIndex'), 10);
 		});
 		points.each(calculateWebPathCoordinate);
 	} else {
@@ -1054,7 +787,6 @@ HGraph.prototype.updateWeb = function(animated, forceZoomedState, revertToOrigin
 
 	return web;
 };
-
 
 HGraph.prototype.calculateHealthScore = function(){
 	//V0.3 of hScore Algorithm.

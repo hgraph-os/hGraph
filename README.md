@@ -1,4 +1,4 @@
-hGraph with hMixer
+hGraph
 ========
 
 An open source javascript-based web application for visualizing health data.
@@ -7,8 +7,8 @@ Website: [hgraph.org](http://hgraph.org/)
 
 hGraph Demo: http://www.hscoremixer.org/hGraph/
 
-hMixer Alpha Demo: http://www.hscoremixer.org/
-
+hMixer Demo: http://www.hscoremixer.org/
+hMixer Repo: https://github.com/goinvo/hMixer
 
 ###About the REPO###
 
@@ -21,37 +21,37 @@ The `HGraph` class relies on [d3.js](http://d3js.org/), which is a very popular 
 
 Once you have downloaded the latest version, you will need to include in in your html above the `HealthGraph` source code:
 
-	<script src="/path/to/your/d3.js" type="text/javascript"></script>
-	<script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
- 
+        <script src="/path/to/your/d3.js" type="text/javascript"></script>
+        <script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
+
 ###Setup###
 
 During a `window.onload` or similar entry point, the health graph is constructed and intialized by:
-	
-	var graph;
-	window.onload = function(){
-		
-		graph = new HGraph({
-			container : document.getElementById("graph_container"),
-			userdata  : {
-							overallScore : 90,
-							factors      : 
-							[
-								{
-									label : 'Family History',
-									score : 80,
-								},
-								{
-									label : 'Caloric Intake',
-									score : 100
-								}
-							]
-			};
-		});
-		
-		graph.initialize();
-		
-	}
+
+        var graph;
+        window.onload = function(){
+
+                graph = new HGraph({
+                        container : document.getElementById("graph_container"),
+                        userdata  : {
+                                                        overallScore : 90,
+                                                        factors      :
+                                                        [
+                                                                {
+                                                                        label : 'Family History',
+                                                                        score : 80,
+                                                                },
+                                                                {
+                                                                        label : 'Caloric Intake',
+                                                                        score : 100
+                                                                }
+                                                        ]
+                        };
+                });
+
+                graph.initialize();
+
+        }
 
 
 ###Core Contributors###
@@ -62,3 +62,4 @@ Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 ###License###
 
 hGraph and hMixer are licensed under the Apache-2.0 open source license. You can find more information on the Apache-2.0 license at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
