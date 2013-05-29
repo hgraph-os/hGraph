@@ -1,0 +1,30 @@
+/*
+* Health Graph CSS file
+*/
+
+
+/*Color of ring*/
+.ring {
+	fill : #97be8c;
+}
+
+/*Color of web that connects datapoints*/
+.web {
+	fill : rgba(0,0,0,0.1);
+}
+
+/*Color of circle + labels of healty datapoints*/
+.healthy {
+	fill : #616363;
+}
+
+/*Color of circle + labels of unhealty datapoints*/
+.unhealthy {
+	fill : #e1604f;
+}
+
+/*Enables pointer cursor for clickable labels and circles*/
+text.clickable,
+circle.clickable {
+	cursor : pointer;
+}
