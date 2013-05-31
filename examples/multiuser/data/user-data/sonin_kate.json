@@ -5,23 +5,23 @@
   "score_data" : [
   {
       "Weight"       : 14,
-      "value"     : 204
+      "value"     : 112
    },
    {
       "LDL"       : 1,
-      "value"     : 251
+      "value"     : 110
    },
    {
       "HDL"       : 2,
-      "value"     : 35
+      "value"     : 55
    },
    {
       "Triglycerides" : 3,
-      "value"         : 140
+      "value"         : 128
    },
    {
       "Sleep"     : 4,
-      "value"     : 5
+      "value"     : 6
    },
    {
       "Exercise"  : 5,
@@ -29,23 +29,23 @@
    },
    {
       "Happiness" : 6,
-      "value"     : 9
+      "value"     : 8
    },
    {
       "Glucose"   : 7,
-      "value"     : 101
+      "value"     : 99
    },
    {
       "Blood Pressure Systolic" : 8,
-      "value"     : 117
+      "value"     : 122
    },
    {
       "Blood Pressure Diastolic" : 9,
-      "value"     : 79
+      "value"     : 85
    },
    {
       "Alcohol"   : 10,
-      "value"     : 0
+      "value"     : 1
    },
    {
       "Smoking"   : 11,
@@ -53,11 +53,11 @@
    },
    {
       "Waist Circumference" : 12,
-      "value"     : 34
+      "value"     : 26
    },
    {
       "Pain"      : 13,
-      "value"     : 1
+      "value"     : 2
    }
   ]
 }

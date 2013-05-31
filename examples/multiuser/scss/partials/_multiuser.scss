@@ -64,7 +64,6 @@ html, body{
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	height: 15%;
 	background-color: $light-gray;
 	width: 100%;
 	text-align: center;
@@ -87,6 +86,10 @@ html, body{
 		&.selected{
 			 -webkit-transform: translate(0,-5px);
 			 transition: all 0.25s ease-in-out;
+		}
+
+		.image{
+			margin-top: 8px;
 		}
 
 		img{
