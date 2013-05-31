@@ -10,12 +10,12 @@
             "name": "LDL",
             "features": {
               "healthyrange": [
-                74,
-                107
+                50,
+                130
               ],
               "totalrange": [
                 0,
-                160
+                300
               ],
               "boundayflags": [
                 false,
@@ -29,18 +29,18 @@
             "name": "HDL",
             "features": {
               "healthyrange": [
-                65,
-                90
+                40,
+                60
               ],
               "totalrange": [
                 0,
-                130
+                150
               ],
               "boundayflags": [
                 false,
                 true
               ],
-              "weight": 4,
+              "weight": 9,
               "unitlabel": "mg/dl"
             }
           },
@@ -48,12 +48,12 @@
             "name": "Triglycerides",
             "features": {
               "healthyrange": [
-                348,
-                492
+                70,
+                150
               ],
               "totalrange": [
                 0,
-                600
+                300
               ],
               "boundayflags": [
                 false,
@@ -292,12 +292,12 @@
            "name": "LDL",
            "features": {
              "healthyrange": [
-               0,
+               50,
                130
              ],
              "totalrange": [
                0,
-               200
+               300
              ],
              "boundayflags": [
                false,
@@ -312,17 +312,17 @@
            "features": {
              "healthyrange": [
                40,
-               90
+               60
              ],
              "totalrange": [
                0,
-               130
+               150
              ],
              "boundayflags": [
                false,
                true
              ],
-             "weight": 4,
+             "weight": 9,
              "unitlabel": "mg/dl"
            }
          },
@@ -330,12 +330,12 @@
            "name": "Triglycerides",
            "features": {
              "healthyrange": [
-               0,
+               70,
                150
              ],
              "totalrange": [
                0,
-               600
+               300
              ],
              "boundayflags": [
                false,
