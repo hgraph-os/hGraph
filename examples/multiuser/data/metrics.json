@@ -566,111 +566,6 @@
      {
     "gender": "child",
     "metrics": [
-
-    {
-        "name" : "Total Cholesterol",
-        "details" : [
-          {
-            "name": "LDL",
-            "features": {
-              "healthyrange": [
-                0,
-                130
-              ],
-              "totalrange": [
-                0,
-                200
-              ],
-              "boundayflags": [
-                false,
-                true
-              ],
-              "weight": 9,
-              "unitlabel": "mg/dl"
-            }
-          },
-          {
-            "name": "HDL",
-            "features": {
-              "healthyrange": [
-                40,
-                90
-              ],
-              "totalrange": [
-                0,
-                130
-              ],
-              "boundayflags": [
-                false,
-                true
-              ],
-              "weight": 4,
-              "unitlabel": "mg/dl"
-            }
-          },
-          {
-            "name": "Triglycerides",
-            "features": {
-              "healthyrange": [
-                0,
-                150
-              ],
-              "totalrange": [
-                0,
-                600
-              ],
-              "boundayflags": [
-                false,
-                true
-              ],
-              "weight": 3,
-              "unitlabel": "mg/dl"
-            }
-        }]
-      },
-
-      {
-      "name" : "Blood Pressure",
-      "details" : [
-          {
-            "name": "Blood Pressure Systolic",
-            "features": {
-              "healthyrange": [
-                90,
-                105
-              ],
-              "totalrange": [
-                0,
-                200
-              ],
-              "boundayflags": [
-                false,
-                true
-              ],
-              "weight": 5,
-              "unitlabel": "mm/Hg"
-            }
-          },
-          {
-            "name": "Blood Pressure Diastolic",
-            "features": {
-              "healthyrange": [
-                60,
-                90
-              ],
-              "totalrange": [
-                0,
-                140
-              ],
-              "boundayflags": [
-                false,
-                true
-              ],
-              "weight": 5,
-              "unitlabel": "mm/Hg"
-            }
-          }]
-        },
               {
         "name": "Alcohol",
         "features": {
@@ -822,25 +717,6 @@
           ],
           "weight": 3,
           "unitlabel": "happiness scale"
-        }
-      },
-      {
-        "name": "Glucose",
-        "features": {
-          "healthyrange": [
-            100,
-            200
-          ],
-          "totalrange": [
-            0,
-            400
-          ],
-          "boundayflags": [
-            false,
-            true
-          ],
-          "weight": 10,
-          "unitlabel": "mg/dl"
         }
       }
     ]

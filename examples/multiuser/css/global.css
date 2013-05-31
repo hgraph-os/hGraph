@@ -50,7 +50,7 @@ body {
   }
   /* line 46, ../scss/partials/_structure.scss */
   #main #viz {
-    min-height: 680px;
+    min-height: 660px;
   }
 }
 /* line 7, ../scss/partials/_multiuser.scss */
@@ -113,7 +113,6 @@ html, body {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 15%;
   background-color: #e2e4e3;
   width: 100%;
   text-align: center;
@@ -121,7 +120,7 @@ html, body {
   -webkit-box-shadow: 0px -3px 3px #eee;
   box-shadow: 0px -3px 3px #eee;
 }
-/* line 75, ../scss/partials/_multiuser.scss */
+/* line 74, ../scss/partials/_multiuser.scss */
 #user-selection .user {
   display: inline-block;
   margin-left: 15px;
@@ -129,17 +128,21 @@ html, body {
   cursor: pointer;
   width: 120px;
 }
-/* line 82, ../scss/partials/_multiuser.scss */
+/* line 81, ../scss/partials/_multiuser.scss */
 #user-selection .user:hover {
   -webkit-transform: translate(0, -5px);
   transition: all 0.1s ease-in-out;
 }
-/* line 87, ../scss/partials/_multiuser.scss */
+/* line 86, ../scss/partials/_multiuser.scss */
 #user-selection .user.selected {
   -webkit-transform: translate(0, -5px);
   transition: all 0.25s ease-in-out;
 }
-/* line 92, ../scss/partials/_multiuser.scss */
+/* line 91, ../scss/partials/_multiuser.scss */
+#user-selection .user .image {
+  margin-top: 8px;
+}
+/* line 95, ../scss/partials/_multiuser.scss */
 #user-selection .user img {
   border-radius: 50%;
   background-color: #97be8c;
@@ -149,13 +152,13 @@ html, body {
   margin-bottom: 5px;
 }
 
-/* line 104, ../scss/partials/_multiuser.scss */
+/* line 107, ../scss/partials/_multiuser.scss */
 .hline {
   position: absolute;
   width: 100%;
 }
 
-/* line 110, ../scss/partials/_multiuser.scss */
+/* line 113, ../scss/partials/_multiuser.scss */
 .hline:before,
 .hline:after {
   border-top: 1px solid #e2e4e3;
@@ -168,14 +171,14 @@ html, body {
   left: 0;
 }
 
-/* line 121, ../scss/partials/_multiuser.scss */
+/* line 124, ../scss/partials/_multiuser.scss */
 .hline:after {
   right: 0;
   left: auto;
 }
 
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-  /* line 128, ../scss/partials/_multiuser.scss */
+  /* line 131, ../scss/partials/_multiuser.scss */
   #user-info {
     font-size: 0.8rem;
   }

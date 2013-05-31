@@ -5,7 +5,7 @@ An open source javascript-based web application for visualizing health data.
 
 Website: [hgraph.org](http://hgraph.org/)
 
-hGraph Demo: http://www.hscoremixer.org/hGraph/
+hGraph Demo: http://demo.hgraph.org/
 
 hMixer Demo: http://www.hscoremixer.org/
 hMixer Repo: https://github.com/goinvo/hMixer
