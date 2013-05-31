@@ -88,6 +88,8 @@ initialize = function(opts){
         });
         // load first user in menu
         $('.user').first().trigger('click');
+        $('.hline').height(userinfo.height()*0.75);
+
     });
 },
 
@@ -164,7 +166,6 @@ initializeUser = function(user) {
         usertimeline = userinfo.find('#user-timeline');
         usertimeline.active = false;
         // approximate horizontal bar positioning
-        $('.hline').height(userinfo.height()*0.75)
 
         // enable timeline toggling
         userinfo.find('.user').unbind();
@@ -185,9 +186,14 @@ initializeUser = function(user) {
         });
     }
 
-    // plays a transition in case we are switching users
-    if(selected) {
+    // return if selected is active
+    if(selected && selected.attr('uid') === user.id){
+        return
+    }
+    // play transition when switching users
+    else if(selected) {
         switchUser(user);
+    // don't play transitions on first page load
     } else {
         selected = initUserinfo(user);
     }
