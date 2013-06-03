@@ -112,7 +112,7 @@ selectUser = function(uid){
 */
 showTimeline = function(){
     // enable scrolling on touch devices
-    document.ontouchmove = function(e){ return true; }
+    //document.ontouchmove = function(e){ return true; }
     usertimeline.active = true;
     //center timeline horizontally
     usertimeline.css({ left : (userinfo.width() - usertimeline.width()) / 2  });
@@ -129,7 +129,7 @@ showTimeline = function(){
 */
 hideTimeline = function(user){
     // disable scrolling on touch devices
-    document.ontouchmove = function(e){ e.preventDefault(); }
+    //document.ontouchmove = function(e){ e.preventDefault(); }
     usertimeline.active = false;
     usertimeline.fadeOut();
     showUserMenu();
