@@ -26,14 +26,15 @@ body {
 * Window sizes
 */
 /*
-* Defaults to > 1200px width (>2013)
+* Default config
 */
 /* line 26, ../scss/partials/_structure.scss */
 #main {
   width: 100%;
   height: 100%;
+  min-width: 1024px;
 }
-/* line 30, ../scss/partials/_structure.scss */
+/* line 31, ../scss/partials/_structure.scss */
 #main #viz {
   height: 100%;
   min-height: 690px;
@@ -51,6 +52,7 @@ body {
   /* line 46, ../scss/partials/_structure.scss */
   #main #viz {
     min-height: 660px;
+    min-width: 1024px;
   }
 }
 /* line 7, ../scss/partials/_multiuser.scss */
