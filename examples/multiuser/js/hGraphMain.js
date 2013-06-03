@@ -149,7 +149,7 @@ $(document).ready(function (){
 		/*
 		* Prevents scrolling on ios
 		*/
-		document.ontouchmove = function(e){ e.preventDefault(); }
+		//document.ontouchmove = function(e){ e.preventDefault(); }
 			
 		/*
 		* Win resize function
