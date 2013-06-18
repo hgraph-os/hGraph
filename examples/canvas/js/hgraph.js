@@ -1,16 +1,37 @@
-/*! hGraph.js 
+/*! HGraph.js
+ * Authors:
+ *  Michael Bester <michael@kimili.com>
+ *  Ivan DiLernia <ivan@goinvo.com>
+ *  Danny Hadley <danny@goinvo.com>
+ *  Matt Madonna <matthew@myimedia.com>
+ *
+ * License:
+ * Copyright 2012, Involution Studios <http://goinvo.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *  
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 */
-(function( global ) { 
+(function( global ) {
 
-"use strict";
-
-var // define the global namespace
-    hGraph = global.hGraph || { },
-    // local references to d3 and jQuery(lite)
-    d3 = { },
-    jQuery = { };
+var // hGraph namespace definition
+    hGraph = { },
     
+    // jQuery and d3 namespaces defined in vendor
+    jQuery = { },
+    d3 = { },
+    
+    // private (h) variables
+    hRootElement = false,
+    hGraphInstances = { };
 
 /*
  * jQLite JavaScript Library v1.1.1 (http://code.google.com/p/jqlite/)
@@ -391,6 +412,10 @@ var setHandler = function(node, eventType, fn) {
      handlers.push(fn);
      node._handlers[eventType] = handlers;
   }
+};
+
+var dropHandler = function(node, eventType, fn) {
+    node['on'+eventType] = null;
 };
 
 /**
@@ -1299,6 +1324,12 @@ jQLp.prototype = {
   bind: function(eType, fn) {
      return this.each(function() {
         setHandler(this, eType, fn);
+     });
+  },
+  
+  unbind: function(eType) {
+     return this.each(function() {
+        dropHandler(this, eType);
      });
   },
 
@@ -3284,10 +3315,161 @@ function d3_scale_identity(domain) {
 
   return identity;
 }
+var DEFAULTS = { };
+DEFAULTS['HGRAPH_WIDTH'] = 960;
+DEFAULTS['HGRAPH_HEIGHT'] = 720;
+DEFAULTS['HGRAPH_RADIUS'] = 80;
 
+DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['data-hgraph-app','hgraph-app'];
+DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] = ['data-hgraph-graph','hgraph-graph'];
+// shortcuts to basic math ceil
+var ceil = Math.ceil;
+var floor = Math.floor;
+var isArr = jQuery.isArray;
+var isStr = jQuery.isString;
 
+// createUID
+// returns a new unique identifier string to be used in hashes
+var createUID = (function( ) {
+    var uid = 0;
+    return (function( ) {
+        return ceil( Math.random( ) * 1000 ).toString(16) + (++uid);
+    });
+})( );
+function hCreateGraphContainer( ) {
+    var container = document.createElement('div');
+    container.setAttribute('hgraph-graph','');
+    return container;    
+};
 
-// expose the hGraph namespace
+// hGraph.graph
+// the graph class that is used to create every graph on the page
+// with their canvas (as long as they have the 'hgraph-graph' trigger attribute)
+hGraph.graph = function( config ){ 
+    if( !config )
+        return false;
+    
+    var uid = config.uid || createUID( ),
+        container = config.container || hCreateGraphContainer( ),
+        canvas = document.createElement('canvas'),
+        context = canvas.getContext('2d'),
+        mouse = { x : 0, y : 0, isDown : false },
+        position = { x : 0, y : 0 },
+        scale = 1.0;
+    
+    // draw
+    function draw( ) {
+        // begin by clearing out the context
+        context.clearRect( 0, 0, DEFAULTS['HGRAPH_WIDTH'], DEFAULTS['HGRAPH_HEIGHT'] );
+        
+        var cx = position.x + ( DEFAULTS['HGRAPH_WIDTH'] * 0.5 ),
+            cy = position.y + ( DEFAULTS['HGRAPH_HEIGHT'] * 0.5 ),
+            r1 = ( DEFAULTS['HGRAPH_RADIUS'] - 20 ) * scale,
+            r2 = ( DEFAULTS['HGRAPH_RADIUS'] + 20 ) * scale;
+        
+        context.fillStyle = "#97be8c";
+        context.beginPath( );
+        context.arc( cx, cy, r2, 0, 2 * Math.PI );
+        context.fill( );
+        
+        context.fillStyle = "#FFF";
+        context.beginPath( );
+        context.arc( cx, cy, r1, 0, 2 * Math.PI );
+        context.fill( );
+        
+    };
+     
+    function internalInitialRender( ) {
+        return draw( );  
+    };
+    
+    function mouseMove( evt ) {
+        // update the mouse object
+        mouse.x = evt.pageX - container.offsetLeft - ( DEFAULTS['HGRAPH_WIDTH'] * 0.5 );
+        mouse.y = evt.pageY - container.offsetTop - ( DEFAULTS['HGRAPH_HEIGHT'] * 0.5 );
+        // if the mouse is flagged as down, move the ring
+        if( mouse.isDown ){ 
+            position.x = mouse.x;
+            position.y = mouse.y;
+            return draw( );
+        }
+    };
+    
+    function mouseDown( ) {
+        mouse.isDown = true;  
+        jQuery(document).bind( 'mouseup', mouseUp );
+    };
+    
+    function mouseUp( ) {
+        mouse.isDown = false; 
+        jQuery(document).unbind( 'mouseup' );
+    };
+    
+    function toggleZoom( ) {
+        scale = ( scale === 1 ) ? 4.0 : 1.0;
+        draw( );
+    };
+    
+    function checkClick( evt ) {
+        
+    };
+    
+    container.appendChild( canvas );
+    context.fillStyle = "#000";
+    jQuery( canvas )
+        .attr( 'width', DEFAULTS['HGRAPH_WIDTH'] )
+        .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] )
+        .bind( 'mousemove', mouseMove )
+        .bind( 'mousedown', mouseDown )
+        .bind( 'mouseup', mouseUp )
+        .bind( 'click', checkClick );
+            
+    this.ready = true;
+    return internalInitialRender( );
+};
+
+hGraph.graph.prototype = {
+    constructor : hGraph.graph,
+    ready : false
+};
+
+// ----------------------------------------
+// hGraph bootstrapping
+
+// hCreateGraph
+// creates the hgraph inside the container parameter
+function hCreateGraph( container ){
+    var uid = createUID( );
+    hGraphInstances[uid] = new hGraph.graph({ uid : uid, container : container });
+};
+
+// hGraphInit
+// called once the root element has been found during the bootstrapping
+// function call. takes care of populating the graphs on the page
+function hGraphInit( ) {
+    jQuery( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] ).each(function(indx, trigger) {
+        var matches = jQuery("["+trigger+"]");
+        for( var i = 0; i < matches.length; i++ )
+            hCreateGraph( matches[i] );
+    });
+};
+
+// hGraphBootStrap
+// document ready callback. will search the page for an element with either
+// a 'data-hgraph-app' or 'hgraph-app' attribute and save it as the root element
+function hGraphBootStrap( ) {
+    jQuery( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] ).each(function(indx, trigger) {
+        var matches = jQuery("["+trigger+"]");
+        if( matches.length > 0 )
+            hRootElement = matches.first( );
+    });
+    if( hRootElement !== false )
+        return hGraphInit( );
+};
+
+jQuery(document).ready( hGraphBootStrap );
+
+// expose hGraph to the window
 global.hGraph = hGraph;
 
 })( window );

@@ -27,7 +27,11 @@ module.exports = function(grunt) {
         },
         
         publish : {
-            package : { 
+            unmin : { 
+                src: 'build/hgraph.js',
+                dest: ['examples/canvas/js/']
+            },
+            min : { 
                 src: 'build/hgraph.min.js',
                 dest: ['examples/canvas/js/']
             }
