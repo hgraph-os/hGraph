@@ -1,0 +1,5 @@
+var DEFAULTS = { };
+DEFAULTS['HGRAPH_WIDTH'] = 960;
+DEFAULTS['HGRAPH_HEIGHT'] = 720;
+
+DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['data-hgraph-app','hgraph-app'];

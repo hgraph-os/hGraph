@@ -10,5 +10,6 @@ hMixer/hMixer.bbprojectd/project.bbprojectdata
 .DS_Store
 
 examples/multiuser/config/compass.config
+node_modules/*
 
 *.scssc

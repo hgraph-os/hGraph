@@ -1,0 +1,17 @@
+{
+  "name": "hGraph",
+  "version": "0.0.0",
+  "description": "an application built for visualizing health data",
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "author": "Involution Studios",
+  "license": "BSD",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-smash": "~0.1.0",
+    "grunt-yui-compressor": "~0.3.0",
+    "grunt-contrib-clean": "~0.4.1"
+  }
+}
