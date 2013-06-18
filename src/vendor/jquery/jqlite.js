@@ -361,6 +361,10 @@ var setHandler = function(node, eventType, fn) {
   }
 };
 
+var dropHandler = function(node, eventType, fn) {
+    node['on'+eventType] = null;
+};
+
 /**
 * jQuery "lite"
 *
@@ -1267,6 +1271,12 @@ jQLp.prototype = {
   bind: function(eType, fn) {
      return this.each(function() {
         setHandler(this, eType, fn);
+     });
+  },
+  
+  unbind: function(eType) {
+     return this.each(function() {
+        dropHandler(this, eType);
      });
   },
 
