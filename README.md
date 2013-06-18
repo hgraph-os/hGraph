@@ -1,5 +1,20 @@
-hGraph
+hGraph (canvas branch)
 ========
+
+
+###About this branch###
+
+This version is an attempt to use the html5 canvas technology to replace SVG for performance reasons. 
+
+###Building the source###
+
+There are no external dependencies for this version, as **jQLite** and **d3.js** are included during the compilation process. In order to compile the code, run:
+
+	grunt package
+	
+this will compile `hgraph.js` and `hgraph.min.js` into the *build* directory. You will need to have installed the [grunt package manager](http://gruntjs.com/getting-started).
+
+###About the REPO###
 
 An open source javascript-based web application for visualizing health data.
 
@@ -10,48 +25,7 @@ hGraph Demo: http://demo.hgraph.org/
 hMixer Demo: http://www.hscoremixer.org/
 hMixer Repo: https://github.com/goinvo/hMixer
 
-###About the REPO###
-
 The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.
-
-
-###Dependencies###
-
-The `HGraph` class relies on [d3.js](http://d3js.org/), which is a very popular javascript library for manipulating SVG, specficically for graphs and data plotting.
-
-Once you have downloaded the latest version, you will need to include in in your html above the `HealthGraph` source code:
-
-        <script src="/path/to/your/d3.js" type="text/javascript"></script>
-        <script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
-
-###Setup###
-
-During a `window.onload` or similar entry point, the health graph is constructed and intialized by:
-
-        var graph;
-        window.onload = function(){
-
-                graph = new HGraph({
-                        container : document.getElementById("graph_container"),
-                        userdata  : {
-                                                        overallScore : 90,
-                                                        factors      :
-                                                        [
-                                                                {
-                                                                        label : 'Family History',
-                                                                        score : 80,
-                                                                },
-                                                                {
-                                                                        label : 'Caloric Intake',
-                                                                        score : 100
-                                                                }
-                                                        ]
-                        };
-                });
-
-                graph.initialize();
-
-        }
 
 
 ###Core Contributors###
