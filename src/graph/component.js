@@ -13,8 +13,15 @@ hGraph.Graph.Component = function( factory ) {
     // create the constructor for this component
     function Component( ) { };
     
+    Component.prototype.Initialize = function( uid, device, transform, mouse ) {
+        this.uid = uid;
+        this.device = device;
+        this.transform = transform;
+        this.mouse = mouse;
+    };
+    
     // extend the component's prototype with the modified scope
-    Component.prototype = publicScope;
+    jQuery.extend( Component.prototype, publicScope );
     
     // return the constructor to be used
     return Component;
