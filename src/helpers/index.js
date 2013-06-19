@@ -1,14 +1,2 @@
-// shortcuts to basic math ceil
-var ceil = Math.ceil;
-var floor = Math.floor;
-var isArr = jQuery.isArray;
-var isStr = jQuery.isString;
-
-// createUID
-// returns a new unique identifier string to be used in hashes
-var createUID = (function( ) {
-    var uid = 0;
-    return (function( ) {
-        return ceil( Math.random( ) * 1000 ).toString(16) + (++uid);
-    });
-})( );
+import "shortcuts"
+import "utils"

@@ -1,6 +1,13 @@
 [hgraph-graph] {
-    width: 960px;
-    height: 720px;
+    width: 960px; height: 720px;
     margin: 20px auto;
     position: relative;
+}
+[hgraph-layer] {
+    position: absolute;
+    left: 0px; top: 0px;
+}
+
+[hgraph-layer="ui"] {
+    width: 960px; height: 720px;
 }

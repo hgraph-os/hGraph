@@ -45,18 +45,23 @@ import "graph/"
 // creates the hgraph inside the container parameter
 function hCreateGraph( container ){
     var uid = createUID( );
-    hGraphInstances[uid] = new hGraph.graph({ uid : uid, container : container });
+    hGraphInstances[uid] = new hGraph.Graph({ uid : uid, container : container });
 };
 
 // hGraphInit
 // called once the root element has been found during the bootstrapping
 // function call. takes care of populating the graphs on the page
 function hGraphInit( ) {
+
+    // try using the bootstrap selections to find elements
     jQuery( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] ).each(function(indx, trigger) {
         var matches = jQuery("["+trigger+"]");
+        // loop through the elements to create graphs inside them
         for( var i = 0; i < matches.length; i++ )
             hCreateGraph( matches[i] );
     });
+    for( var uid in hGraphInstances )
+        hGraphInstances[uid].Initialize( );
 };
 
 // hGraphBootStrap
@@ -64,10 +69,12 @@ function hGraphInit( ) {
 // a 'data-hgraph-app' or 'hgraph-app' attribute and save it as the root element
 function hGraphBootStrap( ) {
     jQuery( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] ).each(function(indx, trigger) {
+        // try to find an element with the application bootstrap attribute
         var matches = jQuery("["+trigger+"]");
         if( matches.length > 0 )
             hRootElement = matches.first( );
     });
+    // if the 'hgraph-app' attribute was found, we can initialize
     if( hRootElement !== false )
         return hGraphInit( );
 };
