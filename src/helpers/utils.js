@@ -3,6 +3,20 @@
 var createUID = (function( ) {
     var uid = 0;
     return (function( ) {
-        return ceil( Math.random( ) * 2e10 ).toString(32) + (++uid);
+        return "uid-" + (++uid);
     });
 })( );
+
+
+// inject
+// creates a function that will call 
+var inject = function( fn, params ) {
+
+    if( !isArr( params ) || !isFn( fn ) )
+        return function( ) { };
+        
+    return function( ) {
+        fn.apply( { }, params );
+    };
+    
+};
