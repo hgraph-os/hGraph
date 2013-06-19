@@ -111,9 +111,7 @@ hGraph.Graph = function( config ){
     // flag the graph as being ready for initialization
     this.ready = true;
     
-    //this.invokeQueue = [ InternalUpdate, InternalInitialize ];
-    InternalInitialize( );
-    InternalUpdate( );
+    this.invokeQueue = [ InternalUpdate, InternalInitialize ];
 };
 
 hGraph.Graph.prototype = {

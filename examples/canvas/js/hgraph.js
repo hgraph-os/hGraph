@@ -3468,9 +3468,7 @@ hGraph.Graph = function( config ){
     // flag the graph as being ready for initialization
     this.ready = true;
     
-    //this.invokeQueue = [ InternalUpdate, InternalInitialize ];
-    InternalInitialize( );
-    InternalUpdate( );
+    this.invokeQueue = [ InternalUpdate, InternalInitialize ];
 };
 
 hGraph.Graph.prototype = {
@@ -3507,8 +3505,15 @@ hGraph.Graph.Component = function( factory ) {
     // create the constructor for this component
     function Component( ) { };
     
+    Component.prototype.Initialize = function( uid, device, transform, mouse ) {
+        this.uid = uid;
+        this.device = device;
+        this.transform = transform;
+        this.mouse = mouse;
+    };
+    
     // extend the component's prototype with the modified scope
-    Component.prototype = publicScope;
+    jQuery.extend( Component.prototype, publicScope );
     
     // return the constructor to be used
     return Component;
@@ -3520,20 +3525,11 @@ hGraph.Graph.Component = function( factory ) {
 // "Component" during update and draw calls
 hGraph.Graph.Ring = hGraph.Graph.Component(function( publicScope ){ 
 
-
-    publicScope.Initialize = function( uid, device, transform, mouse ) {
-        
-        this.Draw = inject(function( uid ) {
-            
-            console.log(" drawing uid - " + uid );
-            
-        }, [ uid, device, transform, mouse ]);
-        
+    publicScope.Draw = function( ) {
+        console.log("drawing ring for graph: " + this.uid );
+    };
     
-        this.Update = inject(function( uid ) {
-            
-            
-        }, [ uid, device, transform, mouse ]);
+    publicScope.Update = function( ) {
         
     };
      
