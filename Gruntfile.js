@@ -5,6 +5,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-smash');
     grunt.loadNpmTasks('grunt-yui-compressor');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-karma');
     grunt.loadTasks('lib/grunt');
     
     // define grunt configuration
@@ -26,6 +28,23 @@ module.exports = function(grunt) {
             }
         },
         
+        karma : {
+            options : {
+                configFile : 'karma.conf.js'  
+            },
+            unit : { 
+                background : false
+            }  
+        },
+        
+        watch : {
+            karma: {
+                files: ['src/**/*.js', 'tests/**/*.spec.js'],
+                tasks: ['smash','karma:unit','publish'] 
+            }  
+        },
+        
+        
         publish : {
             unmin : { 
                 src: 'build/hgraph.js',
@@ -39,7 +58,7 @@ module.exports = function(grunt) {
         
     });
     
-    grunt.registerTask('package', ['clean','smash','min','publish']);
+    grunt.registerTask('package', ['clean','smash','karma','min','publish']);
     grunt.registerTask('default', ['package']);
     
 };

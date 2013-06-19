@@ -13,3 +13,15 @@ examples/multiuser/config/compass.config
 node_modules/*
 
 *.scssc
+
+npm-debug.log
+
+build/hgraph.js
+
+build/hgraph.min.js
+
+build/hgraph.js
+
+build/hgraph.min.js
+
+test-results.xml
