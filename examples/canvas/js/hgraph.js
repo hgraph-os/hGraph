@@ -3318,13 +3318,16 @@ function d3_scale_identity(domain) {
 var DEFAULTS = { };
 DEFAULTS['HGRAPH_WIDTH'] = 960;
 DEFAULTS['HGRAPH_HEIGHT'] = 720;
-DEFAULTS['HGRAPH_RADIUS'] = 80;
+DEFAULTS['HGRAPH_RADIUS'] = 120;
 
 DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['data-hgraph-app','hgraph-app'];
 DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] = ['data-hgraph-graph','hgraph-graph'];
 // math functions
 var ceil = Math.ceil;
 var floor = Math.floor;
+
+// array shortcuts
+var slice = Array.prototype.slice;
 
 // jqLite functions
 var isArr = jQuery.isArray;
@@ -3335,13 +3338,28 @@ var isFn = jQuery.isFunction;
 var createUID = (function( ) {
     var uid = 0;
     return (function( ) {
-        return ceil( Math.random( ) * 2e10 ).toString(32) + (++uid);
+        return "uid-" + (++uid);
     });
 })( );
+
+
+// inject
+// creates a function that will call 
+var inject = function( fn, params ) {
+
+    if( !isArr( params ) || !isFn( fn ) )
+        return function( ) { };
+        
+    return function( ) {
+        fn.apply( { }, params );
+    };
+    
+};
 // hGraph.graph
 // the graph class that is used to create every graph on the page
 // with their canvas (as long as they have the 'hgraph-graph' trigger attribute)
 hGraph.Graph = function( config ){ 
+    
     
     this.ready = false;
     
@@ -3356,7 +3374,7 @@ hGraph.Graph = function( config ){
         _container = config.container,
         _canvas = document.createElement('canvas'),
         _uiLayer = document.createElement('uiLayer'),
-        _context = _canvas.getContext('2d'),
+        _device = _canvas.getContext('2d'),
         _mouse = { x : 0, y : 0, isDown : false },
         _transform = { 
             position : { x : 0, y : 0 },
@@ -3364,74 +3382,67 @@ hGraph.Graph = function( config ){
             scale : 1.0
         },
         _components = [ ];
-
-    // InternalUpdate
-    // calls any position/size adjustments especially during animation loops
-    function InternalUpdate( ) { 
-        // loop through the components, updating them
-        for( var i = 0; i < _components.length; i++ )
-            _components[i].Update( );
-            
-        return InternalDraw( );
-    };
+    
+    _components.push( new hGraph.Graph.Ring( ) );
     
     // InternalDraw
     // called whenever the canvas needs to be updated
-    function InternalDraw( ) {
-        // begin by clearing out the context
-        _context.clearRect( 0, 0, DEFAULTS['HGRAPH_WIDTH'], DEFAULTS['HGRAPH_HEIGHT'] );
+    var InternalDraw = inject(function( components ) {
         
-        // loop through the components, drawing them
-        for( var i = 0; i < _components.length; i++ )
-            _components[i].Draw( _context );
+        console.log( 'drawing' );
+        for( var i = 0; i < components.length; i++ )
+            components[i].Draw( );
+    
+    }, [ _components ] );
+    
+    // InternalUpdate
+    // calls any position/size adjustments especially during animation loops
+    var InternalUpdate = inject(function( drawFn ) { 
         
+        return drawFn( );
         
-    };
+    }, [ InternalDraw ]);
      
     // InternalInitialize
     // 
-    function InternalInitialize( ) {
-        // create the components needed
-        _components.push( new hGraph.Graph.Ring( ) );
+    var InternalInitialize = inject(function( uid, components, device, mouse, transform ) {
         
-        // initialize all components with access to the mouse and transform properties
-        for( var i = 0; i < _components.length; i++ )
-            _components[i].Initialize( _mouse, _transform );
-                
+        for( var i = 0; i < components.length; i++ )
+            components[i].Initialize( uid, device, transform, mouse );
+            
+    }, [ _uid, _components, _device, _mouse, _transform ] );
+    
+    // MouseMove
+    // event callback that is fired every time the mouse is moved while being over the
+    // UI layer. If the mouse is down, it will update the transform object's position
+    var MouseMove = inject(function( mouse, container, transform, updateFn ) {
+        
+        mouse.x = Math.random( );
+        
         return InternalUpdate( );
-    };
+        
+    }, [ _mouse, _container, _transform, InternalUpdate ] );
     
-    function MouseMove( evt ) {
-        // update the mouse object
-        _mouse.x = evt.pageX - _container.offsetLeft - ( DEFAULTS['HGRAPH_WIDTH'] * 0.5 );
-        _mouse.y = evt.pageY - _container.offsetTop - ( DEFAULTS['HGRAPH_HEIGHT'] * 0.5 );
-        // if the mouse is flagged as down, move the ring
-        if( _mouse.isDown ){ 
-            _transform.position.x = _mouse.x;
-            _transform.position.y = _mouse.y;
-            return InternalUpdate( );
-        }
-    };
-    
-    function MouseDown( ) {
-        _mouse.isDown = true;  
+    // MouseDown
+    // callback function for mousedown events on the UI layer
+    var MouseDown = inject(function( mouse ) {
+        // the mouse is down, make sure the object knows it
+        mouse.isDown = true;  
+        
         jQuery(document).bind( 'mouseup', MouseUp );
-    };
-    
-    function MouseUp( ) {
-        _mouse.isDown = false; 
-        jQuery(document).unbind( 'mouseup' );
-    };
-    
-    function ToggleZoom( ) {
-        _scale = ( _scale === 1 ) ? 4.0 : 1.0;
-        return InternalUpdate( );
-    };
-    
-    function CheckClick( evt ) {
         
-    };
+    }, [ _mouse, MouseUp ]);
     
+    // MouseUp
+    // the mouse up event that is called on the UI layer of the UI layer
+    var MouseUp = inject(function ( m ) {
+        // toggle the mouse as no longer being down
+        m.isDown = false; 
+        // unbind mouse up - no longer needed
+        jQuery(document).unbind( 'mouseup' );
+        
+    }, [ _mouse ]);
+        
     try { 
         // add the canvas to the container
     	_container.appendChild( _canvas );
@@ -3451,13 +3462,15 @@ hGraph.Graph = function( config ){
         .attr( 'hgraph-layer', 'ui' )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )
-        .bind( 'mouseup', MouseUp )
-        .bind( 'click', CheckClick );
-            
-    // add the internal initialization to the invokeQueue
-    this.invokeQueue.push( InternalInitialize );
+        .bind( 'mouseup', MouseUp );
+    
+    
     // flag the graph as being ready for initialization
     this.ready = true;
+    
+    //this.invokeQueue = [ InternalUpdate, InternalInitialize ];
+    InternalInitialize( );
+    InternalUpdate( );
 };
 
 hGraph.Graph.prototype = {
@@ -3469,16 +3482,11 @@ hGraph.Graph.prototype = {
     // loop through the graph's 'invokeQueue' which is a list of 
     // initialization functions
     Initialize : function( ) { 
-        // do nothing if not ready
-        if( !this.ready || !isArr( this.invokeQueue) )
-            return false;
         
-        var fn = null,
-            queue = this.invokeQueue;
-
-        // loop through the invokeQueue and call the functions
-        while( fn = queue.pop( ) )
+        var fn;
+        while( fn = this.invokeQueue.pop( ) )
             if( isFn( fn ) ) { fn( ); }
+        
     }
     
 };
@@ -3489,65 +3497,43 @@ hGraph.Graph.prototype = {
 // hGraph.Graph.Component
 // creates 
 hGraph.Graph.Component = function( factory ) {
+
     // create the public scope object 
-    var publicScope = { },
-        privateScope = { };
+    var publicScope = { };
         
     // allow the factory function to change the public scope (by reference)
-    factory( publicScope, privateScope );
+    factory( publicScope );
+    
     // create the constructor for this component
     function Component( ) { };
     
-    // Component.Initialize 
-    // 
-    Component.prototype.Initialize = function( mouse, transform ) { 
-        privateScope.mouse = mouse;
-        privateScope.transform = transform;  
-        
-        if( privateScope.mouse && privateScope.transform )
-            this.ready = true;
-    };
-    
     // extend the component's prototype with the modified scope
-    jQuery.extend( Component.prototype, publicScope );
+    Component.prototype = publicScope;
+    
     // return the constructor to be used
     return Component;
+    
 };
 
 // hGraph.Graph.Ring
 // one of the drawable components of the hGraph.Graph class. Will be used as a
 // "Component" during update and draw calls
-hGraph.Graph.Ring = hGraph.Graph.Component(function( publicScope, privateScope ){ 
-    
-    privateScope.mouse = null;
-    privateScope.transform = null;
-    
-    
-    publicScope.Draw = function( device ) {
-        var midX = DEFAULTS['HGRAPH_WIDTH'] * 0.5,
-            midY = DEFAULTS['HGRAPH_HEIGHT'] * 0.5,
-            scale = privateScope.transform.scale,
-            xpos = privateScope.transform.position.x,
-            ypos = privateScope.transform.position.y,
-            cx = xpos + midX,
-            cy = ypos + midY,
-            innerRadius = ( DEFAULTS['HGRAPH_RADIUS'] - 20 ) * scale,
-            outerRadius = ( DEFAULTS['HGRAPH_RADIUS'] + 20 ) * scale;
+hGraph.Graph.Ring = hGraph.Graph.Component(function( publicScope ){ 
+
+
+    publicScope.Initialize = function( uid, device, transform, mouse ) {
+        
+        this.Draw = inject(function( uid ) {
             
-        device.fillStyle = '#333';
-        device.beginPath( );
-        device.arc( cx, cy, outerRadius, 0, 360, false );
-        device.fill( );
+            console.log(" drawing uid - " + uid );
+            
+        }, [ uid, device, transform, mouse ]);
         
-        device.fillStyle = '#fff';
-        device.beginPath( );
-        device.arc( cx, cy, innerRadius, 0, 360, false );
-        device.fill( );
-        
-        
-    };
     
-    publicScope.Update = function( ) {
+        this.Update = inject(function( uid ) {
+            
+            
+        }, [ uid, device, transform, mouse ]);
         
     };
      

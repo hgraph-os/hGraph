@@ -33,7 +33,7 @@ module.exports = function(grunt) {
                 configFile : 'karma.conf.js'  
             },
             unit : { 
-                background : false
+                background : true
             }  
         },
         
