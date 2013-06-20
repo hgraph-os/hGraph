@@ -3318,7 +3318,8 @@ function d3_scale_identity(domain) {
 var DEFAULTS = { };
 DEFAULTS['HGRAPH_WIDTH'] = 960;
 DEFAULTS['HGRAPH_HEIGHT'] = 720;
-DEFAULTS['HGRAPH_RADIUS'] = 120;
+DEFAULTS['HGRAPH_INNER_RADIUS'] = 120;
+DEFAULTS['HGRAPH_OUTER_RADIUS'] = 200;
 
 DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['data-hgraph-app','hgraph-app'];
 DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] = ['data-hgraph-graph','hgraph-graph'];
@@ -3328,6 +3329,9 @@ var floor = Math.floor;
 
 // array shortcuts
 var slice = Array.prototype.slice;
+
+// obj functions
+var hasOwn = Object.prototype.hasOwnProperty;
 
 // jqLite functions
 var isArr = jQuery.isArray;
@@ -3344,32 +3348,200 @@ var createUID = (function( ) {
 
 
 // inject
-// creates a function that will call 
-var inject = function( fn, params ) {
+// creates a function that calls the function being passed in
+// as the first parameter with references to the specific objects
+// that are passed in as the second
+// @param {function} the function that will be used
+// @param [array] the parameters that should be used in the new function
+// @param {self} the context (if any) to use when calling 'apply' on the function
+var inject = function( fn, params, self ) {
 
     if( !isArr( params ) || !isFn( fn ) )
         return function( ) { };
-        
+    
+    var context = self ? self : { };
+    
     return function( ) {
-        fn.apply( { }, params );
+        if( arguments.length > 0 )
+            return fn.apply( context, params.concat( slice.call( arguments, 0 ) ) );
+            
+        fn.apply( context, params );
     };
     
 };
 // hGraph.graph
 // the graph class that is used to create every graph on the page
 // with their canvas (as long as they have the 'hgraph-graph' trigger attribute)
-hGraph.Graph = function( config ){ 
+hGraph.Graph = (function( config ){ 
+
+function InternalDraw( locals ) {
+    if( !this.ready )
+        return false;
+    
+    var transform = locals.GetComponent( 'transform' )
+    locals.device.clearRect( 0, 0, transform.size.width, transform.size.height );
+    
+    // loop through all components and draw them
+    var components = locals['components'], name;
+    for( name in components )
+        components[name].Draw( );
+    
+};
+
+function InternalUpdate( locals ) {
+    if( !this.ready )
+        return false;
+    
+    // loop through all components and update them
+    var components = locals['components'], name;
+    for( name in components )
+        components[name].Update( );
+        
+    this.invokeQueue.push( inject( InternalDraw, [ locals ], this ) );
+    return this.ExecuteQueue( );  
+};
+
+function InternalMouseMove( locals, evt ) {
+    if( !this.ready )
+        return false;
+        
+    locals['mouse'].x = evt.pageX - locals['container'].offsetLeft;
+    locals['mouse'].y = evt.pageY - locals['container'].offsetTop;
+    
+    if( locals['mouse'].isDown && locals.GetComponent('transform') )
+        locals.GetComponent('transform').Move( locals['mouse'].x, locals['mouse'].y );
+        
+    // mouse move is an event where we need to update, add it to the queue and execute
+    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
+};
+
+function InternalMouseUp( locals, evt ) {
+    if( !this.ready )
+        return false;
+    
+    locals['mouse'].isDown = false;
+};
+
+function InternalMouseDown( locals, evt ) {
+    if( !this.ready )
+        return false;
+    
+    locals['mouse'].isDown = true;
+        
+};
+
+function InternalInitialize( locals ) {
+    if( !this.ready )
+        return false;
+
+    // loop through all components and initialize them
+    var components = locals['components'], name;
+    for( name in components )
+        components[name].Initialize( locals );
+
+};
+
+function Graph( config ) {
+    // while the graph is being prepared, it is not ready
+    this.ready = false;
+    
+    // if no configuration was passed in for this graph, end    
+    if( !config )
+        return false;
+    
+    var // local references
+        _uid = config.uid || createUID( ),
+        _container = config.container,
+        _canvas = document.createElement('canvas'),
+        _uiLayer = document.createElement('uiLayer'),
+        _device = _canvas.getContext('2d'),
+        _mouse = { x : 0, y : 0, isDown : false },
+        _components = { };
+    
+    // add the components that will make up this graph
+    _components['transform'] = new hGraph.Graph.Transform( );
+    _components['ring'] = new hGraph.Graph.Ring( );
+    
+    // save all of those locals into a local object to be injected
+    var locals = {
+        uid : _uid,
+        container : _container,
+        canvas : _canvas,
+        uiLayer : _uiLayer,
+        device : _device,
+        mouse : _mouse,
+        components : _components
+    };
+    locals.GetComponent = function( name ) {
+        return this.components[name] || false;
+    };
+    
+    // the invoke queue starts with initialization 
+    this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
+    
+    try { 
+        // add the canvas to the container
+    	_container.appendChild( _canvas );
+        // add the ui div(layer) to the container
+        _container.appendChild( _uiLayer );
+    } catch( e ) {
+        this.ready = false;
+        return console.error('hGraph was unable to create a graph in the container');
+    }
     
     
+    var MouseMove = inject( InternalMouseMove, [ locals ], this ),
+        MouseDown = inject( InternalMouseDown, [ locals ], this ),
+        MouseUp = inject( InternalMouseUp, [ locals ], this );
+    
+    jQuery( _canvas )
+        .attr( 'hgraph-layer', 'data' )
+        .attr( 'width', DEFAULTS['HGRAPH_WIDTH'] )
+        .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] );
+    
+    // prep the ui layer and add events
+    jQuery( _uiLayer )
+        .attr( 'hgraph-layer', 'ui' )
+        .bind( 'mousemove', MouseMove )
+        .bind( 'mousedown', MouseDown )
+        .bind( 'mouseup', MouseUp );
+    
+    // flag the graph as being ready for initialization
+    this.ready = true;
+    
+};
+
+Graph.prototype = {
+        
+    constructor : Graph,    
+    
+    Initialize : function( ) {
+        if( this.ready )
+            this.ExecuteQueue( );
+    },
+    
+    ExecuteQueue : function( ) {
+        var fn;
+        while( fn = this.invokeQueue.pop( ) )
+            if( isFn( fn ) ) { fn( ); }
+    }
+    
+};
+
+return Graph;
+
+})( );
+
+/*
+
+return Graph;
+
     this.ready = false;
     
     if( !config )
         return false;
     
-    // public: 
-    this.invokeQueue = [ ];
-    
-    // private: ( _ )
+    // private:
     var _uid = config.uid || createUID( ),
         _container = config.container,
         _canvas = document.createElement('canvas'),
@@ -3379,27 +3551,34 @@ hGraph.Graph = function( config ){
         _transform = { 
             position : { x : 0, y : 0 },
             rotation : 0,
-            scale : 1.0
+            scale : 1.0,
+            size : { 
+                width : DEFAULTS['HGRAPH_WIDTH'],
+                height : DEFAULTS['HGRAPH_HEIGHT']
+            }
         },
         _components = [ ];
     
+    // add the components that will make up this graph
     _components.push( new hGraph.Graph.Ring( ) );
     
     // InternalDraw
     // called whenever the canvas needs to be updated
-    var InternalDraw = inject(function( components ) {
+    var InternalDraw = inject(function( device, components ) {
         
-        console.log( 'drawing' );
+        // clear the canvas
+        device.clearRect( 0, 0, DEFAULTS['HGRAPH_WIDTH'], DEFAULTS['HGRAPH_HEIGHT'] );
+        
         for( var i = 0; i < components.length; i++ )
             components[i].Draw( );
     
-    }, [ _components ] );
+    }, [ _device, _components ] );
     
     // InternalUpdate
     // calls any position/size adjustments especially during animation loops
-    var InternalUpdate = inject(function( drawFn ) { 
+    var InternalUpdate = inject(function( InternalDraw ) { 
         
-        return drawFn( );
+        return InternalDraw( );
         
     }, [ InternalDraw ]);
      
@@ -3415,10 +3594,21 @@ hGraph.Graph = function( config ){
     // MouseMove
     // event callback that is fired every time the mouse is moved while being over the
     // UI layer. If the mouse is down, it will update the transform object's position
-    var MouseMove = inject(function( mouse, container, transform, updateFn ) {
+    var MouseMove = inject(function( mouse, container, transform, InternalUpdate, evt ) {
         
-        mouse.x = Math.random( );
+        if( !evt )
+            return false;
         
+        // update the mouse position
+        mouse.x = evt.pageX - container.offsetWidth;
+        mouse.y = evt.pageY - container.offsetHeight;
+        
+        // if dragging, update the position too
+        if( mouse.isDown ) {
+            transform.position.x = mouse.x + ( this.transform.size.width * 0.5 );
+            transform.position.y = mouse.y + ( this.transform.size.height * 0.5 );
+        }
+    
         return InternalUpdate( );
         
     }, [ _mouse, _container, _transform, InternalUpdate ] );
@@ -3428,19 +3618,17 @@ hGraph.Graph = function( config ){
     var MouseDown = inject(function( mouse ) {
         // the mouse is down, make sure the object knows it
         mouse.isDown = true;  
-        
+        // look on the entire document for mouse up events
         jQuery(document).bind( 'mouseup', MouseUp );
-        
     }, [ _mouse, MouseUp ]);
     
     // MouseUp
     // the mouse up event that is called on the UI layer of the UI layer
-    var MouseUp = inject(function ( m ) {
+    var MouseUp = inject(function ( mouse ) {
         // toggle the mouse as no longer being down
-        m.isDown = false; 
+        mouse.isDown = false; 
         // unbind mouse up - no longer needed
         jQuery(document).unbind( 'mouseup' );
-        
     }, [ _mouse ]);
         
     try { 
@@ -3480,21 +3668,25 @@ hGraph.Graph.prototype = {
     // loop through the graph's 'invokeQueue' which is a list of 
     // initialization functions
     Initialize : function( ) { 
-        
+        if( !this.ready )
+            return false;
+            
         var fn;
         while( fn = this.invokeQueue.pop( ) )
             if( isFn( fn ) ) { fn( ); }
-        
     }
     
-};
+*/
+//})( );
 
 
 
 
-// hGraph.Graph.Component
-// creates 
-hGraph.Graph.Component = function( factory ) {
+// hGraph.Graph.ComponentFacory
+// creates a constructor that will have a prototype with the 
+// properies modified by the factory function being passed as 
+// the parameter
+hGraph.Graph.ComponentFacory = function( factory ) {
 
     // create the public scope object 
     var publicScope = { };
@@ -3503,13 +3695,24 @@ hGraph.Graph.Component = function( factory ) {
     factory( publicScope );
     
     // create the constructor for this component
-    function Component( ) { };
+    var Component = hasOwn.call( factory, 'constructor') ? factory['constructor'] : function( ) { };
     
-    Component.prototype.Initialize = function( uid, device, transform, mouse ) {
-        this.uid = uid;
-        this.device = device;
-        this.transform = transform;
-        this.mouse = mouse;
+    Component.prototype = {
+        
+        Initialize : function( locals ) {
+            // all components are not ready till proven otherwise
+            this.ready = false;            
+            // save a reference to the local variables on this object
+            this.locals = locals;
+            // if we got a uid in the locals hash, we are good to go
+            if( this.locals['uid'] )
+                this.ready = true;
+        },
+        
+        // placeholder functions that are overridden during extension
+        Draw : function( ) { },
+        Update : function( ) { }
+        
     };
     
     // extend the component's prototype with the modified scope
@@ -3520,20 +3723,83 @@ hGraph.Graph.Component = function( factory ) {
     
 };
 
+// hGraph.Graph.Transform
+// the transform component
+
+// TransformFactory
+function TransformFactory( publicScope ) {
+    
+    publicScope.Move = function( xpos, ypos ) {
+        this.position.x = xpos;
+        this.position.y = ypos;
+    };
+    
+};
+
+// TransformFactory (constructor)
+// this function will be used as the Transform object constructor. in order
+// to populate some of the initial characteristics to starting values
+TransformFactory['constructor'] = function( ) {
+
+    // initialize everything with starting values
+    this.size = { width : DEFAULTS['HGRAPH_WIDTH'], height : DEFAULTS['HGRAPH_HEIGHT'] };
+    this.position = { x : ( this.size.width * 0.5 ), y : ( this.size.height * 0.5 ) };
+    this.scale = 1;
+    this.rotation = 0;
+    
+};
+
+// create the constructor from the component factory
+hGraph.Graph.Transform = hGraph.Graph.ComponentFacory( TransformFactory );
+
 // hGraph.Graph.Ring
 // one of the drawable components of the hGraph.Graph class. Will be used as a
 // "Component" during update and draw calls
-hGraph.Graph.Ring = hGraph.Graph.Component(function( publicScope ){ 
 
-    publicScope.Draw = function( ) {
-        console.log("drawing ring for graph: " + this.uid );
-    };
+// RingFacotry
+function RingFactory( publicScope ) {
     
-    publicScope.Update = function( ) {
+    publicScope.Draw = function( ) {
+        if( !this.ready )
+            return false;
+        
+        var transform = this.locals.GetComponent('transform'),
+            device = this.locals.device;
+        
+        if( !transform )
+            return console.error('was unable to access the transform component');
+        
+        var position = transform.position,
+            scale = transform.scale,
+            outerRadius = this.outerRadius * scale,
+            innerRadius = this.innerRadius * scale;
+    
+        console.log( innerRadius );
+            
+        // draw the outer circle first
+        device.beginPath( );
+        device.arc( position.x, position.y, outerRadius, 0, Math.PI * 20 );
+        device.fillStyle = "#333";
+        device.fill( );
+        
+        // draw the outer circle first
+        device.beginPath( );
+        device.arc( position.x, position.y, innerRadius, 0, Math.PI * 20 );
+        device.fillStyle = "#fff";
+        device.fill( );
+        
         
     };
-     
-});
+
+};
+
+RingFactory['constructor'] = function( ) {
+    this.innerRadius = DEFAULTS['HGRAPH_INNER_RADIUS'];  
+    this.outerRadius = DEFAULTS['HGRAPH_OUTER_RADIUS'];
+};
+
+// create the Ring constructor from the component factory
+hGraph.Graph.Ring = hGraph.Graph.ComponentFacory( RingFactory );
 
 // ----------------------------------------
 // hGraph bootstrapping
