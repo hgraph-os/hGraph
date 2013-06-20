@@ -67,6 +67,9 @@ function InternalInitialize( locals ) {
     var components = locals['components'], name;
     for( name in components )
         components[name].Initialize( locals );
+        
+    // add points to the point manager
+    
 
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -122,13 +125,17 @@ function Graph( config ) {
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this );
     
-    jQuery( _canvas )
+    jQL( _canvas )
         .attr( 'hgraph-layer', 'data' )
         .attr( 'width', DEFAULTS['HGRAPH_WIDTH'] )
         .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] );
     
+    jQL( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
+        console.log( jQL( _container ).children('['+trigger+']') );
+    });
+        
     // prep the ui layer and add events
-    jQuery( _uiLayer )
+    jQL( _uiLayer )
         .attr( 'hgraph-layer', 'ui' )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )

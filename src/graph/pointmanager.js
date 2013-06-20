@@ -16,7 +16,7 @@ function PointManagerFactory( proto ) {
     
         for( var i = 0; i < this.points.length; i++ )
             this.points[i].Draw( );
-            
+        
     };
     
     proto.addPoint = function( data ) {
