@@ -68,6 +68,7 @@ function InternalInitialize( locals ) {
     for( name in components )
         components[name].Initialize( locals );
 
+    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
 function Graph( config ) {
@@ -104,10 +105,7 @@ function Graph( config ) {
     locals.GetComponent = function( name ) {
         return this.components[name] || false;
     };
-    
-    // the invoke queue starts with initialization 
-    this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
-    
+
     try { 
         // add the canvas to the container
     	_container.appendChild( _canvas );
@@ -138,6 +136,8 @@ function Graph( config ) {
     // flag the graph as being ready for initialization
     this.ready = true;
     
+    // the invoke queue starts with initialization 
+    this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
 };
 
 Graph.prototype = {
