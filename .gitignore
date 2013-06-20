@@ -25,3 +25,9 @@ build/hgraph.js
 build/hgraph.min.js
 
 test-results.xml
+
+examples/canvas/js/hgraph.min.js
+
+examples/canvas/js/hgraph.js
+
+examples/canvas/js/hgraph.js
