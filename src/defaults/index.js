@@ -6,3 +6,4 @@ DEFAULTS['HGRAPH_OUTER_RADIUS'] = 200;
 
 DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['data-hgraph-app','hgraph-app'];
 DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] = ['data-hgraph-graph','hgraph-graph'];
+DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] = ['data-hgraph-payload','hgraph-payload'];

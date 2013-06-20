@@ -9,7 +9,7 @@ hGraph.Graph.ComponentFacory = function( factory ) {
     // create the public scope object 
     var proto = { };
         
-    // allow the factory function to change the public scope (by reference)
+    // allow the factory function to change the public scope (by reference) 
     factory( proto );
     
     // create the constructor for this component
@@ -33,8 +33,8 @@ hGraph.Graph.ComponentFacory = function( factory ) {
         
     };
     
-    // extend the component's prototype with the modified scope
-    jQuery.extend( Component.prototype, proto );
+    // extend the component's prototype with the modified scope 
+    extend( Component.prototype, proto );
     
     // return the constructor to be used
     return Component;
