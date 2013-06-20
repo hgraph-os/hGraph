@@ -1,13 +1,12 @@
 import "component"
 
 // hGraph.Graph.Ring
-// one of the drawable components of the hGraph.Graph class. Will be used as a
-// "Component" during update and draw calls
+// one of the drawable components of the hGraph.Graph class.
 
-// RingFacotry
-function RingFactory( publicScope ) {
+// RingFactory
+function RingFactory( proto ) {
     
-    publicScope.Draw = function( ) {
+    proto.Draw = function( ) {
         if( !this.ready )
             return false;
         
@@ -33,8 +32,7 @@ function RingFactory( publicScope ) {
         device.arc( position.x, position.y, innerRadius, 0, Math.PI * 20 );
         device.fillStyle = "#fff";
         device.fill( );
-        
-        
+    
     };
 
 };

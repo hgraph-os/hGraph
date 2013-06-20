@@ -4,9 +4,9 @@ import "component"
 // the transform component
 
 // TransformFactory
-function TransformFactory( publicScope ) {
+function TransformFactory( proto ) {
     
-    publicScope.Move = function( xpos, ypos ) {
+    proto.Move = function( xpos, ypos ) {
         this.position.x = xpos;
         this.position.y = ypos;
     };
@@ -14,8 +14,6 @@ function TransformFactory( publicScope ) {
 };
 
 // TransformFactory (constructor)
-// this function will be used as the Transform object constructor. in order
-// to populate some of the initial characteristics to starting values
 TransformFactory['constructor'] = function( ) {
 
     // initialize everything with starting values

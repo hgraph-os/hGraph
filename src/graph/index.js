@@ -1,4 +1,5 @@
 import "graph"
 import "transform"
+import "pointmanager"
 import "ring"
 import "point"
