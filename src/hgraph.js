@@ -81,7 +81,4 @@ function hGraphBootStrap( ) {
 
 jQuery(document).ready( hGraphBootStrap );
 
-// expose hGraph to the window
-global.hGraph = hGraph;
-
 })( window );

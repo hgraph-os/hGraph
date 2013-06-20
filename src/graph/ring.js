@@ -21,8 +21,6 @@ function RingFactory( publicScope ) {
             scale = transform.scale,
             outerRadius = this.outerRadius * scale,
             innerRadius = this.innerRadius * scale;
-    
-        console.log( innerRadius );
             
         // draw the outer circle first
         device.beginPath( );
