@@ -26,7 +26,7 @@ var // hGraph namespace definition
     hGraph = { },
     
     // jQL and d3 namespaces defined in vendor
-    jQL = { },
+    $ = { },
     d3 = { },
     
     // private (h) variables
@@ -54,8 +54,8 @@ function hCreateGraph( container ){
 function hGraphInit( ) {
 
     // try using the bootstrap selections to find elements
-    jQL( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] ).each(function(indx, trigger) {
-        var matches = jQL("["+trigger+"]");
+    $( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] ).each(function(indx, trigger) {
+        var matches = $("["+trigger+"]");
         // loop through the elements to create graphs inside them
         for( var i = 0; i < matches.length; i++ )
             hCreateGraph( matches[i] );
@@ -68,9 +68,9 @@ function hGraphInit( ) {
 // document ready callback. will search the page for an element with either
 // a 'data-hgraph-app' or 'hgraph-app' attribute and save it as the root element
 function hGraphBootStrap( ) {
-    jQL( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] ).each(function(indx, trigger) {
+    $( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] ).each(function(indx, trigger) {
         // try to find an element with the application bootstrap attribute
-        var matches = jQL("["+trigger+"]");
+        var matches = $("["+trigger+"]");
         if( matches.length > 0 )
             hRootElement = matches.first( );
     });
@@ -79,7 +79,7 @@ function hGraphBootStrap( ) {
         return hGraphInit( );
 };
 
-jQL(document).ready( hGraphBootStrap );
+$(document).ready( hGraphBootStrap );
 
 // expose hGraph to the window
 global.hGraph = hGraph;

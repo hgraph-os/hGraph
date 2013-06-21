@@ -24,7 +24,7 @@ function RingFactory( proto ) {
         // draw the outer circle first
         device.beginPath( );
         device.arc( position.x, position.y, outerRadius, 0, Math.PI * 20 );
-        device.fillStyle = "#333";
+        device.fillStyle = DEFAULTS['HGRAPH_RING_FILL_COLOR'];
         device.fill( );
         
         // draw the outer circle first
@@ -32,7 +32,7 @@ function RingFactory( proto ) {
         device.arc( position.x, position.y, innerRadius, 0, Math.PI * 20 );
         device.fillStyle = "#fff";
         device.fill( );
-    
+        
     };
 
 };
