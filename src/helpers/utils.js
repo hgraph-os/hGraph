@@ -66,8 +66,17 @@ var forEach = function(obj, iterator, context) {
     return obj;
 };
 
-var extend = function( dest ) {
 
+// extend
+// using a list of objects passed in as parameters, this function will
+// copy those object's properties onto the first parametered object.
+// @param {object} the object being copied onto
+// @param [object,object] a list of objects to copy information to the destination
+var extend = function( dest ) {
+    
+    if( !isObj( dest ) || arguments.length < 2 )
+        return dest;
+    
     forEach( splice.call( arguments, 1 ), function( obj ){
         forEach( obj, function( value, key ){
     	    dest[key] = value;

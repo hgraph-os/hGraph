@@ -1219,7 +1219,7 @@ jQLp.prototype = {
 		for ( i = 0; i < len; i++ ) {
 			jQL.find( selector, self[ i ], ret );
 		}
-		return ret;
+		return jQL( ret );
     },
     
   children: function(selector) {
