@@ -6,9 +6,9 @@ import "component"
 // TransformFactory
 function TransformFactory( proto ) {
     
-    proto.Move = function( xpos, ypos ) {
-        this.position.x = xpos;
-        this.position.y = ypos;
+    proto.Move = function( dx, dy ) {
+        this.position.x += dx;
+        this.position.y += dy;
     };
     
 };

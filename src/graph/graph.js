@@ -34,11 +34,17 @@ function InternalMouseMove( locals, evt ) {
     if( !this.ready )
         return false;
         
-    locals['mouse'].x = evt.pageX - locals['container'].offsetLeft;
-    locals['mouse'].y = evt.pageY - locals['container'].offsetTop;
+    locals['mouse'].currentPositon.x = evt.pageX - locals['container'].offsetLeft;
+    locals['mouse'].currentPositon.y = evt.pageY - locals['container'].offsetTop;
+    
+    var dx = locals['mouse'].currentPositon.x - locals['mouse'].lastPosition.x,
+        dy = locals['mouse'].currentPositon.y - locals['mouse'].lastPosition.y;
     
     if( locals['mouse'].isDown && locals.GetComponent('transform') )
-        locals.GetComponent('transform').Move( locals['mouse'].x, locals['mouse'].y );
+        locals.GetComponent('transform').Move( dx, dy );
+        
+    locals['mouse'].lastPosition.x = locals['mouse'].currentPositon.x;
+    locals['mouse'].lastPosition.y = locals['mouse'].currentPositon.y;
         
     // mouse move is an event where we need to update, add it to the queue and execute
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
@@ -54,6 +60,9 @@ function InternalMouseUp( locals, evt ) {
 function InternalMouseDown( locals, evt ) {
     if( !this.ready )
         return false;
+    
+    locals['mouse'].lastPosition.x = evt.pageX - locals['container'].offsetLeft;
+    locals['mouse'].lastPosition.y = evt.pageY - locals['container'].offsetTop;
     
     locals['mouse'].isDown = true;
         
@@ -86,9 +95,18 @@ function Graph( config ) {
         _uid = config.uid || createUID( ),
         _container = config.container,
         _canvas = document.createElement('canvas'),
-        _uiLayer = document.createElement('uiLayer'),
         _device = _canvas.getContext('2d'),
-        _mouse = { x : 0, y : 0, isDown : false },
+        _mouse = { 
+            currentPositon : {
+                x : 0, 
+                y : 0
+            },
+            lastPosition : {
+                x : 0,
+                y : 0
+            },
+            isDown : false
+        },
         _components = { };
     
     // add the components that will make up this graph
@@ -101,11 +119,15 @@ function Graph( config ) {
         uid : _uid,
         container : _container,
         canvas : _canvas,
-        uiLayer : _uiLayer,
         device : _device,
         mouse : _mouse,
         components : _components
     };
+    
+    // GetComponent
+    // a helper function that will return a component in the local component list based on a name
+    // @param {string} the name of the component in the hash
+    // @returns {object} a component that was created in the ComponentFactory
     locals.GetComponent = function( name ) {
         return this.components[name] || false;
     };
@@ -113,8 +135,6 @@ function Graph( config ) {
     try { 
         // add the canvas to the container
     	_container.appendChild( _canvas );
-        // add the ui div(layer) to the container
-        _container.appendChild( _uiLayer );
     } catch( e ) {
         this.ready = false;
         return console.error('hGraph was unable to create a graph in the container');
@@ -125,22 +145,18 @@ function Graph( config ) {
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this );
     
-    jQL( _canvas )
+    $( _canvas )
         .attr( 'hgraph-layer', 'data' )
         .attr( 'width', DEFAULTS['HGRAPH_WIDTH'] )
-        .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] );
-    
-    jQL( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
-        console.log( jQL( _container ).children('['+trigger+']') );
-    });
-        
-    // prep the ui layer and add events
-    jQL( _uiLayer )
-        .attr( 'hgraph-layer', 'ui' )
+        .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )
         .bind( 'mouseup', MouseUp );
     
+    $( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
+        $( _container ).find('['+trigger+']');
+    });
+
     // flag the graph as being ready for initialization
     this.ready = true;
     
