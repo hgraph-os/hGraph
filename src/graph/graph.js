@@ -71,15 +71,18 @@ function InternalMouseDown( locals, evt ) {
 function InternalInitialize( locals ) {
     if( !this.ready )
         return false;
-
-    // loop through all components and initialize them
+        
+    // add points to the point manager
+    var pointManager = locals.GetComponent('pointManager'),
+        healthPoints = locals['payload'].points;
+    for( var i = 0; i < healthPoints.length; i++ )
+        healthPoints[i] = pointManager.addPoint( healthPoints[i] );
+    
+     // loop through all components and initialize them
     var components = locals['components'], name;
     for( name in components )
         components[name].Initialize( locals );
-        
-    // add points to the point manager
     
-
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
@@ -129,7 +132,10 @@ function Graph( config ) {
     // @param {string} the name of the component in the hash
     // @returns {object} a component that was created in the ComponentFactory
     locals.GetComponent = function( name ) {
-        return this.components[name] || false;
+        if( !this.components[name] )
+            throw hGraph.Error('that component does not exist');
+            
+        return this.components[name];
     };
 
     try { 
@@ -137,7 +143,7 @@ function Graph( config ) {
     	_container.appendChild( _canvas );
     } catch( e ) {
         this.ready = false;
-        return console.error('hGraph was unable to create a graph in the container');
+        throw hGraph.Error('unable to insert a graph canvas into the specified container');
     }
     
     
@@ -153,9 +159,21 @@ function Graph( config ) {
         .bind( 'mousedown', MouseDown )
         .bind( 'mouseup', MouseUp );
     
+    // attempt to access payload data
+    var payload = false;
     $( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
-        $( _container ).find('['+trigger+']');
+        $( _container ).find('['+trigger+']').each(function( ) {
+            if( this.value ) {
+                payload = hGraph.Data.parse( this.value );
+            }
+        });
     });
+    
+    if( !payload || !payload.formatted || !payload.points )
+        throw hGraph.Error('no payload information found for the graph');
+    
+    // if the payload object exists, it must be okay (save it)
+    locals['payload'] = payload;
 
     // flag the graph as being ready for initialization
     this.ready = true;

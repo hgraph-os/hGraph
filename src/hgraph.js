@@ -35,7 +35,9 @@ var // hGraph namespace definition
 
 import "vendor/"
 import "defaults/"
+import "error/"
 import "helpers/"
+import "data/"
 import "graph/"
 
 // ----------------------------------------
