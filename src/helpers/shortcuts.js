@@ -3,6 +3,7 @@ var ceil = Math.ceil;
 var floor = Math.floor;
 var toInt = function( num ) { return parseInt( num, 10 ); };
 var toFloat = function( num ) { return parseFloat( num ); };
+var toRad = function( ang ) { return ang * ( Math.PI / 180 ); };
 
 // array shortcuts
 var slice = [ ].slice;
