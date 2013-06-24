@@ -11,25 +11,22 @@ function RingFactory( proto ) {
             return false;
         
         var transform = this.locals.GetComponent('transform'),
-            device = this.locals.device;
+            device = this.locals.device,
+            scoreScale = this.locals.scoreScale;
         
         if( !transform )
             return console.error('was unable to access the transform component');
         
-        var position = transform.position,
-            scale = transform.scale,
-            outerRadius = this.outerRadius * scale,
-            innerRadius = this.innerRadius * scale;
-            
+        device.globalAlpha = 1.0;
         // draw the outer circle first
         device.beginPath( );
-        device.arc( position.x, position.y, outerRadius, 0, Math.PI * 20 );
+        device.arc( transform.position.x, transform.position.y, scoreScale(66), 0, Math.PI * 20 );
         device.fillStyle = DEFAULTS['HGRAPH_RING_FILL_COLOR'];
         device.fill( );
         
         // draw the outer circle first
         device.beginPath( );
-        device.arc( position.x, position.y, innerRadius, 0, Math.PI * 20 );
+        device.arc( transform.position.x, transform.position.y, scoreScale(33), 0, Math.PI * 20 );
         device.fillStyle = "#fff";
         device.fill( );
         

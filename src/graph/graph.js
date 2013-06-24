@@ -26,6 +26,13 @@ function InternalUpdate( locals ) {
     for( name in components )
         components[name].Update( );
         
+    // update the scale
+    var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * locals.GetComponent('transform').scale,
+        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * locals.GetComponent('transform').scale;
+        
+    locals.scoreScale.range([ minRange, maxRange ]);
+    
+        
     this.invokeQueue.push( inject( InternalDraw, [ locals ], this ) );
     return this.ExecuteQueue( );  
 };
@@ -42,7 +49,9 @@ function InternalMouseMove( locals, evt ) {
     
     if( locals['mouse'].isDown ) {
         var transform = locals.GetComponent('transform');
-        transform.rotation += dy;
+        transform.scale += dy / 100;
+        if( transform.scale < 1.0 ) transform.scale = 1.0;
+        transform.rotation += dx;
     }    
     
     locals['mouse'].lastPosition.x = locals['mouse'].currentPositon.x;
@@ -71,8 +80,31 @@ function InternalMouseDown( locals, evt ) {
 
 };
 
+function InternalZoom( locals ) {
+    if( locals.GetComponent('transform').scale > 2.0 )
+        return console.log('finished');
+    
+    var transform = locals.GetComponent('transform'),
+        zoomed = transform.scale === 2.0;
+        
+    // increate the scale (zooming in)
+    transform.scale = ( zoomed ) ? 1.0 : 2.0;
+    transform.position.x = ( zoomed ) ? transform.size.width / 2.0 : 0.0;
+    
+    // add an update, and another zoom
+    this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) );
+    // execute the new stack
+    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
+};
+
 function InternalClick( locals, evt ) {
-      
+    
+    var clickX = evt.pageX - locals['container'].offsetLeft,
+        clickY = evt.pageY - locals['container'].offsetTop,
+        pointManager = locals.GetComponent('pointManager');
+    
+    if( pointManager.CheckClick( clickX, clickY ) )
+        return this.invokeQueue.push( inject( InternalZoom, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
 function InternalInitialize( locals ) {
@@ -89,6 +121,10 @@ function InternalInitialize( locals ) {
     var components = locals['components'], name;
     for( name in components )
         components[name].Initialize( locals );
+    
+    // set default graph text properties
+    locals['device'].font = DEFAULTS['HGRAPH_CANVAS_TEXT'];
+    locals['device'].textAlign = DEFAULTS['HGRAPH_CANVAS_TEXTALIGN'];
     
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -122,6 +158,7 @@ function Graph( config ) {
     // add the components that will make up this graph
     _components['transform'] = new hGraph.Graph.Transform( );
     _components['ring'] = new hGraph.Graph.Ring( );
+    _components['web'] = new hGraph.Graph.Web( );
     _components['pointManager'] = new hGraph.Graph.PointManager( );
     
     // save all of those locals into a local object to be injected
@@ -131,7 +168,10 @@ function Graph( config ) {
         canvas : _canvas,
         device : _device,
         mouse : _mouse,
-        components : _components
+        components : _components,
+        scoreScale : d3.scale.linear( )
+                        .domain([0,100])
+                        .range([ DEFAULTS['HGRAPH_RANGE_MINIMUM'], DEFAULTS['HGRAPH_RANGE_MAXIMUM'] ])
     };
     
     // GetComponent

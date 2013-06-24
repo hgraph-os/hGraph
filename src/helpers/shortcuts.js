@@ -1,6 +1,7 @@
 // math functions
 var ceil = Math.ceil;
 var floor = Math.floor;
+var abs = Math.abs;
 var toInt = function( num ) { return parseInt( num, 10 ); };
 var toFloat = function( num ) { return parseFloat( num ); };
 var toRad = function( ang ) { return ang * ( Math.PI / 180 ); };
