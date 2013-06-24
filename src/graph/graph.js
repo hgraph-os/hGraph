@@ -7,7 +7,7 @@ function InternalDraw( locals ) {
     if( !this.ready )
         return false;
     
-    var transform = locals.GetComponent( 'transform' )
+    var transform = locals.GetComponent( 'transform' );
     locals.device.clearRect( 0, 0, transform.size.width, transform.size.height );
     
     // loop through all components and draw them
@@ -21,17 +21,18 @@ function InternalUpdate( locals ) {
     if( !this.ready )
         return false;
     
-    // loop through all components and update them
-    var components = locals['components'], name;
-    for( name in components )
-        components[name].Update( );
+    var transform = locals.GetComponent('transform');
         
     // update the scale
     var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * locals.GetComponent('transform').scale,
         maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * locals.GetComponent('transform').scale;
         
-    locals.scoreScale.range([ minRange, maxRange ]);
+    locals.scoreScale.range([ minRange, maxRange ]);    
     
+    // loop through all components and update them
+    var components = locals['components'], name;
+    for( name in components )
+        components[name].Update( );
         
     this.invokeQueue.push( inject( InternalDraw, [ locals ], this ) );
     return this.ExecuteQueue( );  
@@ -40,6 +41,9 @@ function InternalUpdate( locals ) {
 function InternalMouseMove( locals, evt ) {
     if( !this.ready )
         return false;
+    
+    if( evt['touches'] )
+        evt = evt['touches'][0];
         
     locals['mouse'].currentPositon.x = evt.pageX - locals['container'].offsetLeft;
     locals['mouse'].currentPositon.y = evt.pageY - locals['container'].offsetTop;
@@ -56,7 +60,9 @@ function InternalMouseMove( locals, evt ) {
     
     locals['mouse'].lastPosition.x = locals['mouse'].currentPositon.x;
     locals['mouse'].lastPosition.y = locals['mouse'].currentPositon.y;
-        
+    
+    evt.preventDefault && evt.preventDefault( );
+    
     // mouse move is an event where we need to update, add it to the queue and execute
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -67,32 +73,34 @@ function InternalMouseUp( locals, evt ) {
     
     locals['mouse'].isDown = false;
     
+    return evt.preventDefault && evt.preventDefault( );
 };
 
 function InternalMouseDown( locals, evt ) {
     if( !this.ready )
         return false;
+        
+    if( evt['touches'] )
+        evt = evt['touches'][0];
     
     locals['mouse'].lastPosition.x = evt.pageX - locals['container'].offsetLeft;
     locals['mouse'].lastPosition.y = evt.pageY - locals['container'].offsetTop;
     
     locals['mouse'].isDown = true;
+    
+    return evt.preventDefault && evt.preventDefault( );
 
 };
 
-function InternalZoom( locals ) {
-    if( locals.GetComponent('transform').scale > 2.0 )
-        return console.log('finished');
+function InternalZoom( locals ) {    
+    var transform = locals.GetComponent('transform');
     
-    var transform = locals.GetComponent('transform'),
-        zoomed = transform.scale === 2.0;
-        
     // increate the scale (zooming in)
-    transform.scale = ( zoomed ) ? 1.0 : 2.0;
-    transform.position.x = ( zoomed ) ? transform.size.width / 2.0 : 0.0;
+    transform.scale = ( this.zoomed ) ? 1.0 : 2.0;
+    transform.position.x = ( this.zoomed ) ? transform.size.width / 2.0 : 0.0;
     
-    // add an update, and another zoom
-    this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) );
+    this.zoomed = !this.zoomed;
+    
     // execute the new stack
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -125,6 +133,19 @@ function InternalInitialize( locals ) {
     // set default graph text properties
     locals['device'].font = DEFAULTS['HGRAPH_CANVAS_TEXT'];
     locals['device'].textAlign = DEFAULTS['HGRAPH_CANVAS_TEXTALIGN'];
+    
+    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
+};
+
+function InternalResize( locals ) {
+    var transform = locals.GetComponent('transform');
+
+    transform.size.width = window.innerWidth;
+    transform.size.height = window.innerHeight;  
+    
+    $( locals.canvas )
+        .attr( 'width', transform.size.width )
+        .attr( 'height', transform.size.height );
     
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -197,19 +218,23 @@ function Graph( config ) {
     var MouseMove = inject( InternalMouseMove, [ locals ], this ),
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this ),
-        CheckClick = inject( InternalClick, [ locals ], this );
-    
+        CheckClick = inject( InternalClick, [ locals ], this )
+        Resize = inject( InternalResize, [ locals ], this );
+            
     $( _canvas )
         .attr( 'hgraph-layer', 'data' )
-        .attr( 'width', DEFAULTS['HGRAPH_WIDTH'] )
-        .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )
         .bind( 'mouseup', MouseUp )
         .bind( 'click', CheckClick );
     
     $( document )
-        .bind( 'mouseup', MouseUp );
+        .bind( 'mouseup', MouseUp )
+        .bind( 'touchstart', MouseDown )
+        .bind( 'touchend', MouseUp )
+        .bind( 'touchmove', MouseMove );
+     
+    window.onresize = Resize;
     
     // attempt to access payload data
     var payload = false;
@@ -229,9 +254,11 @@ function Graph( config ) {
 
     // flag the graph as being ready for initialization
     this.ready = true;
+    this.zoomed = false;
     
     // the invoke queue starts with initialization 
     this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
+    
 };
 
 Graph.prototype = {
@@ -241,6 +268,8 @@ Graph.prototype = {
     Initialize : function( ) {
         if( this.ready )
             this.ExecuteQueue( );
+        
+        window.Resize( );
     },
     
     ExecuteQueue : function( ) {
