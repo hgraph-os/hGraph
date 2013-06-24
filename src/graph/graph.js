@@ -40,9 +40,11 @@ function InternalMouseMove( locals, evt ) {
     var dx = locals['mouse'].currentPositon.x - locals['mouse'].lastPosition.x,
         dy = locals['mouse'].currentPositon.y - locals['mouse'].lastPosition.y;
     
-    if( locals['mouse'].isDown && locals.GetComponent('transform') )
-        locals.GetComponent('transform').Move( dx, dy );
-        
+    if( locals['mouse'].isDown ) {
+        var transform = locals.GetComponent('transform');
+        transform.rotation += dy;
+    }    
+    
     locals['mouse'].lastPosition.x = locals['mouse'].currentPositon.x;
     locals['mouse'].lastPosition.y = locals['mouse'].currentPositon.y;
         
@@ -55,6 +57,7 @@ function InternalMouseUp( locals, evt ) {
         return false;
     
     locals['mouse'].isDown = false;
+    
 };
 
 function InternalMouseDown( locals, evt ) {
@@ -65,20 +68,24 @@ function InternalMouseDown( locals, evt ) {
     locals['mouse'].lastPosition.y = evt.pageY - locals['container'].offsetTop;
     
     locals['mouse'].isDown = true;
-        
+
+};
+
+function InternalClick( locals, evt ) {
+      
 };
 
 function InternalInitialize( locals ) {
     if( !this.ready )
         return false;
-        
+    
     // add points to the point manager
     var pointManager = locals.GetComponent('pointManager'),
         healthPoints = locals['payload'].points;
     for( var i = 0; i < healthPoints.length; i++ )
-        healthPoints[i] = pointManager.addPoint( healthPoints[i] );
+        healthPoints[i] = pointManager.AddPoint( healthPoints[i] );
     
-     // loop through all components and initialize them
+    // loop through all components and initialize them
     var components = locals['components'], name;
     for( name in components )
         components[name].Initialize( locals );
@@ -149,7 +156,8 @@ function Graph( config ) {
     
     var MouseMove = inject( InternalMouseMove, [ locals ], this ),
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
-        MouseUp = inject( InternalMouseUp, [ locals ], this );
+        MouseUp = inject( InternalMouseUp, [ locals ], this ),
+        CheckClick = inject( InternalClick, [ locals ], this );
     
     $( _canvas )
         .attr( 'hgraph-layer', 'data' )
@@ -157,6 +165,10 @@ function Graph( config ) {
         .attr( 'height', DEFAULTS['HGRAPH_HEIGHT'] )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )
+        .bind( 'mouseup', MouseUp )
+        .bind( 'click', CheckClick );
+    
+    $( document )
         .bind( 'mouseup', MouseUp );
     
     // attempt to access payload data

@@ -21,15 +21,18 @@ hGraph.Graph.ComponentFacory = function( factory ) {
             // all components are not ready till proven otherwise
             this.ready = false;            
             // save a reference to the local variables on this object
-            this.locals = locals;
+            this.locals = locals || false;
             // if we got a uid in the locals hash, we are good to go
             if( this.locals['uid'] )
                 this.ready = true;
+                
+            return this.PostInitialize( );
         },
         
         // placeholder functions that are overridden during extension
         Draw : function( ) { },
-        Update : function( ) { }
+        Update : function( ) { },
+        PostInitialize : function( ) { }
         
     };
     
