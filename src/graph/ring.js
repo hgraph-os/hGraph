@@ -7,15 +7,10 @@ import "component"
 function RingFactory( proto ) {
     
     proto.Draw = function( ) {
-        if( !this.ready )
-            return false;
-        
+        // get the graph's transform and device components
         var transform = this.locals.GetComponent('transform'),
             device = this.locals.device,
             scoreScale = this.locals.scoreScale;
-        
-        if( !transform )
-            return console.error('was unable to access the transform component');
         
         device.globalAlpha = 1.0;
         // draw the outer circle first

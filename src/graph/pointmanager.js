@@ -5,7 +5,7 @@ import "component"
 // PointManagerFactory
 function PointManagerFactory( proto ) {
     
-    function CalcPointIncrement( ) {
+    function CalculatePointIncrement( ) {
         var amt = this.points.length,
             inc = ( this.maxDegree - this.minDegree ) / amt;
         return inc;
@@ -19,6 +19,7 @@ function PointManagerFactory( proto ) {
     proto.Update = function( ) { 
         var transform = this.locals.GetComponent('transform');
         this.opacity = ( this.subFlag ) ? abs( 1.0 - transform.scale ) : 1.0;
+        this.drawFlag = this.opacity > 0 ? true : false;
         // loop through the points, updating them
         for( var i = 0; i < this.points.length; i++ )
             this.points[i].Update( );
@@ -53,7 +54,7 @@ function PointManagerFactory( proto ) {
     
     proto.PostInitialize = function( ) { 
         // update the manager's 'pointIncrement' property
-        this.pointIncrement = CalcPointIncrement.call( this );
+        this.pointIncrement = CalculatePointIncrement.call( this );
         
         // initialize the points with the local variable hash
         for( var i = 0; i < this.points.length; i++ )
@@ -70,6 +71,7 @@ PointManagerFactory['constructor'] = function( subManagerFlag ) {
     this.minDegree = 0;
     this.maxDegree = 360;
     this.subFlag = ( subManagerFlag === true ) ? true : false;
+    this.drawFlag = true;
 };
 
 // create the constructor from the component factory

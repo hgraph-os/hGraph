@@ -5,7 +5,6 @@ import "graph";
 // properies modified by the factory function being passed as 
 // the parameter
 hGraph.Graph.ComponentFacory = function( factory ) {
-
     // create the public scope object 
     var proto = { };
         
@@ -13,7 +12,14 @@ hGraph.Graph.ComponentFacory = function( factory ) {
     factory( proto );
     
     // create the constructor for this component
-    var Component = hasOwn.call( factory, 'constructor') ? factory['constructor'] : function( ) { };
+    var Component = (function( fn ) {
+        // the returned function is used as the constuctor for all component
+        // instances. it handles calling the constructor specific to the component
+        // defined by the factory function, and setting up all important stuff
+        return function( ) {
+            fn.apply( this, splice.call( arguments, 0 ) );
+        };
+    })( hasOwn.call( factory, 'constructor') ? factory['constructor'] : function( ) { } );
     
     Component.prototype = {
         
@@ -22,10 +28,10 @@ hGraph.Graph.ComponentFacory = function( factory ) {
             this.ready = false;            
             // save a reference to the local variables on this object
             this.locals = locals || false;
-            // if we got a uid in the locals hash, we are good to go
-            if( this.locals['uid'] )
-                this.ready = true;
-                
+            // do not move forward if there is no locals information in this component
+            if( !this.locals || !this.locals['uid'] )
+                throw new hGraph.Error('the component was unable to initialize with the information provided');
+            // call the post initialize method for any component-specific initialization
             return this.PostInitialize( );
         },
         
@@ -41,5 +47,4 @@ hGraph.Graph.ComponentFacory = function( factory ) {
     
     // return the constructor to be used
     return Component;
-    
 };
