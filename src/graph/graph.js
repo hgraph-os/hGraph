@@ -7,14 +7,14 @@ function InternalDraw( locals ) {
     if( !this.ready )
         return false;
     
-    var transform = locals.GetComponent( 'transform' );
+    var transform = locals.GetComponent( 'transform' ); 
     locals.device.clearRect( 0, 0, transform.size.width, transform.size.height );
-    
+
     // loop through all components and draw them
     var components = locals['components'], name;
     for( name in components )
         components[name].Draw( );
-    
+
 };
 
 function InternalUpdate( locals ) {
@@ -28,7 +28,7 @@ function InternalUpdate( locals ) {
         maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;
         
     locals.scoreScale.range([ minRange, maxRange ]);    
-    
+        
     // loop through all components and update them
     var components = locals['components'], name;
     for( name in components )
@@ -38,9 +38,11 @@ function InternalUpdate( locals ) {
     return this.ExecuteQueue( );  
 };
 
-function InternalMouseMove( locals, evt ) {
+function InternalMouseMove( locals ) {
     if( !this.ready )
         return false;
+    
+    var evt = d3.event;
     
     if( evt['touches'] )
         evt = evt['touches'][0];
@@ -53,8 +55,8 @@ function InternalMouseMove( locals, evt ) {
     
     if( locals['mouse'].isDown ) {
         var transform = locals.GetComponent('transform');
-        transform.scale += dy / 100;
-        if( transform.scale < 1.0 ) transform.scale = 1.0;
+        transform.scale += dy / 1000;
+        if( transform.scale < 0.5 ) transform.scale = 0.5;
         transform.rotation += dx;
     }    
     
@@ -67,25 +69,28 @@ function InternalMouseMove( locals, evt ) {
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
-function InternalMouseUp( locals, evt ) {
+function InternalMouseUp( locals ) {
     if( !this.ready )
         return false;
+        
+    var evt = d3.event;
     
     locals['mouse'].isDown = false;
     
     return evt.preventDefault && evt.preventDefault( );
 };
 
-function InternalMouseDown( locals, evt ) {
+function InternalMouseDown( locals ) {
     if( !this.ready )
         return false;
-        
+    
+    var evt = d3.event;
+    
     if( evt['touches'] )
         evt = evt['touches'][0];
     
     locals['mouse'].lastPosition.x = evt.pageX - locals['container'].offsetLeft;
     locals['mouse'].lastPosition.y = evt.pageY - locals['container'].offsetTop;
-    
     locals['mouse'].isDown = true;
     
     return evt.preventDefault && evt.preventDefault( );
@@ -105,9 +110,10 @@ function InternalZoom( locals ) {
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
-function InternalClick( locals, evt ) {
+function InternalClick( locals ) {
     
-    var clickX = evt.pageX - locals['container'].offsetLeft,
+    var evt = d3.event,
+        clickX = evt.pageX - locals['container'].offsetLeft,
         clickY = evt.pageY - locals['container'].offsetTop,
         pointManager = locals.GetComponent('pointManager');
     
@@ -171,7 +177,6 @@ function Graph( config ) {
         throw hGraph.Error('unable to insert a graph canvas into the specified container');
     }
     
-    
     // add the components that will make up this graph
     _components['transform'] = new hGraph.Graph.Transform( );
     _components['ring'] = new hGraph.Graph.Ring( );
@@ -202,38 +207,37 @@ function Graph( config ) {
         return this.components[name];
     };
     
-    _components['transform'].size.width = window.innerWidth;
-    _components['transform'].size.height = window.innerHeight;
-    
-    
     var MouseMove = inject( InternalMouseMove, [ locals ], this ),
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this ),
         CheckClick = inject( InternalClick, [ locals ], this );
             
-    $( _canvas )
+    d3.select( _canvas )
         .attr( 'hgraph-layer', 'data' )
-        .bind( 'mousemove', MouseMove )
-        .bind( 'mousedown', MouseDown )
-        .bind( 'mouseup', MouseUp )
-        .bind( 'click', CheckClick )
-        .attr( 'width', _components['transform'].size.width )
-        .attr( 'height', _components['transform'].size.height );
+        .on( 'mousemove', MouseMove )
+        .on( 'mousedown', MouseDown )
+        .on( 'mouseup', MouseUp )
+        .on( 'click', CheckClick )
+        .attr({ 
+            width : _components['transform'].size.width,
+            height : _components['transform'].size.height, 
+        });
     
-    $( document )
-        .bind( 'mouseup', MouseUp )
-        .bind( 'touchstart', MouseDown )
-        .bind( 'touchend', MouseUp )
-        .bind( 'touchmove', MouseMove );
+    _components['transform'].position.x = _components['transform'].position.x / 2;
+    _components['transform'].position.y = _components['transform'].position.y / 2;
+    _device.scale( 2.0, 2.0 );
+    
+    d3.select( document )
+        .on( 'mouseup', MouseUp )
+        .on( 'touchstart', MouseDown )
+        .on( 'touchend', MouseUp )
+        .on( 'touchmove', MouseMove );
      
     // attempt to access payload data
     var payload = false;
-    $( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
-        $( _container ).find('['+trigger+']').each(function( ) {
-            if( this.value ) {
-                payload = hGraph.Data.parse( this.value );
-            }
-        });
+    d3.select( _container ).select( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'].join(',') ).each(function( ) {
+        if( this.value )
+            payload = hGraph.Data.Parse( this.value );
     });
     
     if( !payload || !payload.formatted || !payload.points )

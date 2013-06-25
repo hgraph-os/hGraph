@@ -5,7 +5,7 @@ hGraph.Data = function( ) { };
 // for the time being, the state of the data API is volitile, which means not
 // having a pre-defined payload data 
 // @param {object} an information blob that will be turned into useable data
-hGraph.Data.parse = function( blob ) {
+hGraph.Data.Parse = function( blob ) {
     var formatted = false;
     
     if( isStr( blob ) )

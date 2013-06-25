@@ -22,8 +22,8 @@
 var // hGraph namespace definition
     hGraph = { },
     
-    // jQL and d3 namespaces defined in vendor
-    $ = { },
+    // Sizzle and d3 namespaces defined in vendor
+    Sizzle = { },
     d3 = { },
     
     // private (h) variables
@@ -51,14 +51,11 @@ function hCreateGraph( container ){
 // called once the root element has been found during the bootstrapping
 // function call. takes care of populating the graphs on the page
 function hGraphInit( ) {
-
-    // try using the bootstrap selections to find elements
-    $( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'] ).each(function(indx, trigger) {
-        var matches = $("["+trigger+"]");
-        // loop through the elements to create graphs inside them
-        for( var i = 0; i < matches.length; i++ )
-            hCreateGraph( matches[i] );
+    
+    d3.select( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'].join(',') ).each(function( ){
+        hCreateGraph( this );
     });
+    
     for( var uid in hGraphInstances )
         hGraphInstances[uid].Initialize( );
 };
@@ -67,18 +64,23 @@ function hGraphInit( ) {
 // document ready callback. will search the page for an element with either
 // a 'data-hgraph-app' or 'hgraph-app' attribute and save it as the root element
 function hGraphBootStrap( ) {
-    $( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] ).each(function(indx, trigger) {
-        // try to find an element with the application bootstrap attribute
-        var matches = $("["+trigger+"]");
-        if( matches.length > 0 )
-            hRootElement = matches.first( );
+    // an array of matches
+    var matches = [ ];
+    d3.select( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'].join(',') ).each(function( ){
+        matches.push( this );
     });
+    // do not proceed if more than one 
+    if( matches.length > 1 )
+        throw new hGraph.Error('Too many root elements found on the page');
+        
+    hRootElement = matches[0];
+    
     // if the 'hgraph-app' attribute was found, we can initialize
-    if( hRootElement !== false )
+    if( hRootElement )
         return hGraphInit( );
 };
 
-$(document).ready( hGraphBootStrap );
+d3.select( document ).on( 'DOMContentLoaded', hGraphBootStrap );
 
 // expose hGraph to the window
 global.hGraph = hGraph;

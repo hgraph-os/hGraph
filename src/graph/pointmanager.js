@@ -18,7 +18,7 @@ function PointManagerFactory( proto ) {
     
     proto.Update = function( ) { 
         var transform = this.locals.GetComponent('transform');
-        this.opacity = ( this.subFlag ) ? abs( 1.0 - transform.scale ) : 1.0;
+        this.opacity = ( this.subFlag ) ? abs( 0.5 - transform.scale ) : 1.0;
         this.drawFlag = this.opacity > 0 ? true : false;
         // loop through the points, updating them
         for( var i = 0; i < this.points.length; i++ )
