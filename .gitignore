@@ -16,18 +16,5 @@ node_modules/*
 
 npm-debug.log
 
-build/hgraph.js
+build/*
 
-build/hgraph.min.js
-
-build/hgraph.js
-
-build/hgraph.min.js
-
-test-results.xml
-
-examples/canvas/js/hgraph.min.js
-
-examples/canvas/js/hgraph.js
-
-examples/canvas/js/hgraph.js

@@ -1,4 +1,4 @@
-/*!
+/*
  * jQLite JavaScript Library v1.1.1 (http://code.google.com/p/jqlite/)
  *
  * Copyright (c) 2010 Brett Fattori (bfattori@gmail.com)

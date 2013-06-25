@@ -40,7 +40,7 @@ module.exports = function(grunt) {
         watch : {
             karma: {
                 files: ['src/**/*.js', 'tests/**/*.spec.js'],
-                tasks: ['clean','smash','publish:unmin'] 
+                tasks: ['clean','smash','publish:unmin','min','publish:min'] 
             }  
         },
         

@@ -24,8 +24,8 @@ function InternalUpdate( locals ) {
     var transform = locals.GetComponent('transform');
         
     // update the scale
-    var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * locals.GetComponent('transform').scale,
-        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * locals.GetComponent('transform').scale;
+    var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * transform.scale,
+        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;
         
     locals.scoreScale.range([ minRange, maxRange ]);    
     
@@ -137,19 +137,6 @@ function InternalInitialize( locals ) {
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
-function InternalResize( locals ) {
-    var transform = locals.GetComponent('transform');
-
-    transform.size.width = window.innerWidth;
-    transform.size.height = window.innerHeight;  
-    
-    $( locals.canvas )
-        .attr( 'width', transform.size.width )
-        .attr( 'height', transform.size.height );
-    
-    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
-};
-
 function Graph( config ) {
     // while the graph is being prepared, it is not ready
     this.ready = false;
@@ -175,6 +162,15 @@ function Graph( config ) {
             isDown : false
         },
         _components = { };
+        
+    try { 
+        // add the canvas to the container
+    	_container.appendChild( _canvas );
+    } catch( e ) {
+        this.ready = false;
+        throw hGraph.Error('unable to insert a graph canvas into the specified container');
+    }
+    
     
     // add the components that will make up this graph
     _components['transform'] = new hGraph.Graph.Transform( );
@@ -205,28 +201,24 @@ function Graph( config ) {
             
         return this.components[name];
     };
-
-    try { 
-        // add the canvas to the container
-    	_container.appendChild( _canvas );
-    } catch( e ) {
-        this.ready = false;
-        throw hGraph.Error('unable to insert a graph canvas into the specified container');
-    }
+    
+    _components['transform'].size.width = window.innerWidth;
+    _components['transform'].size.height = window.innerHeight;
     
     
     var MouseMove = inject( InternalMouseMove, [ locals ], this ),
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this ),
-        CheckClick = inject( InternalClick, [ locals ], this )
-        Resize = inject( InternalResize, [ locals ], this );
+        CheckClick = inject( InternalClick, [ locals ], this );
             
     $( _canvas )
         .attr( 'hgraph-layer', 'data' )
         .bind( 'mousemove', MouseMove )
         .bind( 'mousedown', MouseDown )
         .bind( 'mouseup', MouseUp )
-        .bind( 'click', CheckClick );
+        .bind( 'click', CheckClick )
+        .attr( 'width', _components['transform'].size.width )
+        .attr( 'height', _components['transform'].size.height );
     
     $( document )
         .bind( 'mouseup', MouseUp )
@@ -234,8 +226,6 @@ function Graph( config ) {
         .bind( 'touchend', MouseUp )
         .bind( 'touchmove', MouseMove );
      
-    window.onresize = Resize;
-    
     // attempt to access payload data
     var payload = false;
     $( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'] ).each(function(indx,trigger) {
@@ -268,8 +258,6 @@ Graph.prototype = {
     Initialize : function( ) {
         if( this.ready )
             this.ExecuteQueue( );
-        
-        window.Resize( );
     },
     
     ExecuteQueue : function( ) {
