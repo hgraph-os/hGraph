@@ -2997,72 +2997,67 @@ function InternalResize( locals ) {
     // update the size of the canvas
     d3.select( locals['canvas'] )
         .attr({ width : transform.size.width, height : transform.size.height });
-    
+    // do an update after finished resizing
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
 function InternalDraw( locals ) {
     if( !this.ready )
         return false;
-    
     var transform = locals.GetComponent( 'transform' ); 
     locals.device.clearRect( 0, 0, transform.size.width, transform.size.height );
-
     // loop through all components and draw them
     var components = locals['components'], name;
     for( name in components )
         components[name].Draw( );
-
 };
 
 function InternalUpdate( locals ) {
     if( !this.ready )
         return false;
-    
+
     var transform = locals.GetComponent('transform');
-        
     // update the scale
     var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * transform.scale,
-        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;
-        
-    locals.scoreScale.range([ minRange, maxRange ]);    
-        
+        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;       
+    locals.scoreScale.range([ minRange, maxRange ]);
     // loop through all components and update them
     var components = locals['components'], name;
     for( name in components )
         components[name].Update( );
-        
-    this.invokeQueue.push( inject( InternalDraw, [ locals ], this ) );
-    return this.ExecuteQueue( );  
+    
+    return this.invokeQueue.push( inject( InternalDraw, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
 function InternalMouseMove( locals ) {
     if( !this.ready )
         return false;
     
+    // get the event from d3
     var evt = d3.event;
-    
+    // use the first touch event if they exist
     if( evt['touches'] )
         evt = evt['touches'][0];
-        
+
     locals['mouse'].currentPositon.x = evt.pageX - locals['container'].offsetLeft;
     locals['mouse'].currentPositon.y = evt.pageY - locals['container'].offsetTop;
-    
+
     var dx = locals['mouse'].currentPositon.x - locals['mouse'].lastPosition.x,
         dy = locals['mouse'].currentPositon.y - locals['mouse'].lastPosition.y;
-    
+
     if( locals['mouse'].isDown ) {
+        locals['mouse'].hasDragged = true;
         var transform = locals.GetComponent('transform');
         transform.scale += dy / 1000;
         if( transform.scale < 0.5 ) transform.scale = 0.5;
         transform.rotation += dx;
-    }    
-    
+    }
+
     locals['mouse'].lastPosition.x = locals['mouse'].currentPositon.x;
     locals['mouse'].lastPosition.y = locals['mouse'].currentPositon.y;
-    
+
     evt.preventDefault && evt.preventDefault( );
-    
+
     // mouse move is an event where we need to update, add it to the queue and execute
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -3070,50 +3065,56 @@ function InternalMouseMove( locals ) {
 function InternalMouseUp( locals ) {
     if( !this.ready )
         return false;
-        
+
     var evt = d3.event;
-    
+
     locals['mouse'].isDown = false;
     
+    setTimeout(function( ) { 
+        locals['mouse'].hasDragged = false;
+    }, 30 );
+
     return evt.preventDefault && evt.preventDefault( );
 };
 
 function InternalMouseDown( locals ) {
     if( !this.ready )
         return false;
-    
+
     var evt = d3.event;
-    
+
     if( evt['touches'] )
         evt = evt['touches'][0];
-    
+
     locals['mouse'].lastPosition.x = evt.pageX - locals['container'].offsetLeft;
     locals['mouse'].lastPosition.y = evt.pageY - locals['container'].offsetTop;
     locals['mouse'].isDown = true;
-    
-    return evt.preventDefault && evt.preventDefault( );
 
+    return evt.preventDefault && evt.preventDefault( );
 };
 
 function InternalZoom( locals ) {    
     var transform = locals.GetComponent('transform');
-    
+
     // increate the scale (zooming in)
     transform.scale = ( this.zoomed ) ? 0.5 : 2.0;
     transform.position.x = ( this.zoomed ) ? transform.size.width / 2.0 : 0.0;
-    
+
     this.zoomed = !this.zoomed;
-    
+
     // execute the new stack
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
 
 function InternalClick( locals ) {
-    
     var evt = d3.event,
         clickX = evt.pageX - locals['container'].offsetLeft,
         clickY = evt.pageY - locals['container'].offsetTop,
         pointManager = locals.GetComponent('pointManager');
+    
+    // don't execute clicks if there has been a drag
+    if( locals['mouse'].hasDragged )
+        return;
     
     if( pointManager.CheckClick( clickX, clickY ) )
         return this.invokeQueue.push( inject( InternalZoom, [ locals ], this ) ) && this.ExecuteQueue( );
@@ -3122,10 +3123,11 @@ function InternalClick( locals ) {
 function InternalInitialize( locals ) {
     if( !this.ready )
         return false;
-    
+
     // add points to the point manager
     var pointManager = locals.GetComponent('pointManager'),
         healthPoints = locals['payload'].points;
+        
     for( var i = 0; i < healthPoints.length; i++ )
         healthPoints[i] = pointManager.AddPoint( healthPoints[i] );
     
@@ -3163,7 +3165,8 @@ function Graph( config ) {
                 x : 0,
                 y : 0
             },
-            isDown : false
+            isDown : false,
+            hasDragged : false,
         },
         _components = { };
         
@@ -3228,6 +3231,8 @@ function Graph( config ) {
         .on( 'touchend', MouseUp )
         .on( 'touchmove', MouseMove );
     
+    locals['device'].scale( 2.0, 2.0 );
+    
     hResizeCallbacks.push( Resize );    
     
     // attempt to access payload data
@@ -3248,7 +3253,7 @@ function Graph( config ) {
     this.zoomed = false;
     
     // the invoke queue starts with initialization 
-    this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
+    this.invokeQueue = [ Resize, inject( InternalInitialize, [ locals ], this ) ];
 };
 
 Graph.prototype = {
