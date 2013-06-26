@@ -28,7 +28,8 @@ var // hGraph namespace definition
     
     // private (h) variables
     hRootElement = false,
-    hGraphInstances = { };
+    hGraphInstances = { },
+    hResizeCallbacks = [ ];
 
 /* Copyright (c) 2013, Michael Bostock
  * All rights reserved.
@@ -2985,6 +2986,21 @@ hGraph.Data.Parse = function( blob ) {
 // with their canvas (as long as they have the 'hgraph-graph' trigger attribute)
 hGraph.Graph = (function( config ){ 
 
+function InternalResize( locals ) {
+    var transform = locals.GetComponent( 'transform' ); 
+    // update the width and height of the transform object
+    transform.size.width = window.innerWidth;
+    transform.size.height = window.innerHeight;
+    // update the half-width and half-height position
+    transform.position.x = transform.size.width * 0.5;
+    transform.position.y = transform.size.height * 0.5;
+    // update the size of the canvas
+    d3.select( locals['canvas'] )
+        .attr({ width : transform.size.width, height : transform.size.height });
+    
+    return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
+};
+
 function InternalDraw( locals ) {
     if( !this.ready )
         return false;
@@ -3083,7 +3099,7 @@ function InternalZoom( locals ) {
     var transform = locals.GetComponent('transform');
     
     // increate the scale (zooming in)
-    transform.scale = ( this.zoomed ) ? 1.0 : 2.0;
+    transform.scale = ( this.zoomed ) ? 0.5 : 2.0;
     transform.position.x = ( this.zoomed ) ? transform.size.width / 2.0 : 0.0;
     
     this.zoomed = !this.zoomed;
@@ -3192,7 +3208,8 @@ function Graph( config ) {
     var MouseMove = inject( InternalMouseMove, [ locals ], this ),
         MouseDown = inject( InternalMouseDown, [ locals ], this ),
         MouseUp = inject( InternalMouseUp, [ locals ], this ),
-        CheckClick = inject( InternalClick, [ locals ], this );
+        CheckClick = inject( InternalClick, [ locals ], this ),
+        Resize = inject( InternalResize, [ locals ], this );
             
     d3.select( _canvas )
         .attr( 'hgraph-layer', 'data' )
@@ -3205,16 +3222,14 @@ function Graph( config ) {
             height : _components['transform'].size.height, 
         });
     
-    _components['transform'].position.x = _components['transform'].position.x / 2;
-    _components['transform'].position.y = _components['transform'].position.y / 2;
-    _device.scale( 2.0, 2.0 );
-    
     d3.select( document )
         .on( 'mouseup', MouseUp )
         .on( 'touchstart', MouseDown )
         .on( 'touchend', MouseUp )
         .on( 'touchmove', MouseMove );
-     
+    
+    hResizeCallbacks.push( Resize );    
+    
     // attempt to access payload data
     var payload = false;
     d3.select( _container ).select( DEFAULTS['HGRAPH_PAYLOAD_TRIGGERS'].join(',') ).each(function( ) {
@@ -3234,7 +3249,6 @@ function Graph( config ) {
     
     // the invoke queue starts with initialization 
     this.invokeQueue = [ inject( InternalInitialize, [ locals ], this ) ];
-    
 };
 
 Graph.prototype = {
@@ -3658,6 +3672,15 @@ WebFactory['constructor'] = function( ) {
 // create the constructor from the component factory
 hGraph.Graph.Web = hGraph.Graph.ComponentFacory( WebFactory );
 
+// hWindowResize
+// loops through the resize callbacks firing them with the new width and
+// height of the window
+function hWindowResize( ) { 
+    forEach( hResizeCallbacks, function( fn )  {
+        return isFn( fn ) && fn( ); 
+    });
+};
+
 // ----------------------------------------
 // hGraph bootstrapping
 
@@ -3702,6 +3725,7 @@ function hGraphBootStrap( ) {
 };
 
 d3.select( document ).on( 'DOMContentLoaded', hGraphBootStrap );
+d3.select( window ).on( 'resize', hWindowResize );
 
 // expose hGraph to the window
 global.hGraph = hGraph;

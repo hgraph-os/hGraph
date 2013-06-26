@@ -28,7 +28,8 @@ var // hGraph namespace definition
     
     // private (h) variables
     hRootElement = false,
-    hGraphInstances = { };
+    hGraphInstances = { },
+    hResizeCallbacks = [ ];
 
 import "vendor/"
 import "defaults/"
@@ -36,6 +37,15 @@ import "error/"
 import "helpers/"
 import "data/"
 import "graph/"
+
+// hWindowResize
+// loops through the resize callbacks firing them with the new width and
+// height of the window
+function hWindowResize( ) { 
+    forEach( hResizeCallbacks, function( fn )  {
+        return isFn( fn ) && fn( ); 
+    });
+};
 
 // ----------------------------------------
 // hGraph bootstrapping
@@ -81,6 +91,7 @@ function hGraphBootStrap( ) {
 };
 
 d3.select( document ).on( 'DOMContentLoaded', hGraphBootStrap );
+d3.select( window ).on( 'resize', hWindowResize );
 
 // expose hGraph to the window
 global.hGraph = hGraph;
