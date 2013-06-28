@@ -93,6 +93,14 @@ function hGraphBootStrap( ) {
 d3.select( document ).on( 'DOMContentLoaded', hGraphBootStrap );
 d3.select( window ).on( 'resize', hWindowResize );
 
+d3.selectAll( 'html, body' ).on('touchmove', function( ) { 
+    d3.event.preventDefault && d3.event.preventDefault( );
+});
+
+d3.selectAll( document ).on('touchmove', function( ) {  
+    d3.event.preventDefault && d3.event.preventDefault( );
+});
+
 // expose hGraph to the window
 global.hGraph = hGraph;
 
