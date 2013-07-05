@@ -13,7 +13,7 @@ function InternalResize( locals ) {
     transform.position.y = transform.size.height * 0.5;
     // update the size of the canvas
     d3.select( locals['canvas'] )
-        .attr({ width : transform.size.width, height : transform.size.height });
+        .attr({ width : 2046, height : transform.size.height });
     // do an update after finished resizing
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -238,7 +238,7 @@ function Graph( config ) {
         .on( 'mouseup', MouseUp )
         .on( 'click', CheckClick )
         .attr({ 
-            width : _components['transform'].size.width,
+            width : 2046,
             height : _components['transform'].size.height, 
         });
     
