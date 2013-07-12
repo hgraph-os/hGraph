@@ -6,13 +6,28 @@ hGraph (canvas branch)
 
 This version is an attempt to use the html5 canvas technology to replace SVG for performance reasons. 
 
-###Building the source###
+###Readying the repo###
 
-There are no external dependencies for this version, as **jQLite** and **d3.js** are included during the compilation process. In order to compile the code, run:
-
-	grunt package
+Before cloning this branch, make sure you have the [node package manager](https://npmjs.org/) and [grunt task runner](http://gruntjs.com/getting-started) on your machine. Dependencies (grunt, jasmine, benchmark, etc...) for the repo can then be installed by running:
 	
-this will compile `hgraph.js` and `hgraph.min.js` into the *build* directory. You will need to have installed the [grunt package manager](http://gruntjs.com/getting-started).
+	$ npm install
+	
+*This command looks into the `package.json` file for packages in the `devDependencies` property and installs them into the `/node_modules` directory*
+
+###Building the src###
+
+Once all npm dependencies have been installed, we can build the source code by running:
+	
+	$ grunt package
+	
+This will take care of the following tasks:
+
+* clean the `/build` directory
+* compile `src/hgraph.js` into `/build/hgraph.js` using [smash](https://github.com/mbostock/smash)
+* create the [jsDoc](https://github.com/jsdoc3/jsdoc) documentation in `/docs`
+* minify the script using [yuicompressor](https://github.com/mathiasbynens/grunt-yui-compressor) into `/build/hgraph.min.js`
+* move the files into appropriate places in `/examples`
+* run [grunt-karma](https://npmjs.org/package/grunt-karma) unit tests
 
 ###About the REPO###
 
