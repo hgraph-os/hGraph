@@ -6,13 +6,15 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-yui-compressor');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-benchmark');
     grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadTasks('lib/grunt');
     
     // define grunt configuration
     grunt.initConfig({
         
-        clean : ['build'],
+        clean : ['build','docs'],
         
         smash : {
             package : { 
@@ -54,11 +56,27 @@ module.exports = function(grunt) {
                 src: 'build/hgraph.min.js',
                 dest: ['examples/canvas/js/']
             }
+        },
+        
+        benchmark : {
+          all: {
+            src: ['benchmarks/*.js'],
+            dest: 'benchmarks/results.csv'
+          }
+        },
+        
+        jsdoc : {
+          build : { 
+            src : 'build/hgraph.js',
+            options : {
+              destination : 'docs'
+            }
+          }
         }
         
     });
     
-    grunt.registerTask('build', ['clean','smash','min','publish']);
+    grunt.registerTask('build', ['clean','smash','jsdoc','min','publish']);
     grunt.registerTask('package', ['build','karma']);
     grunt.registerTask('default', ['package']);
     

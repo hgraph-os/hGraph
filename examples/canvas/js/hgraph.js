@@ -1,35 +1,22 @@
-/*! 
- * HGraph.js (Canvas Version)
- * Author:
- *     Danny Hadley <danny@goinvo.com>
- * License:
- *     Copyright 2013, Involution Studios <http://goinvo.com>
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *	   you may not use this file except in compliance with the License.
- * 	   You may obtain a copy of the License at
- *      
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
-*/
-(function( global ) {
+/**
+ * @overview A canvas drawing engine for hGraph
+ * @copyright Involution Studios 2013 <http://goinvo.com>
+ * @license Apache 2.0
+ * @author Danny Hadley <danny@goinvo.com>
+ * @version 1.0 
+ */
+
+(function hGraph( global ) {
 
 var // hGraph namespace definition
-    hGraph = { },
+  hGraph = { },
     
-    // Sizzle and d3 namespaces defined in vendor
-    Sizzle = { },
-    d3 = { },
-    
-    // private (h) variables
-    hRootElement = false,
-    hGraphInstances = { },
-    hResizeCallbacks = [ ];
+  d3 = { },
+  
+  // private (h) variables
+  hRootElement = false,
+  hGraphInstances = { },
+  hResizeCallbacks = [ ];
 
 /* Copyright (c) 2013, Michael Bostock
  * All rights reserved.
@@ -2796,7 +2783,7 @@ DEFAULTS['HGRAPH_POINT_RADIUS'] = 10;
 DEFAULTS['HGRAPH_SUBPOINT_RADIUS'] = 8;
 
 DEFAULTS['HGRAPH_CANVAS_TEXTALIGN'] = 'center';
-DEFAULTS['HGRAPH_CANVAS_TEXT'] = '10px Arial';
+DEFAULTS['HGRAPH_CANVAS_TEXT'] = '24px Arial';
 DEFAULTS['HGRAPH_POINT_COLOR_HEALTHY'] = '#616363';
 DEFAULTS['HGRAPH_POINT_COLOR_UNHEALTHY'] = '#e1604f';
 DEFAULTS['HGRAPH_APP_BOOTSTRAPS'] = ['[data-hgraph-app]','[hgraph-app]'];
@@ -2994,9 +2981,6 @@ function InternalResize( locals ) {
     // update the half-width and half-height position
     transform.position.x = transform.size.width * 0.5;
     transform.position.y = transform.size.height * 0.5;
-    // update the size of the canvas
-    d3.select( locals['canvas'] )
-        .attr({ width : 2046, height : transform.size.height });
     // do an update after finished resizing
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -3019,7 +3003,8 @@ function InternalUpdate( locals ) {
     var transform = locals.GetComponent('transform');
     // update the scale
     var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * transform.scale,
-        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;       
+        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;      
+         
     locals.scoreScale.range([ minRange, maxRange ]);
     // loop through all components and update them
     var components = locals['components'], name;
@@ -3222,7 +3207,7 @@ function Graph( config ) {
         .on( 'click', CheckClick )
         .attr({ 
             width : 2046,
-            height : _components['transform'].size.height, 
+            height : 2046, 
         });
     
     d3.select( document )
@@ -3677,68 +3662,71 @@ WebFactory['constructor'] = function( ) {
 // create the constructor from the component factory
 hGraph.Graph.Web = hGraph.Graph.ComponentFacory( WebFactory );
 
-// hWindowResize
-// loops through the resize callbacks firing them with the new width and
-// height of the window
+/** 
+ * @private
+ * @function hWindowResize
+ * @description callback for window resizing. loops through an array of resizing functions, calling them
+ */
 function hWindowResize( ) { 
-    forEach( hResizeCallbacks, function( fn )  {
-        return isFn( fn ) && fn( ); 
-    });
+  forEach( hResizeCallbacks, function( fn )  {
+    return isFn( fn ) && fn( ); 
+  });
 };
 
-// ----------------------------------------
-// hGraph bootstrapping
-
-// hCreateGraph
-// creates the hgraph inside the container parameter
+/** 
+ * @private
+ * @function hCreateGraph
+ * @description creates a graph instance with a container
+ * @param {Object} container The container to append the graph rendering context into
+ */
 function hCreateGraph( container ){
-    var uid = createUID( );
-    hGraphInstances[uid] = new hGraph.Graph({ uid : uid, container : container });
+  var uid = createUID( );
+  hGraphInstances[uid] = new hGraph.Graph({ uid : uid, container : container });
 };
 
-// hGraphInit
-// called once the root element has been found during the bootstrapping
-// function call. takes care of populating the graphs on the page
+/** 
+ * @private
+ * @function hGraphInit
+ * @description initializes all instances of 'hGraph-graph' flagged elements
+ */
 function hGraphInit( ) {
-    
-    d3.select( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'].join(',') ).each(function( ){
-        hCreateGraph( this );
-    });
-    
-    for( var uid in hGraphInstances )
-        hGraphInstances[uid].Initialize( );
+  d3.select( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'].join(',') ).each(function( ){
+      hCreateGraph( this );
+  });
+  
+  for( var uid in hGraphInstances )
+      hGraphInstances[uid].Initialize( );
 };
 
-// hGraphBootStrap
-// document ready callback. will search the page for an element with either
-// a 'data-hgraph-app' or 'hgraph-app' attribute and save it as the root element
+/** 
+ * @private
+ * @function hGraphBootStrap
+ * @description called on document ready 
+ */
 function hGraphBootStrap( ) {
-    // an array of matches
-    var matches = [ ];
-    d3.select( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'].join(',') ).each(function( ){
-        matches.push( this );
-    });
-    // do not proceed if more than one 
-    if( matches.length > 1 )
-        throw new hGraph.Error('Too many root elements found on the page');
-        
-    hRootElement = matches[0];
-    
-    // if the 'hgraph-app' attribute was found, we can initialize
-    if( hRootElement )
-        return hGraphInit( );
+  // an array of matches
+  var matches = [ ];
+  d3.select( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'].join(',') ).each(function( ){
+      matches.push( this );
+  });
+  // do not proceed if more than one 
+  if( matches.length > 1 )
+      throw new hGraph.Error('Too many root elements found on the page');
+      
+  hRootElement = matches[0];
+  
+  // if the 'hgraph-app' attribute was found, we can initialize
+  if( hRootElement )
+      return hGraphInit( );
 };
 
-d3.select( document ).on( 'DOMContentLoaded', hGraphBootStrap );
+d3.select( document )
+  .on( 'DOMContentLoaded', hGraphBootStrap )
+  .on('touchmove', function( ) {  
+    d3.event.preventDefault && d3.event.preventDefault( );
+  });
+  
 d3.select( window ).on( 'resize', hWindowResize );
-
-d3.selectAll( 'html, body' ).on('touchmove', function( ) { 
-    d3.event.preventDefault && d3.event.preventDefault( );
-});
-
-d3.selectAll( document ).on('touchmove', function( ) {  
-    d3.event.preventDefault && d3.event.preventDefault( );
-});
 
 // expose hGraph to the window
 global.hGraph = hGraph;

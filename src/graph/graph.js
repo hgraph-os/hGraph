@@ -11,9 +11,6 @@ function InternalResize( locals ) {
     // update the half-width and half-height position
     transform.position.x = transform.size.width * 0.5;
     transform.position.y = transform.size.height * 0.5;
-    // update the size of the canvas
-    d3.select( locals['canvas'] )
-        .attr({ width : 2046, height : transform.size.height });
     // do an update after finished resizing
     return this.invokeQueue.push( inject( InternalUpdate, [ locals ], this ) ) && this.ExecuteQueue( );
 };
@@ -36,7 +33,8 @@ function InternalUpdate( locals ) {
     var transform = locals.GetComponent('transform');
     // update the scale
     var minRange = DEFAULTS['HGRAPH_RANGE_MINIMUM'] * transform.scale,
-        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;       
+        maxRange = DEFAULTS['HGRAPH_RANGE_MAXIMUM'] * transform.scale;      
+         
     locals.scoreScale.range([ minRange, maxRange ]);
     // loop through all components and update them
     var components = locals['components'], name;
@@ -239,7 +237,7 @@ function Graph( config ) {
         .on( 'click', CheckClick )
         .attr({ 
             width : 2046,
-            height : _components['transform'].size.height, 
+            height : 2046, 
         });
     
     d3.select( document )
