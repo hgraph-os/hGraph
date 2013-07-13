@@ -8,7 +8,8 @@
 
 (function hGraph( global ) {
 
-var // hGraph namespace definition
+var 
+  /** @namespace hGraph */
   hGraph = { },
     
   d3 = { },
@@ -53,7 +54,7 @@ function hCreateGraph( container ){
  * @description initializes all instances of 'hGraph-graph' flagged elements
  */
 function hGraphInit( ) {
-  d3.select( DEFAULTS['HGRAPH_GRAPH_BOOTSTRAPS'].join(',') ).each(function( ){
+  d3.select( HGRAPH_GRAPH_BOOTSTRAPS.join(',') ).each(function( ){
       hCreateGraph( this );
   });
   
@@ -69,7 +70,7 @@ function hGraphInit( ) {
 function hGraphBootStrap( ) {
   // an array of matches
   var matches = [ ];
-  d3.select( DEFAULTS['HGRAPH_APP_BOOTSTRAPS'].join(',') ).each(function( ){
+  d3.select( HGRAPH_APP_BOOTSTRAPS.join(',') ).each(function( ){
       matches.push( this );
   });
   // do not proceed if more than one 
