@@ -1,23 +1,9 @@
-hMixer/hMixer.bbprojectd/Scratchpad.txt
-
-hMixer/hMixer.bbprojectd/Unix Worksheet.worksheet
-
-hMixer/hMixer.bbprojectd/danielhadley.bbprojectsettings
-
-hMixer/hMixer.bbprojectd/project.bbprojectdata
-
 .swp
 .DS_Store
-
-examples/multiuser/config/compass.config
+examples/*.js
+examples/*.css
+examples/*.html
 node_modules/*
-
-*.scssc
-
-npm-debug.log
-
 build/*
-
 docs/*
-
 benchmarks/results.csv
