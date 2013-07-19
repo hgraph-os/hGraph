@@ -93,7 +93,13 @@ d3.selectAll( "html" )
   .on('touchmove', function( ) {  
     d3.event.preventDefault && d3.event.preventDefault( );
   });
+
+d3.selectAll( "body" )
+  .on('touchmove', function( ) {  
+    d3.event.preventDefault && d3.event.preventDefault( );
+  });
   
+
 d3.select( window ).on( 'resize', hWindowResize );
 
 // expose hGraph to the window
