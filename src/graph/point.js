@@ -27,8 +27,8 @@ function PointFactory( proto ) {
         
         // the point color will be updated
         this.pointColor = ( this.score < 66 && this.score > 33 ) 
-                                ? DEFAULTS['HGRAPH_POINT_COLOR_HEALTHY']
-                                : DEFAULTS['HGRAPH_POINT_COLOR_UNHEALTHY'];
+                                ? HGRAPH_POINT_COLOR_HEALTHY
+                                : HGRAPH_POINT_COLOR_UNHEALTHY;
         
         // add this point to the graph's web path if it needs to be drawn
         if( this.manager.drawFlag === true )
@@ -96,7 +96,7 @@ function PointFactory( proto ) {
 PointFactory['constructor'] = function( config ) {  
     if( !config || !isObj( config ) )
         throw hGraph.Error('not enough information provided to create point');
-    this.radius = DEFAULTS['HGRAPH_POINT_RADIUS'];
+    this.radius = HGRAPH_POINT_RADIUS;
     // grab values from the configuration
     this.score = toInt( config['score'] );
     // every point has a tranform to use

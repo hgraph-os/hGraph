@@ -5,7 +5,6 @@
  * @author Danny Hadley <danny@goinvo.com>
  * @version 1.0 
  */
-
 (function hGraph( global ) {
 
 var 

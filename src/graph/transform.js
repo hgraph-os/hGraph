@@ -16,7 +16,7 @@ function TransformFactory( proto ) {
 // TransformFactory (constructor)
 TransformFactory['constructor'] = function( ) {
     // initialize everything with starting values
-    this.size = { width : DEFAULTS['HGRAPH_WIDTH'], height : DEFAULTS['HGRAPH_HEIGHT'] };
+    this.size = { width : HGRAPH_WIDTH, height : HGRAPH_HEIGHT };
     this.position = { x : ( this.size.width * 0.5 ), y : ( this.size.height * 0.5 ) };
     this.scale = 1;
     this.rotation = 0;

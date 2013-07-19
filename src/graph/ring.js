@@ -16,7 +16,7 @@ function RingFactory( proto ) {
         // draw the outer circle first
         device.beginPath( );
         device.arc( transform.position.x, transform.position.y, scoreScale(66), 0, Math.PI * 20 );
-        device.fillStyle = DEFAULTS['HGRAPH_RING_FILL_COLOR'];
+        device.fillStyle = HGRAPH_RING_FILL_COLOR;
         device.fill( );
         
         // draw the outer circle first
@@ -30,8 +30,8 @@ function RingFactory( proto ) {
 };
 
 RingFactory['constructor'] = function( ) {
-    this.innerRadius = DEFAULTS['HGRAPH_INNER_RADIUS'];  
-    this.outerRadius = DEFAULTS['HGRAPH_OUTER_RADIUS'];
+    this.innerRadius = HGRAPH_INNER_RADIUS;  
+    this.outerRadius = HGRAPH_OUTER_RADIUS;
 };
 
 // create the Ring constructor from the component factory

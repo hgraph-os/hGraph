@@ -43,7 +43,7 @@ function PointManagerFactory( proto ) {
         
         // if this is a sub-point list, make this dot smaller
         if( this.subFlag )
-            point.radius = DEFAULTS['HGRAPH_SUBPOINT_RADIUS'];
+            point.radius = HGRAPH_SUBPOINT_RADIUS;
             
         // add the point to the manager's 'points' array
         this.points.push( point );

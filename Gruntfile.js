@@ -76,7 +76,7 @@ module.exports = function(grunt) {
         
     });
     
-    grunt.registerTask('build', ['clean','smash','jsdoc','min','publish']);
+    grunt.registerTask('build', ['clean','smash','min','publish']);
     grunt.registerTask('package', ['build','karma']);
     grunt.registerTask('default', ['package']);
     
