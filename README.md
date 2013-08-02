@@ -62,7 +62,7 @@ For designers and engineers:
 * CSS refinement of hGraph (making it beautiful).
 * JS help with hScore or hGraph
 * iOS development of hGraph
-* hRex tie-ins 
+* [RHex tie-ins](http://wiki.siframework.org/RHEx) 
 
 
 For clinicians and researchers:
