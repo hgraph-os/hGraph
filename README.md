@@ -54,6 +54,23 @@ During a `window.onload` or similar entry point, the health graph is constructed
         }
 
 
+###Want to Contribute? Here is how you can help###
+For designers and engineers:
+* What's version 2 of hGraph?
+* Design the population hGraph for your neighborhood, city, clinic, nation.
+* CSS refinement of hScore (making it beautiful).
+* CSS refinement of hGraph (making it beautiful).
+* JS help with hScore or hGraph
+* iOS development of hGraph
+* hRex tie-ins 
+
+
+For clinicians and researchers:
+* Make a hScore. Evolve the scoring algorithm
+* What are the top metrics to show (at the "global" hGraph level)? What are the correct groupings and sub metric groupings?
+* What are the chronic disease patterns (the outlines on hGraph) and how do we arrange the metrics to better see those conditions?
+* What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
+
 ###Core Contributors###
 Founders/Designers: [Involution Studios](http://www.goinvo.com/)
 
