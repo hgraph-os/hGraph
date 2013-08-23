@@ -35,10 +35,10 @@ An open source javascript-based web application for visualizing health data.
 
 Website: [hgraph.org](http://hgraph.org/)
 
-hGraph Canvas Demo: http://exploratory.hgraph.org/canvas/
+hGraph Canvas Demo: http://exploratory.hgraph.org/canvas/<br />
 hGraph Demo: http://demo.hgraph.org/
 
-hMixer Demo: http://www.hscoremixer.org/
+hMixer Demo: http://www.hscoremixer.org/<br />
 hMixer Repo: https://github.com/goinvo/hMixer
 
 The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.
