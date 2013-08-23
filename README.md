@@ -35,6 +35,7 @@ An open source javascript-based web application for visualizing health data.
 
 Website: [hgraph.org](http://hgraph.org/)
 
+hGraph Canvas Demo: http://demo.hgraph.org/exploratory/canvas
 hGraph Demo: http://demo.hgraph.org/
 
 hMixer Demo: http://www.hscoremixer.org/
