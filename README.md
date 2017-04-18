@@ -10,12 +10,12 @@ hGraph Demo: http://demo.hgraph.org/
 hMixer Demo: http://www.hscoremixer.org/
 hMixer Repo: https://github.com/goinvo/hMixer
 
-###About the REPO###
+### About the REPO ###
 
 The hGraph is an open source project that is being developed and designed to provide an industry standard of presenting health care information to professionals and average citizens alike.
 
 
-###Dependencies###
+### Dependencies ###
 
 The `HGraph` class relies on [d3.js](http://d3js.org/), which is a very popular javascript library for manipulating SVG, specficically for graphs and data plotting.
 
@@ -24,7 +24,7 @@ Once you have downloaded the latest version, you will need to include in in your
         <script src="/path/to/your/d3.js" type="text/javascript"></script>
         <script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
 
-###Setup###
+### Setup ###
 
 During a `window.onload` or similar entry point, the health graph is constructed and intialized by:
 
@@ -54,7 +54,7 @@ During a `window.onload` or similar entry point, the health graph is constructed
         }
 
 
-###Want to Contribute? Here is how you can help###
+### Want to Contribute? Here is how you can help ###
 For designers and engineers:
 * What's version 2 of hGraph?
 * Design the population hGraph for your neighborhood, city, clinic, nation.
@@ -71,12 +71,12 @@ For clinicians and researchers:
 * What are the chronic disease patterns (the outlines on hGraph) and how do we arrange the metrics to better see those conditions?
 * What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
 
-###Core Contributors###
+### Core Contributors ###
 Founders/Designers: [Involution Studios](http://www.goinvo.com/)
 
 Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 
-###License###
+### License ###
 
 hGraph and hMixer are licensed under the Apache-2.0 open source license. You can find more information on the Apache-2.0 license at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
