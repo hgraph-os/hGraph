@@ -7,7 +7,6 @@ Website: [hgraph.org](http://hgraph.org/)
 
 hGraph Demo: http://demo.hgraph.org/
 
-hMixer Demo: http://www.hscoremixer.org/
 hMixer Repo: https://github.com/goinvo/hMixer
 
 ### About the REPO ###
@@ -58,7 +57,6 @@ During a `window.onload` or similar entry point, the health graph is constructed
 For designers and engineers:
 * What's version 2 of hGraph?
 * Design the population hGraph for your neighborhood, city, clinic, nation.
-* CSS refinement of hScore (making it beautiful).
 * CSS refinement of hGraph (making it beautiful).
 * JS help with hScore or hGraph
 * iOS development of hGraph
@@ -72,7 +70,7 @@ For clinicians and researchers:
 * What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
 
 ### Core Contributors ###
-Founders/Designers: [Involution Studios](http://www.goinvo.com/)
+Founders/Designers: [GoInvo](http://www.goinvo.com/)
 
 Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 
