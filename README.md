@@ -16,9 +16,9 @@ The hGraph is an open source project that is being developed and designed to pro
 
 ### Dependencies ###
 
-The `HGraph` class relies on [d3.js](http://d3js.org/), which is a very popular javascript library for manipulating SVG, specficically for graphs and data plotting.
+The `HGraph` class relies on [d3.js](http://d3js.org/), which is a popular javascript library for manipulating SVG, specficically for graphs and data plotting.
 
-Once you have downloaded the latest version, you will need to include in in your html above the `HealthGraph` source code:
+Once you have downloaded the latest version, you will need to include it in your html above the `HealthGraph` source code:
 
         <script src="/path/to/your/d3.js" type="text/javascript"></script>
         <script src="/path/to/your/HealthGraph.js" type="text/javascript"></script>
@@ -56,15 +56,17 @@ During a `window.onload` or similar entry point, the health graph is constructed
 ### Want to Contribute? Here is how you can help ###
 For designers and engineers:
 * What's version 2 of hGraph?
-* Design the population hGraph for your neighborhood, city, clinic, nation.
 * CSS refinement of hGraph (making it beautiful).
-* JS help with hScore or hGraph
-* iOS development of hGraph
-* [RHex tie-ins](http://wiki.siframework.org/RHEx) 
-
+* JS help to make hGraph an easy to use, plug n’ play JS library for visualizing data
+* [hGraph uses Standard Health Record as the data model for patient health data](http://standardhealthrecord.org/) 
+* Provide multi-level view and connection of health data
+  - [Determinants of Health](determinantsofhealth.org) (ex. Holistic view of all data, missing data)
+  - hGraph main, high-level view
+  - hGraph secondary detailed view
+  - Design the population hGraph for your neighborhood, city, clinic, nation.
 
 For clinicians and researchers:
-* [Make a hScore. Evolve the scoring algorithm](http://hscoremixer.org/)
+* [Make a hScore. Evolve the scoring algorithm](https://github.com/goinvo/hMixer)
 * What are the top metrics to show (at the "global" hGraph level)? What are the correct groupings and sub metric groupings?
 * What are the chronic disease patterns (the outlines on hGraph) and how do we arrange the metrics to better see those conditions?
 * What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
