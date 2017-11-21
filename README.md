@@ -78,5 +78,5 @@ Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 
 ### License ###
 
-hGraph and hMixer are licensed under the Apache-2.0 open source license. You can find more information on the Apache-2.0 license at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+hGraph is licensed under [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE).
 
