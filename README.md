@@ -72,7 +72,7 @@ For clinicians and researchers:
 * What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
 
 ### Core Contributors ###
-Founders/Designers: [GoInvo](http://www.goinvo.com/)
+Founders/Designers: [GoInvo](http://www.goinvo.com/), [hgraph@goinvo.com](mailto:hgraph@goinvo.com)
 
 Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
 
