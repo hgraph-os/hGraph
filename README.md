@@ -6,7 +6,9 @@ An open source javascript-based web application for visualizing health data.
 Website: [hgraph.org](http://hgraph.org/)
 
 hGraph Demo: http://demo.hgraph.org/
+
 hGraph + Spider chart library demo: https://goinvo.github.io/VisualizationComponents/
+
 with the Github repo: https://github.com/goinvo/VisualizationComponents
 
 hMixer Repo: https://github.com/goinvo/hMixer
