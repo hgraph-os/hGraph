@@ -1,30 +1,23 @@
 /*
 File: hUsers.js
-
 Description:
     Devises a multiuser environment. This includes user selection, menus and calling
     hGraph drawing routines
-
 Requires:
     d3.js
     hammer.js
     mustache.js
-
 Authors:
     Michael Bester <michael@kimili.com>
     Ivan DiLernia <ivan@goinvo.com>
     Danny Hadley <danny@goinvo.com>
     Matt Madonna <matthew@myimedia.com>
-
 License:
     Copyright 2012, Involution Studios <http://goinvo.com>
-
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-
       http://www.apache.org/licenses/LICENSE-2.0
-
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -141,7 +134,7 @@ hideTimeline = function(user){
 *
 * user - (object)
 * Example structure:
-* 
+*
 * {
 *      "name":"Juhan Sonin",
 *      "id":"sonin_juhan",
@@ -200,12 +193,227 @@ initializeUser = function(user) {
 
     // loads user json datafile
     d3.json("data/user-data/" + user.id + ".json", function(json, error) {
-        if (error) return;
+            if (error) return;
+            // converts the data to a hGraph friendly format
+            var points = mu.datas.process(json);
+            // renders hGraph
+            renderHgraph(points);
+        });
+    /*    var accessToken ="745b2a6d68e24e1a93a92cf26643b07b";
+        var baseUrl = "https://api.dialogflow.com/v1/";
+        $(document).ready(function() {
+
+            $("#rec").click(function(event) {
+                switchRecognition();
+            });
+        });
+        var recognition;
+
+        function startRecognition() {
+            recognition = new webkitSpeechRecognition();
+            recognition.onstart = function(event) {
+                updateRec();
+            };
+            recognition.onresult = function(event) {
+                var text = "";
+                for (var i = event.resultIndex; i < event.results.length; ++i) {
+                    text += event.results[i][0].transcript;
+                }
+                setInput(text);
+                stopRecognition();
+            };
+            recognition.onend = function() {
+                stopRecognition();
+            };
+            recognition.lang = "en-US";
+            recognition.start();
+        }
+        function stopRecognition() {
+            if (recognition) {
+                recognition.stop();
+                recognition = null;
+            }
+            updateRec();
+        }
+        function switchRecognition() {
+            if (recognition) {
+                stopRecognition();
+            } else {
+                startRecognition();
+            }
+        }
+        function setInput(text) {
+            $("#input").val(text);
+            send();
+        }
+        function updateRec() {
+            $("#rec").text(recognition ? "Stop" : "Speak");
+        }
+        function send() {
+            var text = $("#input").val();
+        console.log("\nUser: " + text + '\r\n\n');
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "query?v=20150910",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                },
+                data: JSON.stringify({ query: text, lang: "en", sessionId: "somerandomthing" }),
+                success: function(data) {
+                    var respText = data.result.fulfillment.speech;
+                    console.log("Respuesta: " + respText);
+                    var shr = data.result.parameters
+                    for (x in data.result.parameters){
+                      if (data.result.parameters[x].length != 0){
+                        if (x==='height' || x === 'weight' ||x === 'age' ){
+                          if(x == "height"){
+                        var hvalue = data.result.parameters[x].amount;
+                        var hunit = data.result.parameters[x].unit;
+                        }
+                        if(x == "weight"){
+                        var wvalue = data.result.parameters[x].amount;
+                        var wunit = data.result.parameters[x].unit;
+                        }
+                          console.log(x + ": " + data.result.parameters[x].amount + '\r\n')
+                          console.log(x + ": " + data.result.parameters[x].unit + '\r\n')
+                        } else {
+                        if (x == "waist"){
+                          var waist =data.result.parameters[x];
+                          }
+                          if(x == "drinks"){
+                          var alcohol = data.result.parameters[x];
+                          }
+                          if (x == "sleep"){
+                          var sleep = data.result.parameters[x];
+                          }
+                          if (x == "exercise"){
+                          var exercise = data.result.parameters[x];
+                          }
+                          if (x == "cigarettes"){
+                          var smoking= data.result.parameters[x];
+                          }
+                          if (x == "happiness"){
+                          var happiness = data.result.parameters[x];
+                          }
+                          if (x == "glucose"){
+                          var glucose = data.result.parameters[x];
+                          }
+                          if (x == "LDL"){
+                          var LDL = data.result.parameters[x];
+                          }
+                          if (x == "HDL"){
+                          var HDL = data.result.parameters[x];
+                          }
+                          if (x == "diastolic"){
+                          var diastolic = data.result.parameters[x];
+                          }
+                          if (x == "systolic"){
+                          var systolic = data.result.parameters[x];
+                          }
+                          if (x == "pain"){
+                          var pain = data.result.parameters[x];
+                          }
+                        console.log(x + ": " + data.result.parameters[x]+ '\r\n')
+                        }
+                      }
+
+            }
+
+
+
+     var obj = {
+      "name" : "Sonin Juhan",
+      "gender" : "male",
+      "score_data" : [
+      {
+          "Weight"       : 14,
+          "value"     : wvalue
+       },
+       {
+          "LDL"       : 1,
+          "value"     : LDL
+       },
+       {
+          "HDL"       : 2,
+          "value"     : HDL
+       },
+       {
+          "Triglycerides" : 3,
+          "value"         : 140
+       },
+       {
+          "Sleep"     : 4,
+          "value"     : sleep
+       },
+       {
+          "Exercise"  : 5,
+          "value"     : exercise
+       },
+       {
+          "Happiness" : 6,
+          "value"     : happiness
+       },
+       {
+          "Glucose"   : 7,
+          "value"     : glucose
+       },
+       {
+          "Blood Pressure Systolic" : 8,
+          "value"     : systolic
+       },
+       {
+          "Blood Pressure Diastolic" : 9,
+          "value"     : diastolic
+       },
+       {
+          "Alcohol"   : 10,
+          "value"     : alcohol
+       },
+       {
+          "Smoking"   : 11,
+          "value"     : smoking
+       },
+       {
+          "Waist Circumference" : 12,
+          "value"     : waist
+       },
+       {
+          "Pain"      : 13,
+          "value"     : pain
+       }
+      ]
+    };
+
+                      if(data.result.actionIncomplete === false){
+
+
+                        var dataPoints = mu.datas.process(obj);
+
+                        // renders hGraph
+                        renderHgraph(dataPoints);
+
+                        // currently this is pushing the JSON, its not printing or creating a new file
+                      }
+                   setResponse(respText);
+                    $("#response").scrollTop($("#response").height());
+                },
+                error: function() {
+                    setResponse("Internal Server Error");
+                }
+            });
+        }
+        function setResponse(val) {
+          //Edit "AI: " to change name
+            console.log("\nDialogFlow: " + val + '\r\n');
+            $("#response").text(conversation.join(""));
+        }
+        var conversation = [];
+*/
+
         // converts the data to a hGraph friendly format
-        var dataPoints = mu.data.process(json);
-        // renders hGraph
-        renderHgraph(dataPoints);
-    });
+
 
 },
 
