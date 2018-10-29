@@ -80,9 +80,6 @@ For clinicians and researchers:
 ### Core Contributors ###
 Founders/Designers: [GoInvo](http://www.goinvo.com/), [hgraph@goinvo.com](mailto:hgraph@goinvo.com)
 
-Architects/Engineers: [iMedia Solutions](http://www.myimedia.com/)
-
 ### License ###
-
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
 
