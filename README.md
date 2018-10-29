@@ -1,4 +1,4 @@
-hGraph
+hGraph: Your health in one picture.
 ========
 
 An open source javascript-based web application for visualizing health data.
