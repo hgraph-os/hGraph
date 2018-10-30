@@ -68,7 +68,7 @@ For designers and engineers:
 * JS help to make hGraph an easy to use, plug n’ play JS library for visualizing data
 * [hGraph uses Standard Health Record as the data model for patient health data](http://standardhealthrecord.org/) 
 * Provide multi-level view and connection of health data
-  - [Determinants of Health](https://www.determinantsofhealth.org) (ex. Holistic view of all data, missing data)
+  - [Determinants of Health](http://www.goinvo.com/features/determinants-of-health/) (ex. Holistic view of all data, missing data)
   - hGraph main, high-level view
   - hGraph secondary detailed view
   - Design the population hGraph for your neighborhood, city, clinic, nation.
