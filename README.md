@@ -3,6 +3,8 @@ hGraph: Your health in one picture.
 
 An open source javascript-based web application for visualizing health data.
 
+![hGraph](https://github.com/goinvo/hGraph/blob/master/docs/hgraph.png)
+
 Website: [hgraph.org](http://hgraph.org/)
 
 hGraph Demo: http://demo.hgraph.org/
