@@ -85,3 +85,4 @@ Founders/Designers: [GoInvo](http://www.goinvo.com/), [hgraph@goinvo.com](mailto
 ### License ###
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
 
+### For guidance integrating hGraph into your product or service, contact us at hello@goinvo.com. ###
