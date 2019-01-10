@@ -64,6 +64,7 @@ During a `window.onload` or similar entry point, the health graph is constructed
 ### Want to Contribute? Here is how you can help ###
 For designers and engineers:
 * What's version 2 of hGraph?
+* Repo evolves from a demo into a production-ready component others can integrate with minimal effort
 * CSS refinement of hGraph (making it beautiful)
 * JS help to make hGraph an easy to use, plug n’ play JS library for visualizing data
 * Scales beautifully for both desktop and mobile
