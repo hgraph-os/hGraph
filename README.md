@@ -64,8 +64,9 @@ During a `window.onload` or similar entry point, the health graph is constructed
 ### Want to Contribute? Here is how you can help ###
 For designers and engineers:
 * What's version 2 of hGraph?
-* CSS refinement of hGraph (making it beautiful).
+* CSS refinement of hGraph (making it beautiful)
 * JS help to make hGraph an easy to use, plug n’ play JS library for visualizing data
+* Scales beautifully for both desktop and mobile
 * [hGraph uses Standard Health Record as the data model for patient health data](http://standardhealthrecord.org/) 
 * Provide multi-level view and connection of health data
   - [Determinants of Health](http://www.goinvo.com/features/determinants-of-health/) (ex. Holistic view of all data, missing data)
