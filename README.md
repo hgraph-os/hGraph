@@ -81,6 +81,9 @@ For clinicians and researchers:
 * What are the chronic disease patterns (the outlines on hGraph) and how do we arrange the metrics to better see those conditions?
 * What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
 
+### Roadmap ###
+[Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
+
 ### Core Contributors ###
 Founders/Designers: [GoInvo](http://www.goinvo.com/), [hgraph@goinvo.com](mailto:hgraph@goinvo.com)
 
