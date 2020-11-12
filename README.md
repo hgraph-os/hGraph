@@ -11,6 +11,8 @@ hGraph Demo: http://demo.hgraph.org/
 
 hGraph React Component: https://github.com/goinvo/hgraph-react
 
+hGraph on FHIR: https://github.com/symptomatic/hgraph-on-fhir
+
 hGraph + Spider chart library demo: https://goinvo.github.io/VisualizationComponents/
 
 with the Github repo: https://github.com/goinvo/VisualizationComponents
