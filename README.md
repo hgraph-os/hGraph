@@ -85,7 +85,10 @@ For clinicians and researchers:
 [Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
 
 ### Core Contributors ###
-Founders/Designers: [GoInvo](http://www.goinvo.com/), [hgraph@goinvo.com](mailto:hgraph@goinvo.com)
+Founders/Designers: [GoInvo](http://www.goinvo.com/) is a digital design studio in Boston, crafting the future of healthcare through strategy, creativity, and vision.
+
+### Contact Us ###
+[hgraph@goinvo.com](mailto:hgraph@goinvo.com)
 
 ### License ###
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
