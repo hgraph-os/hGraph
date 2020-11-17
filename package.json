@@ -1,0 +1,43 @@
+{
+  "name": "hgraph-react",
+  "version": "0.0.7",
+  "description": "A React component using d3 to build hGraph, an open source visualization for patient health data.",
+  "main": "build/index.js",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goinvo/hgraph-react"
+  },
+  "dependencies": {
+    "d3-ease": "^1.0.3",
+    "d3-format": "^1.2.2",
+    "d3-scale": "^2.0.0",
+    "d3-shape": "^1.2.0",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-move": "^2.7.0",
+    "react-svg-text": "^0.1.2",
+    "webpack": "^3.11.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --watch",
+    "build": "webpack",
+    "prepublish": "yarn run build"
+  },
+  "author": {
+    "name": "Craig McGinley",
+    "email": "craig@goinvo.com"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-latest": "^6.24.1"
+  }
+}

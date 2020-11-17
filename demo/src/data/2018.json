@@ -1,0 +1,68 @@
+[
+  {
+    "metric": "totalCholesterol",
+    "value": 0.5,
+    "children": [
+      {
+        "metric": "ldl",
+        "value": 100
+      },
+      {
+        "metric": "hdl",
+        "value": 50
+      },
+      {
+        "metric": "triglycerides",
+        "value": 200
+      }
+    ]
+  },
+  {
+    "metric": "bloodPressureSystolic",
+    "value": 120
+  },
+  {
+    "metric": "bloodPressureDiastolic",
+    "value": 75
+  },
+  {
+    "metric": "alcoholUse",
+    "value": 0
+  },
+  {
+    "metric": "nicotineUse",
+    "value": 0
+  },
+  {
+    "metric": "painLevel",
+    "value": 0
+  },
+  {
+    "metric": "waistCircumference",
+    "value": 30
+  },
+  {
+    "metric": "weight",
+    "value": 220
+  },
+  {
+    "metric": "exercise",
+    "value": 8
+  },
+  {
+    "metric": "sleep",
+    "value": 8
+  },
+  {
+    "metric": "happiness",
+    "value": 9
+  },
+  {
+    "metric": "glucose",
+    "value": 70
+  },
+  {
+    "metric": "other",
+    "value": 0.5
+  }
+]

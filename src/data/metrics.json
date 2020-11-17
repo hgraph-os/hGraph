@@ -1,0 +1,216 @@
+{
+  "male": {
+    "totalCholesterol": {
+      "label": "Total Cholesterol",
+      "healthyRange": [0.25, 0.75],
+      "absoluteRange": [0, 1],
+      "weight": 21,
+      "unitLabel": "mg/dl"
+    },
+    "ldl": {
+      "label": "LDL Cholesterol",
+      "healthyRange": [50, 130],
+      "absoluteRange": [0, 300],
+      "weight": 9,
+      "unitLabel": "mg/dl"
+    },
+    "hdl": {
+      "label": "HDL Cholesterol",
+      "healthyRange": [40, 60],
+      "absoluteRange": [0, 150],
+      "weight": 9,
+      "unitLabel": "mg/dl"
+    },
+    "triglycerides": {
+      "label": "Triglycerides",
+      "healthyRange": [70, 150],
+      "absoluteRange": [0, 300],
+      "weight": 3,
+      "unitLabel": "mg/dl"
+    },
+    "bloodPressureSystolic": {
+      "label": "Systolic Blood Pressure",
+      "healthyRange": [99, 148],
+      "absoluteRange": [50, 230],
+      "weight": 5,
+      "unitLabel": "mm/Hg"
+    },
+    "bloodPressureDiastolic": {
+      "label": "Diastolic Blood Pressure",
+      "healthyRange": [65, 95],
+      "absoluteRange": [35, 140],
+      "weight": 5,
+      "unitLabel": "mm/Hg"
+    },
+    "alcoholUse": {
+      "label": "Alcohol Use",
+      "healthyRange": [0, 1],
+      "absoluteRange": [0, 20],
+      "weight": 5,
+      "unitLabel": "drinks/week"
+    },
+    "nicotineUse": {
+      "label": "Nicotine Use",
+      "healthyRange": [0, 1],
+      "absoluteRange": [0, 20],
+      "weight": 5,
+      "unitLabel": "nicotine/day"
+    },
+    "painLevel": {
+      "label": "Chronic Pain",
+      "healthyRange": [0, 4],
+      "absoluteRange": [0, 10],
+      "weight": 3,
+      "unitLabel": "pain scale"
+    },
+    "waistCircumference": {
+      "label": "Waist Circumference",
+      "healthyRange": [30, 34.5],
+      "absoluteRange": [0, 200],
+      "weight": 10,
+      "unitLabel": "inches"
+    },
+    "weight": {
+      "label": "Weight",
+      "healthyRange": [170, 205],
+      "absoluteRange": [50, 400],
+      "weight": 9,
+      "unitLabel": "lbs"
+    },
+    "exercise": {
+      "label": "Exercise",
+      "healthyRange": [3, 12],
+      "absoluteRange": [0, 60],
+      "weight": 5,
+      "unitLabel": "hours/week"
+    },
+    "sleep": {
+      "label": "Sleep",
+      "healthyRange": [7.1, 8],
+      "absoluteRange": [0, 18],
+      "weight": 5,
+      "unitLabel": "hours/night"
+    },
+    "happiness": {
+      "label": "Happiness",
+      "healthyRange": [6, 10],
+      "absoluteRange": [0, 10],
+      "weight": 3,
+      "unitLabel": "happiness scale"
+    },
+    "glucose": {
+      "label": "Glucose",
+      "healthyRange": [61, 100],
+      "absoluteRange": [0, 160],
+      "weight": 10,
+      "unitLabel": "mg/dl"
+    },
+    "other": {
+      "label": "Other",
+      "healthyRange": [0.25, 0.75],
+      "absoluteRange": [0, 1],
+      "weight": 14,
+      "unitLabel": "fake"
+    }
+  },
+  "female": {
+    "ldl": {
+      "label": "LDL Cholesterol",
+      "healthyRange": [50, 130],
+      "absoluteRange": [0, 300],
+      "weight": 9,
+      "unitLabel": "mg/dl"
+    },
+    "hdl": {
+      "label": "HDL Cholesterol",
+      "healthyRange": [40, 60],
+      "absoluteRange": [0, 150],
+      "weight": 9,
+      "unitLabel": "mg/dl"
+    },
+    "triglycerides": {
+      "label": "Triglycerides",
+      "healthyRange": [70, 150],
+      "absoluteRange": [0, 300],
+      "weight": 3,
+      "unitLabel": "mg/dl"
+    },
+    "bloodPressureSystolic": {
+      "label": "Systolic Blood Pressure",
+      "healthyRange": [99, 148],
+      "absoluteRange": [50, 230],
+      "weight": 5,
+      "unitLabel": "mm/Hg"
+    },
+    "bloodPressureDiastolic": {
+      "label": "Diastolic Blood Pressure",
+      "healthyRange": [65, 95],
+      "absoluteRange": [35, 140],
+      "weight": 5,
+      "unitLabel": "mm/Hg"
+    },
+    "alcoholUse": {
+      "label": "Alcohol Use",
+      "healthyRange": [0, 1],
+      "absoluteRange": [0, 20],
+      "weight": 5,
+      "unitLabel": "drinks/week"
+    },
+    "nicotineUse": {
+      "label": "Nicotine Use",
+      "healthyRange": [0, 1],
+      "absoluteRange": [0, 20],
+      "weight": 5,
+      "unitLabel": "nicotine/day"
+    },
+    "painLevel": {
+      "label": "Chronic Pain",
+      "healthyRange": [0, 4],
+      "absoluteRange": [0, 10],
+      "weight": 3,
+      "unitLabel": "pain scale"
+    },
+    "waistCircumference": {
+      "label": "Waist Circumference",
+      "healthyRange": [30, 34.5],
+      "absoluteRange": [0, 200],
+      "weight": 10,
+      "unitLabel": "inches"
+    },
+    "weight": {
+      "label": "Weight",
+      "healthyRange": [170, 205],
+      "absoluteRange": [50, 400],
+      "weight": 9,
+      "unitLabel": "lbs"
+    },
+    "exercise": {
+      "label": "Exercise",
+      "healthyRange": [3, 12],
+      "absoluteRange": [0, 60],
+      "weight": 5,
+      "unitLabel": "hours/week"
+    },
+    "sleep": {
+      "label": "Sleep",
+      "healthyRange": [7.1, 8],
+      "absoluteRange": [0, 18],
+      "weight": 5,
+      "unitLabel": "hours/night"
+    },
+    "happiness": {
+      "label": "Happiness",
+      "healthyRange": [6, 10],
+      "absoluteRange": [0, 10],
+      "weight": 3,
+      "unitLabel": "happiness scale"
+    },
+    "glucose": {
+      "label": "Glucose",
+      "healthyRange": [61, 100],
+      "absoluteRange": [0, 160],
+      "weight": 10,
+      "unitLabel": "mg/dl"
+    }
+  }
+}
