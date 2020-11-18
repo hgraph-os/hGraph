@@ -79,7 +79,7 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 
 (steps to include coming)
 
-## Demo’s
+## Demos
 [React Demo](https://hgraph-os.github.io/hgraph-react/)  
 [Patient Demo](https://www.hgraph.org/demo/)  
 [Hospital Demo](hospital.hgraph.org)
