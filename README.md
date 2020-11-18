@@ -98,7 +98,12 @@ Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio i
 
 ## Contributing
 
-### Code of Conduct
+### [Code of Conduct](CODE_OF_CONDUCT.md)
+hGraph has adopted a Code of Conduct that we expect project participants to adhere to. Please read the [full text](CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+
+### [Contributing Guidelines](CONTRIBUTE.md)
+We encourage you to contribute to hGraph!
+See the [contributing guidelines](CONTRIBUTE.md) for how to proceed.
 
 ### License ###
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
