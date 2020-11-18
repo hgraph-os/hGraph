@@ -80,19 +80,18 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 (steps to include coming)
 
 ## Demo’s
-[React Demo](https://hgraph-os.github.io/hgraph-react/)
+[React Demo](https://hgraph-os.github.io/hgraph-react/)  
 [Patient Demo](https://www.hgraph.org/demo/)  
 [Hospital Demo](hospital.hgraph.org)
 
 ## Project
 
-### Roadmap ###
-[Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
+### [Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
 
-### Core Contributors ###
+### Core Contributors
 Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio in Boston, crafting the future of healthcare through strategy, creativity, and vision.
 
-### Contact Us ###
+### Contact Us
 [hgraph@goinvo.com](mailto:hgraph@goinvo.com)
 
 ## Contributing
@@ -104,7 +103,7 @@ hGraph has adopted a Code of Conduct that we expect project participants to adhe
 We encourage you to contribute to hGraph!
 See the [contributing guidelines](CONTRIBUTE.md) for how to proceed.
 
-### License ###
+### License
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
 
-### For guidance integrating hGraph into your product or service, contact us at [hgraph@goinvo.com](mailto:hgraph@goinvo.com). ###
+### For guidance integrating hGraph into your product or service, contact us at [hgraph@goinvo.com](mailto:hgraph@goinvo.com).
