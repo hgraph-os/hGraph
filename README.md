@@ -1,13 +1,9 @@
-# hGraph React
-An open source visualization for patient health data, as a React component using d3.
+# [hGraph](https://www.hgraph.org): Your health in one picture.
+hGraph is an open source javascript library for visualizing health data.
 
-View the React based [demo](https://goinvo.github.io/hgraph-react/) for this repository.
+![hGraph](https://github.com/hgraph-os/hgraph-design/blob/main/hgraph.png)
 
-See the core [hGraph repo](https://github.com/goinvo/hGraph) for more examples and roadmap.
-
-Looking for React Native? Check out the [port to React Native](https://github.com/CitizenHealth/react-native-hgraph) from Citizen Health.
-
-![hGraph](https://github.com/goinvo/hGraph/blob/master/docs/hgraph.png)
+hGraph is a [React](https://reactjs.org) component using [D3](https://d3js.org/). A [React Native port is available](https://github.com/CitizenHealth/react-native-hgraph) from [Citizen Health](https://citizenhealth.io/).
 
 ## Installation
 This package can be [found on npm](https://www.npmjs.com/package/hgraph-react) and installed like so:
@@ -53,7 +49,6 @@ Most props are not required and have sensible defaults built in, as listed below
 | zoomOnPointClick | boolean | false | Configure if hGraph should zoom in/focus on a clicked point and display child points in the graph. | true |
 | onPointClick | function | false | Callback function called when a point is clicked. Function is passed 2 arguments: the data object corresponding to the point clicked, and the event. | N/A |
 
-
 ### hGraph Metric Object Properties <a name="metrics"></a>
 | Property Name | Type | Is Required | Description |
 | ------------- | ---- | ----------- | ----------- |
@@ -67,9 +62,45 @@ Most props are not required and have sensible defaults built in, as listed below
 | unitLabel | string | true | The units the metric is measured in, displayed with the metric value. |
 | children | array | false | Optional array of child metrics that comprise this metric. Children metrics should conform to hGraph Metric Objects properties. Children are shown when a point is clicked and hGraph is in the "zoomed in" state. |
 
+### hMetrics
+Set of health metrics to be displayed on the hGraph. A default set is provided but can be tailored to your installation.
+
+(steps to edit coming)
+
+### hRanges
+Defines the healthy range for hMetrics. A default set is provided but should be tailored to your installation.
+
+(steps to edit coming)
+
+### [hScore](https://github.com/hgraph-os/hScore) (notional)
+hScore is an algorithm for scoring a person's health and can be displayed at the center of the hGraph. hScore is currently a concept and has not been developed.
+
+### Synthetic Patient Data
+For development and demo’s, we’ve used [Synthea](https://synthetichealth.github.io/synthea/) for generating synthetic patient data to display in hGraph.
+
+(steps to include coming)
+
+## Demo’s
+[React Demo](https://hgraph-os.github.io/hgraph-react/)
+[Patient Demo](https://www.hgraph.org/demo/)  
+[Hospital Demo](hospital.hgraph.org)
+
+## Project
+
+### Roadmap ###
+[Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
+
+### Core Contributors ###
+Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio in Boston, crafting the future of healthcare through strategy, creativity, and vision.
+
+### Contact Us ###
+[hgraph@goinvo.com](mailto:hgraph@goinvo.com)
+
+## Contributing
+
+### Code of Conduct
 
 ### License ###
-
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
 
-### For guidance integrating hGraph into your product or service, contact us at hello@goinvo.com. ###
+### For guidance integrating hGraph into your product or service, contact us at [hgraph@goinvo.com](mailto:hgraph@goinvo.com). ###
