@@ -96,13 +96,13 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 
 ### [Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
 
-### [Code of Conduct](CODE_OF_CONDUCT.md)
+### [Code of Conduct](https://github.com/hgraph-os/hGraph/blob/master/CODE_OF_CONDUCT.md)
 hGraph has adopted a Code of Conduct that we expect project participants to adhere to.  
-Please read the [full text](CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+Please read the [full text](https://github.com/hgraph-os/hGraph/blob/master/CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
-### [Contributing Guidelines](CONTRIBUTE.md)
+### [Contributing Guidelines](https://github.com/hgraph-os/hGraph/blob/master/CONTRIBUTE.md)
 We encourage you to contribute to hGraph!  
-See the [contributing guidelines](CONTRIBUTE.md) for how to proceed.
+See the [contributing guidelines](https://github.com/hgraph-os/hGraph/blob/master/CONTRIBUTE.md) for how to proceed.
 
 ### Core Contributors
 Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio in Boston, crafting the future of healthcare through strategy, creativity, and vision.

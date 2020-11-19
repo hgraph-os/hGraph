@@ -3,7 +3,7 @@
 We welcome contributions in the form of [issues](https://github.com/hgraph-os/hGraph/issues/) or [pull requests](https://github.com/hgraph-os/hGraph/pulls). We recommend starting with an [issue](https://github.com/hgraph-os/hGraph/issues/new) to have a conversation before changing any files.
 
 ## Code of Conduct
-Help us keep hGraph open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+Help us keep hGraph open and inclusive. Please read and follow our [Code of Conduct](https://github.com/hgraph-os/hGraph/blob/master/CODE_OF_CONDUCT.md).
 
 ## Topics for Contributing
 For designers and engineers:
