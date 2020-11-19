@@ -88,7 +88,7 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 (steps to include coming)
 
 ## Notable Repos
-* A [React Native port is available](https://github.com/CitizenHealth/react-native-hgraph) from Citizen Health.
+* A [React Native port](https://github.com/CitizenHealth/react-native-hgraph) is available from Citizen Health.
 * hGraph on FHIR (Fast Healthcare Interoperability Resources): [https://github.com/symptomatic/hgraph-on-fhir](https://github.com/symptomatic/hgraph-on-fhir)
 * hGraph + Spider chart [demo](https://goinvo.github.io/VisualizationComponents/), [repo](https://github.com/goinvo/VisualizationComponents)
 
@@ -97,10 +97,11 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 ### [Roadmap](https://docs.google.com/document/d/1IiRXmd64ZKRt3mrrDPn4E2GWY5KBm_4VFHAtwOndPZA/)
 
 ### [Code of Conduct](CODE_OF_CONDUCT.md)
-hGraph has adopted a Code of Conduct that we expect project participants to adhere to. Please read the [full text](CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+hGraph has adopted a Code of Conduct that we expect project participants to adhere to.  
+Please read the [full text](CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ### [Contributing Guidelines](CONTRIBUTE.md)
-We encourage you to contribute to hGraph!
+We encourage you to contribute to hGraph!  
 See the [contributing guidelines](CONTRIBUTE.md) for how to proceed.
 
 ### Core Contributors

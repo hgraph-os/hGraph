@@ -5,6 +5,25 @@ We welcome contributions in the form of [issues](https://github.com/hgraph-os/hG
 ## Code of Conduct
 Help us keep hGraph open and inclusive. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+## Topics for Contributing
+For designers and engineers:
+* What's version 2 of hGraph?
+* Repo evolves from a demo into a production-ready component others can integrate with minimal effort
+* CSS refinement of hGraph (making it beautiful)
+* JS help to make hGraph an easy to use, plug n’ play JS library for visualizing data
+* Scales beautifully for both desktop and mobile
+* Provide multi-level view and connection of health data
+[Determinants of Health](https://www.goinvo.com/vision/determinants-of-health/) (ex. Holistic view of all data, missing data)
+* hGraph main, high-level view
+* hGraph secondary detailed view
+* Design the population hGraph for your neighborhood, city, clinic, nation.
+
+For clinicians and researchers:
+* Make a [hScore](https://github.com/hgraph-os/hScore). Evolve the scoring algorithm.
+* What are the top metrics to show (at the "global" hGraph level)? What are the correct groupings and sub metric groupings?
+* What are the chronic disease patterns (the outlines on hGraph) and how do we arrange the metrics to better see those conditions?
+* What are we missing from the everyday diagnostic tool clinicians use? How do we improve hGraph to rock your in-patient encounter experience? Population diagnostic experience?
+
 ## Ways to Contribute
 
 ### Report issues
