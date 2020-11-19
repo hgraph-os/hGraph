@@ -67,19 +67,19 @@ Most props are not required and have sensible defaults built in, as listed below
 | children | array | false | Optional array of child metrics that comprise this metric. Children metrics should conform to hGraph Metric Objects properties. Children are shown when a point is clicked and hGraph is in the "zoomed in" state. |
 
 ### hMetrics
-![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hmetrics.png)
+![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hmetrics.png)  
 Set of health metrics to be displayed on the hGraph. A default set is provided but can be tailored to your installation.
 
 (steps to edit coming)
 
 ### hRanges
-![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hranges.png)
+![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hranges.png)  
 Defines the healthy range for hMetrics. A default set is provided but should be tailored to your installation.
 
 (steps to edit coming)
 
 ### [hScore](https://github.com/hgraph-os/hScore) (notional)
-![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hscore.png)
+![hMetrics Component](https://github.com/hgraph-os/hgraph-design/blob/main/hGraph-components-diagram/hgraph-components-hscore.png)  
 hScore is an algorithm for scoring a person's health and can be displayed at the center of the hGraph. hScore is currently a concept and has not been developed.
 
 ### Synthetic Patient Data
