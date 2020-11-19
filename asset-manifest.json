@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/hgraph-react/static/css/main.5859166c.chunk.css",
+    "main.js": "/hgraph-react/static/js/main.6f7868df.chunk.js",
+    "main.js.map": "/hgraph-react/static/js/main.6f7868df.chunk.js.map",
+    "runtime-main.js": "/hgraph-react/static/js/runtime-main.297c2235.js",
+    "runtime-main.js.map": "/hgraph-react/static/js/runtime-main.297c2235.js.map",
+    "static/js/2.ec936fd0.chunk.js": "/hgraph-react/static/js/2.ec936fd0.chunk.js",
+    "static/js/2.ec936fd0.chunk.js.map": "/hgraph-react/static/js/2.ec936fd0.chunk.js.map",
+    "index.html": "/hgraph-react/index.html",
+    "precache-manifest.2c9e7900c746afc3069101e9694578b4.js": "/hgraph-react/precache-manifest.2c9e7900c746afc3069101e9694578b4.js",
+    "service-worker.js": "/hgraph-react/service-worker.js",
+    "static/css/main.5859166c.chunk.css.map": "/hgraph-react/static/css/main.5859166c.chunk.css.map",
+    "static/js/2.ec936fd0.chunk.js.LICENSE.txt": "/hgraph-react/static/js/2.ec936fd0.chunk.js.LICENSE.txt",
+    "static/js/main.6f7868df.chunk.js.LICENSE.txt": "/hgraph-react/static/js/main.6f7868df.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.297c2235.js",
+    "static/js/2.ec936fd0.chunk.js",
+    "static/css/main.5859166c.chunk.css",
+    "static/js/main.6f7868df.chunk.js"
+  ]
+}
