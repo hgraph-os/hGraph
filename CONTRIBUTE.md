@@ -47,7 +47,7 @@ On the edit page, you'll be presented with a version of the document. Edit the t
 
 At this point, you'll be presented with a form to submit a pull request. The bottom section of the page will show all of the changes you've made to the document, and all you should need to do is press the "Send Pull Request" button.
 
-Once you've submitted a pull request, the PDUA team can review the work under the Pull Requests tab on the right-hand side, and a contributor to the repo can merge your changes.
+Once you've submitted a pull request, the hGraph team can review the work under the Pull Requests tab on the right-hand side, and a contributor to the repo can merge your changes.
 
 ### Markdown
 These files are written in the Markdown syntax. You can reference this [guide](https://www.markdownguide.org/basic-syntax/) for formatting (ex. Bold, Footnotes, Lists, Links).
