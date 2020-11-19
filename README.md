@@ -26,7 +26,7 @@ Most props are not required and have sensible defaults built in, as listed below
 | Prop Name | Type | Is Required | Description | Default |
 | --------- | ---- | ----------- | ----------- | ------- |
 | data | array | true | An array of objects representing the metrics to display in hGraph (see [below](#metrics)) | N/A |
-| score | number | false | The overall score to display in the center of hGraph | N/A |
+| score | number | false | The overall score (hScore) to display in the center of hGraph | N/A |
 | width | number | false | The width in pixels hGraph should render at. | 600 |
 | height | number | false | The height in pixels hGraph should render at. | 600 |
 | margin | object | false | An object representing the values for margins around hGraph. | `{ top: 70, right: 100, bottom: 70, left: 100 }` |
@@ -45,7 +45,7 @@ Most props are not required and have sensible defaults built in, as listed below
 | pointLabelWrapWidth | number | false | The width (in pixels) that the point labels should wrap text at. | null (no wrapping) |
 | pointLabelOffset | number | false | The distance (in pixels) that point labels should be offset from the point. | 8 |
 | hitboxRadius | number | false | The radius (in pixels) of the point hitboxes. (hGraph overlays a transparent hitbox over each point which can help users accurately click/touch points, particularly on mobile devices.) | Defaults to `props.pointRadius` size. |
-| showScore | boolean | false | Whether or not to display the overall score in the middle of hGraph. | true |
+| showScore | boolean | false | Whether or not to display the overall score (hScore) in the middle of hGraph. | true |
 | scoreFontSize | number | false | The size (in pixels) of the font for the overall hGraph score | 120 |
 | scoreFontColor | string (hex color code) | false | The color of the hGraph score. | '#000' |
 | zoomFactor | number | false | The multiplier factor hGraph should zoom in. | 2.25 |
