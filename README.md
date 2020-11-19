@@ -87,6 +87,7 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 ## Notable Repos
 * A [React Native port is available](https://github.com/CitizenHealth/react-native-hgraph) from Citizen Health.
 * hGraph on FHIR (Fast Healthcare Interoperability Resources): [https://github.com/symptomatic/hgraph-on-fhir](https://github.com/symptomatic/hgraph-on-fhir)
+* hGraph + Spider chart [demo](https://goinvo.github.io/VisualizationComponents/), [repo](https://github.com/goinvo/VisualizationComponents)
 
 ## Project
 
