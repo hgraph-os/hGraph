@@ -7,7 +7,7 @@ hGraph is a [React](https://reactjs.org) component using [D3](https://d3js.org/)
 ## Demos
 [React Demo](https://hgraph-os.github.io/hgraph-react/)  
 [Patient Demo](https://www.hgraph.org/demo/)  
-[Hospital Demo](hospital.hgraph.org)
+[Hospital Demo](http://hospital.hgraph.org)
 
 ## Installation
 This package can be [found on npm](https://www.npmjs.com/package/hgraph-react) and installed like so:
