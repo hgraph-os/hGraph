@@ -5,7 +5,7 @@ hGraph is a [React](https://reactjs.org) component using [D3](https://d3js.org/)
 ![hGraph](https://github.com/hgraph-os/hgraph-design/blob/main/hgraph.png)
 
 ## Demos
-[React Demo](https://hgraph-os.github.io/hgraph-react/)  
+[React Demo](https://hgraph-os.github.io/hGraph/)  
 [Patient Demo](https://www.hgraph.org/demo/)  
 [Hospital Demo](http://hospital.hgraph.org)
 
