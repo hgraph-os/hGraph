@@ -1,8 +1,13 @@
 # [hGraph](https://www.hgraph.org): Your health in one picture.
 hGraph is an open source javascript library for visualizing health data.  
-hGraph is a [React](https://reactjs.org) component using [D3](https://d3js.org/). A [React Native port is available](https://github.com/CitizenHealth/react-native-hgraph) from [Citizen Health](https://citizenhealth.io/).
+hGraph is a [React](https://reactjs.org) component using [D3](https://d3js.org/).
 
 ![hGraph](https://github.com/hgraph-os/hgraph-design/blob/main/hgraph.png)
+
+## Demos
+[React Demo](https://hgraph-os.github.io/hgraph-react/)  
+[Patient Demo](https://www.hgraph.org/demo/)  
+[Hospital Demo](hospital.hgraph.org)
 
 ## Installation
 This package can be [found on npm](https://www.npmjs.com/package/hgraph-react) and installed like so:
@@ -79,10 +84,9 @@ For development and demo’s, we’ve used [Synthea](https://synthetichealth.git
 
 (steps to include coming)
 
-## Demos
-[React Demo](https://hgraph-os.github.io/hgraph-react/)  
-[Patient Demo](https://www.hgraph.org/demo/)  
-[Hospital Demo](hospital.hgraph.org)
+## Notable Repos
+* A [React Native port is available](https://github.com/CitizenHealth/react-native-hgraph) from Citizen Health.
+* hGraph on FHIR (Fast Healthcare Interoperability Resources): [https://github.com/symptomatic/hgraph-on-fhir](https://github.com/symptomatic/hgraph-on-fhir)
 
 ## Project
 
