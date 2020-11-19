@@ -1,0 +1,724 @@
+[
+  {
+    "gender": "male",
+    "metrics": [
+
+    {
+        "name" : "Total Cholesterol",
+        "details" : [
+          {
+            "name": "LDL",
+            "features": {
+              "healthyrange": [
+                50,
+                130
+              ],
+              "totalrange": [
+                0,
+                300
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 9,
+              "unitlabel": "mg/dl"
+            }
+          },
+          {
+            "name": "HDL",
+            "features": {
+              "healthyrange": [
+                40,
+                60
+              ],
+              "totalrange": [
+                0,
+                150
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 9,
+              "unitlabel": "mg/dl"
+            }
+          },
+          {
+            "name": "Triglycerides",
+            "features": {
+              "healthyrange": [
+                70,
+                150
+              ],
+              "totalrange": [
+                0,
+                300
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 3,
+              "unitlabel": "mg/dl"
+            }
+        }]
+      },
+
+      {
+      "name" : "Blood Pressure",
+      "details" : [
+          {
+            "name": "Blood Pressure Systolic",
+            "features": {
+              "healthyrange": [
+                99,
+                148
+              ],
+              "totalrange": [
+                50,
+                230
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 5,
+              "unitlabel": "mm/Hg"
+            }
+          },
+          {
+            "name": "Blood Pressure Diastolic",
+            "features": {
+              "healthyrange": [
+                65,
+                95
+              ],
+              "totalrange": [
+                35,
+                140
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 5,
+              "unitlabel": "mm/Hg"
+            }
+          }]
+        },
+              {
+        "name": "Alcohol",
+        "features": {
+          "healthyrange": [
+            0,
+            1
+          ],
+          "totalrange": [
+            0,
+            20
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "drinks/week"
+        }
+      },
+            {
+        "name": "Smoking",
+        "features": {
+          "healthyrange": [
+            0,
+            1
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "cigarettes/day"
+        }
+      },
+            {
+        "name": "Pain",
+        "features": {
+          "healthyrange": [
+            0,
+            4
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 3,
+          "unitlabel": "pain scale"
+        }
+      },
+            {
+        "name": "Waist Circumference",
+        "features": {
+          "healthyrange": [
+            30,
+            34.5
+          ],
+          "totalrange": [
+            0,
+            200
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 10,
+          "unitlabel": "inches"
+        }
+      },
+            {
+            "name": "Weight",
+            "features": {
+              "healthyrange": [
+                170,
+                205
+              ],
+              "totalrange": [
+                50,
+                400
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 9,
+              "unitlabel": "lbs"
+            }
+          },
+
+                {
+        "name": "Exercise",
+        "features": {
+          "healthyrange": [
+            3,
+            12
+          ],
+          "totalrange": [
+            0,
+            60
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "hours/week"
+        }
+      },
+      {
+        "name": "Sleep",
+        "features": {
+          "healthyrange": [
+            7.1,
+            8
+          ],
+          "totalrange": [
+            0,
+            18
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "hours/night"
+        }
+      },
+      {
+        "name": "Happiness",
+        "features": {
+          "healthyrange": [
+            6,
+            10
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 3,
+          "unitlabel": "happiness scale"
+        }
+      },
+      {
+        "name": "Glucose",
+        "features": {
+          "healthyrange": [
+            61,
+            100
+          ],
+          "totalrange": [
+            0,
+            160
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 10,
+          "unitlabel": "mg/dl"
+        }
+      }
+    ]
+  },
+  {
+   "gender": "female",
+   "metrics": [
+
+   {
+       "name" : "Total Cholesterol",
+       "details" : [
+         {
+           "name": "LDL",
+           "features": {
+             "healthyrange": [
+               50,
+               130
+             ],
+             "totalrange": [
+               0,
+               300
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 9,
+             "unitlabel": "mg/dl"
+           }
+         },
+         {
+           "name": "HDL",
+           "features": {
+             "healthyrange": [
+               40,
+               60
+             ],
+             "totalrange": [
+               0,
+               150
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 9,
+             "unitlabel": "mg/dl"
+           }
+         },
+         {
+           "name": "Triglycerides",
+           "features": {
+             "healthyrange": [
+               70,
+               150
+             ],
+             "totalrange": [
+               0,
+               300
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 3,
+             "unitlabel": "mg/dl"
+           }
+       }]
+     },
+
+     {
+     "name" : "Blood Pressure",
+     "details" : [
+         {
+           "name": "Blood Pressure Systolic",
+           "features": {
+             "healthyrange": [
+               99,
+               148
+             ],
+             "totalrange": [
+               50,
+               230
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 5,
+             "unitlabel": "mm/Hg"
+           }
+         },
+         {
+           "name": "Blood Pressure Diastolic",
+           "features": {
+             "healthyrange": [
+               90,
+               120
+             ],
+             "totalrange": [
+               0,
+               200
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 5,
+             "unitlabel": "mm/Hg"
+           }
+         }]
+       },
+             {
+       "name": "Alcohol",
+       "features": {
+         "healthyrange": [
+           0,
+           7
+         ],
+         "totalrange": [
+           0,
+           36
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 5,
+         "unitlabel": "drinks/week"
+       }
+     },
+           {
+       "name": "Smoking",
+       "features": {
+         "healthyrange": [
+           0,
+           1
+         ],
+         "totalrange": [
+           0,
+           80
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 5,
+         "unitlabel": "cigarettes/day"
+       }
+     },
+           {
+       "name": "Pain",
+       "features": {
+         "healthyrange": [
+           0,
+           4
+         ],
+         "totalrange": [
+           0,
+           10
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 3,
+         "unitlabel": "pain scale"
+       }
+     },
+           {
+       "name": "Waist Circumference",
+       "features": {
+         "healthyrange": [
+           0,
+           32
+         ],
+         "totalrange": [
+           0,
+           200
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 10,
+         "unitlabel": "inches"
+       }
+     },
+           {
+           "name": "Weight",
+           "features": {
+             "healthyrange": [
+               115,
+               150
+             ],
+             "totalrange": [
+               50,
+               400
+             ],
+             "boundayflags": [
+               false,
+               true
+             ],
+             "weight": 9,
+             "unitlabel": "lbs"
+           }
+         },
+
+               {
+       "name": "Exercise",
+       "features": {
+         "healthyrange": [
+           3,
+           12
+         ],
+         "totalrange": [
+           0,
+           60
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 5,
+         "unitlabel": "hours/week"
+       }
+     },
+     {
+       "name": "Sleep",
+       "features": {
+         "healthyrange": [
+           7.1,
+           10
+         ],
+         "totalrange": [
+           0,
+           18
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 5,
+         "unitlabel": "hours/night"
+       }
+     },
+     {
+       "name": "Happiness",
+       "features": {
+         "healthyrange": [
+           6,
+           10
+         ],
+         "totalrange": [
+           0,
+           10
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 3,
+         "unitlabel": "happiness scale"
+       }
+     },
+     {
+       "name": "Glucose",
+       "features": {
+         "healthyrange": [
+           70,
+           100
+         ],
+         "totalrange": [
+           0,
+           400
+         ],
+         "boundayflags": [
+           false,
+           true
+         ],
+         "weight": 10,
+         "unitlabel": "mg/dl"
+       }
+     }
+   ]
+ },
+     {
+    "gender": "child",
+    "metrics": [
+              {
+        "name": "Alcohol",
+        "features": {
+          "healthyrange": [
+            0,
+            1
+          ],
+          "totalrange": [
+            0,
+            20
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "drinks/week"
+        }
+      },
+            {
+        "name": "Smoking",
+        "features": {
+          "healthyrange": [
+            0,
+            1
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "cigarettes/day"
+        }
+      },
+            {
+        "name": "Pain",
+        "features": {
+          "healthyrange": [
+            0,
+            4
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 3,
+          "unitlabel": "pain scale"
+        }
+      },
+            {
+        "name": "Waist Circumference",
+        "features": {
+          "healthyrange": [
+            12,
+            20
+          ],
+          "totalrange": [
+            0,
+            80
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 10,
+          "unitlabel": "inches"
+        }
+      },
+            {
+            "name": "Weight",
+            "features": {
+              "healthyrange": [
+                30,
+                60
+              ],
+              "totalrange": [
+                10,
+                120
+              ],
+              "boundayflags": [
+                false,
+                true
+              ],
+              "weight": 9,
+              "unitlabel": "lbs"
+            }
+          },
+
+                {
+        "name": "Exercise",
+        "features": {
+          "healthyrange": [
+            0,
+            14
+          ],
+          "totalrange": [
+            0,
+            14
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "hours/week"
+        }
+      },
+      {
+        "name": "Sleep",
+        "features": {
+          "healthyrange": [
+            11.1,
+            13
+          ],
+          "totalrange": [
+            0,
+            18
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 5,
+          "unitlabel": "hours/night"
+        }
+      },
+      {
+        "name": "Happiness",
+        "features": {
+          "healthyrange": [
+            6,
+            10
+          ],
+          "totalrange": [
+            0,
+            10
+          ],
+          "boundayflags": [
+            false,
+            true
+          ],
+          "weight": 3,
+          "unitlabel": "happiness scale"
+        }
+      }
+    ]
+  }
+]
