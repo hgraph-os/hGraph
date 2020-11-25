@@ -108,7 +108,7 @@ See the [contributing guidelines](https://github.com/hgraph-os/hGraph/blob/maste
 Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio in Boston, crafting the future of healthcare through strategy, creativity, and vision.
 
 ### Contact Us
-[hgraph@goinvo.com](mailto:hgraph@goinvo.com)
+[hgraph@goinvo.com](mailto:hgraph@goinvo.com)  
 Open Office Hours: [https://calendly.com/goinvo/hgraph-open-office-hours](https://calendly.com/goinvo/hgraph-open-office-hours)
 
 ### License
