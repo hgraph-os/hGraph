@@ -109,7 +109,7 @@ Founders/Designers: [GoInvo](http://www.goinvo.com) is a digital design studio i
 
 ### Contact Us
 [hgraph@goinvo.com](mailto:hgraph@goinvo.com)  
-Open Office Hours: [https://calendly.com/goinvo/hgraph-open-office-hours](https://calendly.com/goinvo/hgraph-open-office-hours)
+[Open Office Hours](https://calendly.com/goinvo/hgraph-open-office-hours)
 
 ### License
 hGraph is [Apache 2.0](https://github.com/goinvo/hGraph/blob/master/LICENSE) licensed.
